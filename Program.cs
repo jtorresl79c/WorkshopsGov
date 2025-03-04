@@ -6,11 +6,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using WorkshopsGov.Models;
+using DotNetEnv;
+
+Env.Load(); // Carga las variables desde el archivo .env
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("PostgresqlConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+string dbUrl = Environment.GetEnvironmentVariable("POSTGRESQL_CONNECTION") ?? throw new InvalidOperationException("POSTGRESQL_CONNECTION not found.");
+var connectionString = dbUrl ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString)
 );
@@ -38,9 +42,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 /////////////// JWT
-builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("JwtConfig"));
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? throw new InvalidOperationException("JWT_SECRET not found.");
+var jwtExpiry = Environment.GetEnvironmentVariable("JWT_EXPIRY_TIME_FRAME") ?? throw new InvalidOperationException("JWT_EXPIRY_TIME_FRAME not found.");
+builder.Services.Configure<JwtConfig>(options =>
+{
+    options.Secret = jwtSecret;
+    options.ExpiryTimeFrame = TimeSpan.Parse(jwtExpiry);
+});
 
-var key = Encoding.ASCII.GetBytes(builder.Configuration.GetSection("JwtConfig:Secret").Value);
+var key = Encoding.ASCII.GetBytes(jwtSecret);
 var tokenValidationParameter = new TokenValidationParameters()
 {
     ValidateIssuerSigningKey = true,
@@ -79,7 +89,6 @@ if (app.Environment.IsDevelopment())
         context.SeedData();
     }
 }
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()) // Si la aplicación se está ejecutando en un entorno de desarrollo, se utiliza el MigrationsEndPoint, que permite aplicar migraciones de base de datos
