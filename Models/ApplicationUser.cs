@@ -16,7 +16,7 @@ public class ApplicationUser : IdentityUser
     public string PaternalLastName { get; set; } = string.Empty;
     [MaxLength(255)]
     public string MaternalLastName { get; set; } = string.Empty;
-    
     public int? DepartmentId { get; set; }  // Clave foránea
     public Department? Department { get; set; }  // Propiedad de navegación
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 }
