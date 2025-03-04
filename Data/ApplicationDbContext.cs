@@ -10,6 +10,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
     
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Sector> Sectors { get; set; }
     public DbSet<Department> Departments { get; set; }
     public DbSet<Brand> Brands { get; set; }
@@ -116,6 +117,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany(ew => ew.ExternalWorkshopBranches)
             .HasForeignKey(ewb => ewb.ExternalWorkshopId)
             .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<RefreshToken>()
+            .HasOne(rt => rt.ApplicationUser)
+            .WithMany(u => u.RefreshTokens)
+            .HasForeignKey(rt => rt.ApplicationUserId)
+            .OnDelete(DeleteBehavior.Cascade); // Cambia a Restrict si no quieres eliminación en cascada
     }
     
     public override int SaveChanges()
