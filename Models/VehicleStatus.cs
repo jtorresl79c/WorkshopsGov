@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WorkshopsGov.Models.Common;
 
 namespace WorkshopsGov.Models
 {
-    public class VehicleStatus
+    public class VehicleStatus : AuditableEntityBase
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using WorkshopsGov.Models;
 using Microsoft.EntityFrameworkCore.Metadata;
+using WorkshopsGov.Models.Common;
 
 namespace WorkshopsGov.Data;
 
@@ -115,6 +116,35 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany(ew => ew.ExternalWorkshopBranches)
             .HasForeignKey(ewb => ewb.ExternalWorkshopId)
             .OnDelete(DeleteBehavior.Restrict);
+    }
+    
+    public override int SaveChanges()
+    {
+        SetAuditFields();
+        return base.SaveChanges();
+    }
+    
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        SetAuditFields();
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+    
+    private void SetAuditFields()
+    {
+        var entries = ChangeTracker.Entries()
+            .Where(e => e.Entity is AuditableEntityBase && (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+        foreach (var entry in entries)
+        {
+            var entity = (AuditableEntityBase)entry.Entity;
+            entity.UpdatedAt = DateTime.UtcNow;
+
+            if (entry.State == EntityState.Added)
+            {
+                entity.CreatedAt = DateTime.UtcNow;
+            }
+        }
     }
     
     public void SeedData()
