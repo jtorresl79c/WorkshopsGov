@@ -15,6 +15,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Department> Departments { get; set; }
     public DbSet<Brand> Brands { get; set; }
     public DbSet<ExternalWorkshop> ExternalWorkshops { get; set; }
+    public DbSet<ExternalWorkshopBranch> ExternalWorkshopBranches { get; set; }
     public DbSet<VehicleStatus> VehicleStatuses { get; set; }
     public DbSet<VehicleType> VehicleTypes { get; set; }
     public DbSet<VehicleFailure> VehicleFailures { get; set; }
@@ -182,8 +183,17 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     
     public void SeedData()
     {
+        Seeders.BrandSeeder.Seed(this);
         Seeders.SectorSeeder.Seed(this);
+        Seeders.ExternalWorkshopSeeder.Seed(this);
+        Seeders.VehicleStatusSeeder.Seed(this);
+        Seeders.VehicleTypeSeeder.Seed(this);
+        Seeders.VehicleFailureSeeder.Seed(this);
+        Seeders.DiagnosticServiceStatusSeeder.Seed(this);
+        Seeders.DiagnosticStatusSeeder.Seed(this);
+        Seeders.VehicleModelSeeder.Seed(this);
         Seeders.DepartmentSeeder.Seed(this);
+        Seeders.ExternalWorkshopBranchSeeder.Seed(this);
         Seeders.ApplicationUserSeeder.Seed(this);
         // Añade más seeders aquí según sea necesario
     }
