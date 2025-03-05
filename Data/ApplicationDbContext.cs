@@ -131,6 +131,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<ApplicationUser>()
             .Property(u => u.UpdatedAt)
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
+        
+        modelBuilder.Entity<ApplicationUser>()
+            .Property(u => u.Active)
+            .HasDefaultValue(true) // Valor por defecto en BD
+            .IsRequired(); // Asegura que no sea NULL
     }
     
     public override int SaveChanges()
