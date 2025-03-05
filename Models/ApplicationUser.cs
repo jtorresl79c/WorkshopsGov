@@ -19,4 +19,6 @@ public class ApplicationUser : IdentityUser
     public int? DepartmentId { get; set; }  // Clave foránea
     public Department? Department { get; set; }  // Propiedad de navegación
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }
