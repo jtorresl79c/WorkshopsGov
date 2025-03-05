@@ -123,6 +123,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany(u => u.RefreshTokens)
             .HasForeignKey(rt => rt.ApplicationUserId)
             .OnDelete(DeleteBehavior.Cascade); // Cambia a Restrict si no quieres eliminación en cascada
+        
+        modelBuilder.Entity<ApplicationUser>()
+            .Property(u => u.CreatedAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+        modelBuilder.Entity<ApplicationUser>()
+            .Property(u => u.UpdatedAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
     }
     
     public override int SaveChanges()
@@ -140,16 +148,29 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     private void SetAuditFields()
     {
         var entries = ChangeTracker.Entries()
-            .Where(e => e.Entity is AuditableEntityBase && (e.State == EntityState.Added || e.State == EntityState.Modified));
+            .Where(e => 
+                (e.Entity is AuditableEntityBase || e.Entity is ApplicationUser) &&
+                (e.State == EntityState.Added || e.State == EntityState.Modified));
 
         foreach (var entry in entries)
         {
-            var entity = (AuditableEntityBase)entry.Entity;
-            entity.UpdatedAt = DateTime.UtcNow;
-
-            if (entry.State == EntityState.Added)
+            if (entry.Entity is AuditableEntityBase entity)
             {
-                entity.CreatedAt = DateTime.UtcNow;
+                entity.UpdatedAt = DateTime.UtcNow;
+
+                if (entry.State == EntityState.Added)
+                {
+                    entity.CreatedAt = DateTime.UtcNow;
+                }
+            }
+            else if (entry.Entity is ApplicationUser user)
+            {
+                user.UpdatedAt = DateTime.UtcNow;
+
+                if (entry.State == EntityState.Added)
+                {
+                    user.CreatedAt = DateTime.UtcNow;
+                }
             }
         }
     }
