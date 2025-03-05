@@ -22,6 +22,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<DiagnosticServiceStatus> DiagnosticServiceStatuses { get; set; }
     public DbSet<DiagnosticStatus> DiagnosticStatuses { get; set; }
     public DbSet<VehicleModel> VehicleModels { get; set; }
+    public DbSet<Vehicle> Vehicles { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -137,6 +138,81 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .Property(u => u.Active)
             .HasDefaultValue(true) // Valor por defecto en BD
             .IsRequired(); // Asegura que no sea NULL
+        
+        // Nuevo
+        modelBuilder.Entity<Vehicle>()
+        .Property(v => v.Oficialia)
+        .HasDefaultValue(string.Empty)
+        .IsRequired();
+
+        modelBuilder.Entity<Vehicle>()
+            .Property(v => v.LicensePlate)
+            .HasDefaultValue(string.Empty)
+            .IsRequired();
+
+        modelBuilder.Entity<Vehicle>()
+            .Property(v => v.VinNumber)
+            .HasDefaultValue(string.Empty)
+            .IsRequired();
+
+        modelBuilder.Entity<Vehicle>()
+            .Property(v => v.Description)
+            .HasDefaultValue(string.Empty)
+            .IsRequired();
+
+        modelBuilder.Entity<Vehicle>()
+            .Property(v => v.Engine)
+            .HasDefaultValue(string.Empty)
+            .IsRequired();
+
+        modelBuilder.Entity<Vehicle>()
+            .Property(v => v.Active)
+            .HasDefaultValue(true)
+            .IsRequired();
+
+        modelBuilder.Entity<Vehicle>()
+            .HasIndex(v => v.LicensePlate)
+            .IsUnique();
+
+        modelBuilder.Entity<Vehicle>()
+            .HasIndex(v => v.VinNumber)
+            .IsUnique();
+
+        modelBuilder.Entity<Vehicle>()
+            .HasOne(v => v.Department)
+            .WithMany(d => d.Vehicles)
+            .HasForeignKey(v => v.DepartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Vehicle>()
+            .HasOne(v => v.VehicleStatus)
+            .WithMany()
+            .HasForeignKey(v => v.VehicleStatusId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Vehicle>()
+            .HasOne(v => v.Brand)
+            .WithMany()
+            .HasForeignKey(v => v.BrandId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Vehicle>()
+            .HasOne(v => v.Model)
+            .WithMany()
+            .HasForeignKey(v => v.ModelId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Vehicle>()
+            .HasOne(v => v.Sector)
+            .WithMany()
+            .HasForeignKey(v => v.SectorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Vehicle>()
+            .HasOne(v => v.VehicleType)
+            .WithMany()
+            .HasForeignKey(v => v.VehicleTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
     
     public override int SaveChanges()
@@ -195,6 +271,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         Seeders.DepartmentSeeder.Seed(this);
         Seeders.ExternalWorkshopBranchSeeder.Seed(this);
         Seeders.ApplicationUserSeeder.Seed(this);
+        Seeders.VehicleSeeder.Seed(this);
         // Añade más seeders aquí según sea necesario
     }
     
