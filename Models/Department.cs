@@ -23,4 +23,5 @@ public class Department : AuditableEntityBase
 
     // Relación con los usuarios
     public ICollection<ApplicationUser>? Users { get; set; }
+    public ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
 }
