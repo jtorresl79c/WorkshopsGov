@@ -23,6 +23,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<DiagnosticStatus> DiagnosticStatuses { get; set; }
     public DbSet<VehicleModel> VehicleModels { get; set; }
     public DbSet<Vehicle> Vehicles { get; set; }
+    public DbSet<DiagnosticPart> DiagnosticParts { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -213,6 +214,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany()
             .HasForeignKey(v => v.VehicleTypeId)
             .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<DiagnosticPart>()
+            .Property(dp => dp.Active)
+            .IsRequired()
+            .HasDefaultValue(true);
+
+        modelBuilder.Entity<DiagnosticPart>()
+            .Property(dp => dp.Name)
+            .IsRequired()
+            .HasMaxLength(255);
     }
     
     public override int SaveChanges()
@@ -265,6 +276,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         Seeders.VehicleStatusSeeder.Seed(this);
         Seeders.VehicleTypeSeeder.Seed(this);
         Seeders.VehicleFailureSeeder.Seed(this);
+        Seeders.DiagnosticPartSeeder.Seed(this);
         Seeders.DiagnosticServiceStatusSeeder.Seed(this);
         Seeders.DiagnosticStatusSeeder.Seed(this);
         Seeders.VehicleModelSeeder.Seed(this);
