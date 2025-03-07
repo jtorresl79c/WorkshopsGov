@@ -24,6 +24,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<VehicleModel> VehicleModels { get; set; }
     public DbSet<Vehicle> Vehicles { get; set; }
     public DbSet<DiagnosticPart> DiagnosticParts { get; set; }
+    public DbSet<Diagnostic> Diagnostics { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -224,6 +225,71 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .Property(dp => dp.Name)
             .IsRequired()
             .HasMaxLength(255);
+        
+        // Relación muchos a muchos entre Diagnostic y VehicleFailure sin modelo intermedio
+        modelBuilder.Entity<Diagnostic>()
+            .HasMany(d => d.VehicleFailures)
+            .WithMany(vf => vf.Diagnostics)
+            .UsingEntity<Dictionary<string, object>>(
+                "DiagnosticVehicleFailure", // Nombre de la tabla intermedia
+                j => j.HasOne<VehicleFailure>()
+                    .WithMany()
+                    .HasForeignKey("VehicleFailureId")
+                    .OnDelete(DeleteBehavior.Cascade),
+                j => j.HasOne<Diagnostic>()
+                    .WithMany()
+                    .HasForeignKey("DiagnosticId")
+                    .OnDelete(DeleteBehavior.Cascade)
+            );
+        
+        // Asegurar que los campos Required sean NOT NULL en la BD
+        modelBuilder.Entity<Diagnostic>()
+            .Property(d => d.MemoNumber)
+            .IsRequired();
+
+        modelBuilder.Entity<Diagnostic>()
+            .Property(d => d.DiagnosticDate)
+            .IsRequired();
+
+        modelBuilder.Entity<Diagnostic>()
+            .Property(d => d.CheckInTime)
+            .IsRequired();
+
+        modelBuilder.Entity<Diagnostic>()
+            .Property(d => d.OperatorName)
+            .HasMaxLength(255)
+            .IsRequired();
+
+        modelBuilder.Entity<Diagnostic>()
+            .Property(d => d.DistanceUnit)
+            .HasMaxLength(50)
+            .IsRequired();
+
+        modelBuilder.Entity<Diagnostic>()
+            .Property(d => d.DistanceValue)
+            .IsRequired();
+
+        modelBuilder.Entity<Diagnostic>()
+            .Property(d => d.FuelLevel)
+            .IsRequired();
+
+        modelBuilder.Entity<Diagnostic>()
+            .Property(d => d.FailureReport)
+            .IsRequired();
+
+        modelBuilder.Entity<Diagnostic>()
+            .Property(d => d.VehicleFailureObservation)
+            .HasMaxLength(500)
+            .IsRequired();
+
+        modelBuilder.Entity<Diagnostic>()
+            .Property(d => d.Repairs)
+            .IsRequired();
+
+        modelBuilder.Entity<Diagnostic>()
+            .Property(d => d.MechanicName)
+            .HasMaxLength(255)
+            .IsRequired();
     }
     
     public override int SaveChanges()
@@ -284,6 +350,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         Seeders.ExternalWorkshopBranchSeeder.Seed(this);
         Seeders.ApplicationUserSeeder.Seed(this);
         Seeders.VehicleSeeder.Seed(this);
+        Seeders.DiagnosticSeeder.Seed(this);
+        Seeders.DiagnosticVehicleFailureSeeder.Seed(this);
         // Añade más seeders aquí según sea necesario
     }
     
