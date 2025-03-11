@@ -120,6 +120,21 @@ app.UseAuthentication(); ////// JWT
 app.UseAuthorization();
 
 app.MapControllers(); // Activa los endpoints de API
+
+//Redirigir Login como pagina inicial
+app.Use(async (context, next) =>
+{
+    var isAuthenticated = context.User?.Identity?.IsAuthenticated ?? false;
+
+    if (!isAuthenticated && context.Request.Path == "/")
+    {
+        context.Response.Redirect("/Identity/Account/Login");
+        return;
+    }
+
+    await next();
+});
+
 app.MapControllerRoute( // Configura las rutas MVC (HomeController, etc.).
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
