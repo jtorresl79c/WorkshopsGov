@@ -8,6 +8,8 @@ using System.Text;
 using WorkshopsGov.Models;
 using DotNetEnv;
 using WorkshopsGov.Seeders;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using WorkshopsGov.Services; // Asegúrate de importar el namespace
 
 Env.Load(); // Carga las variables desde el archivo .env
 
@@ -76,13 +78,21 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddSingleton(tokenValidationParameter);
 
-// builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
-//     .AddEntityFrameworkStores<ApplicationDbContext>();
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => 
-        options.SignIn.RequireConfirmedAccount = false)
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
+
+//builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
+//    .AddEntityFrameworkStores<ApplicationDbContext>();
+
+//MANDA UN ERROR AL MOMENTO DE REGISTRARSE HAY QUE VERIFICAR ESTA FUNCIONALIDAD
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders()
+.AddDefaultUI(); // ¡Esto es crucial para las páginas de Identity UI!
 //////////////////////////////////////////////////// JWT
+// Agrega esto antes de builder.Build();
+builder.Services.AddSingleton<IEmailSender, DummyEmailSender>();
 
 var app = builder.Build();
 
@@ -98,7 +108,7 @@ if (app.Environment.IsDevelopment())
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 
         await AspNetRolesSeeder.SeedAsync(roleManager);
-        
+
         BrandSeeder.Seed(context);
         SectorSeeder.Seed(context);
         ExternalWorkshopSeeder.Seed(context);
