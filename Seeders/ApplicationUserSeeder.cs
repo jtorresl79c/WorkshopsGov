@@ -1,53 +1,40 @@
-using WorkshopsGov.Models;
-using System.Linq;
 using Microsoft.AspNetCore.Identity;
-using WorkshopsGov.Data;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using WorkshopsGov.Models;
 
 namespace WorkshopsGov.Seeders
 {
     public static class ApplicationUserSeeder
     {
-        public static void Seed(ApplicationDbContext context)
+        public static async Task SeedAsync(UserManager<ApplicationUser> userManager)
         {
-            if (!context.Users.Any())
+            var users = new List<(string Email, string FirstName, string PaternalLastName, int DepartmentId, string Role)>
             {
-                var users = new ApplicationUser[]
-                {
-                    new ApplicationUser
-                    {
-                        UserName = "jdoe@example.com",
-                        NormalizedUserName = "JDOE@EXAMPLE.COM",
-                        Email = "jdoe@example.com",
-                        NormalizedEmail = "JDOE@EXAMPLE.COM",
-                        FirstName = "John",
-                        SecondName = "",
-                        PaternalLastName = "Doe",
-                        MaternalLastName = "",
-                        DepartmentId = 1,
-                        EmailConfirmed = true,
-                        PasswordHash = new PasswordHasher<ApplicationUser>().HashPassword(new ApplicationUser(), "Password123!")
-                    },
-                    new ApplicationUser
-                    {
-                        UserName = "asmith@example.com",
-                        NormalizedUserName = "ASMITH@EXAMPLE.COM",
-                        Email = "asmith@example.com",
-                        NormalizedEmail = "ASMITH@EXAMPLE.COM",
-                        FirstName = "Alice",
-                        SecondName = "",
-                        PaternalLastName = "Smith",
-                        MaternalLastName = "",
-                        DepartmentId = 2,
-                        EmailConfirmed = true,
-                        PasswordHash = new PasswordHasher<ApplicationUser>().HashPassword(new ApplicationUser(), "Password123!")
-                    }
-                };
+                ("jdoe@example.com", "John", "Doe", 1, "Verifier"),
+                ("asmith@example.com", "Alice", "Smith", 2, "Administrator")
+            };
 
-                foreach (var user in users)
+            foreach (var (email, firstName, lastName, departmentId, role) in users)
+            {
+                if (await userManager.FindByEmailAsync(email) == null)
                 {
-                    context.Users.Add(user);
+                    var user = new ApplicationUser
+                    {
+                        UserName = email,
+                        Email = email,
+                        FirstName = firstName,
+                        PaternalLastName = lastName,
+                        DepartmentId = departmentId,
+                        EmailConfirmed = true
+                    };
+
+                    var result = await userManager.CreateAsync(user, "Password123!");
+                    if (result.Succeeded)
+                    {
+                        await userManager.AddToRoleAsync(user, role);
+                    }
                 }
-                context.SaveChanges();
             }
         }
     }
