@@ -334,27 +334,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         }
     }
     
-    public void SeedData()
-    {
-        Seeders.BrandSeeder.Seed(this);
-        Seeders.SectorSeeder.Seed(this);
-        Seeders.ExternalWorkshopSeeder.Seed(this);
-        Seeders.VehicleStatusSeeder.Seed(this);
-        Seeders.VehicleTypeSeeder.Seed(this);
-        Seeders.VehicleFailureSeeder.Seed(this);
-        Seeders.DiagnosticPartSeeder.Seed(this);
-        Seeders.DiagnosticServiceStatusSeeder.Seed(this);
-        Seeders.DiagnosticStatusSeeder.Seed(this);
-        Seeders.VehicleModelSeeder.Seed(this);
-        Seeders.DepartmentSeeder.Seed(this);
-        Seeders.ExternalWorkshopBranchSeeder.Seed(this);
-        Seeders.ApplicationUserSeeder.Seed(this);
-        Seeders.VehicleSeeder.Seed(this);
-        Seeders.DiagnosticSeeder.Seed(this);
-        Seeders.DiagnosticVehicleFailureSeeder.Seed(this);
-        // Añade más seeders aquí según sea necesario
-    }
-    
     // Función para convertir nombres a snake_case
     private static string ToSnakeCase(string name)
     {
