@@ -99,7 +99,7 @@
                         </a>
                         <ul class="sub-nav collapse" id="sidebar-user" data-bs-parent="#sidebar-menu">
                             <li class="nav-item">
-                                <a class="nav-link" href="/Taller">
+                                <a class="nav-link" href="/ExternalWorkshops">
                                     <i class="icon">
                                         <svg class="icon-10" xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24" fill="currentColor">
                                             <g>
@@ -109,19 +109,6 @@
                                     </i>
                                     <i class="sidenav-mini-icon"> U </i>
                                     <span class="item-name">Padron</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/Taller/Create">
-                                    <i class="icon">
-                                        <svg class="icon-10" xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24" fill="currentColor">
-                                            <g>
-                                                <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
-                                            </g>
-                                        </svg>
-                                    </i>
-                                    <i class="sidenav-mini-icon"> A </i>
-                                    <span class="item-name">Agregar nuevo</span>
                                 </a>
                             </li>
                         </ul>
@@ -161,6 +148,18 @@
                                     <span class="item-name">Alta Vehiculo</span>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/Brand">
+                                    <i class="icon">
+                                        <svg class="icon-10" xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24" fill="currentColor">
+                                            <g>
+                                                <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
+                                            </g>
+                                        </svg>
+                                    </i>
+                                    <span class="item-name">Marcas</span>
+                                </a>
+                            </li>
                         </ul>
                     </li>
                     <li class="nav-item">
@@ -168,6 +167,45 @@
                             <i class="bi bi-calendar-week-fill"></i>
                             <span class="item-name">Reportes</span>
                         </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-diagnostic" role="button" aria-expanded="false" aria-controls="sidebar-diagnostic">
+                            <i class="bi bi-ui-checks"></i>
+                            <span class="item-name">Configuración</span>
+                            <i class="right-icon">
+                                <svg class="icon-18" xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </i>
+                        </a>
+                        <ul class="sub-nav collapse" id="sidebar-diagnostic" data-bs-parent="#sidebar-menu">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/DiagnosticParts">
+                                    <i class="icon">
+                                        <svg class="icon-10" xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24" fill="currentColor">
+                                            <g>
+                                                <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
+                                            </g>
+                                        </svg>
+                                    </i>
+                                    <i class="sidenav-mini-icon"> U </i>
+                                    <span class="item-name">Catálogo de fallas</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/Sectors">
+                                    <i class="icon">
+                                        <svg class="icon-10" xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24" fill="currentColor">
+                                            <g>
+                                                <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
+                                            </g>
+                                        </svg>
+                                    </i>
+                                    <i class="sidenav-mini-icon"> U </i>
+                                    <span class="item-name">Sectores</span>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     <li><hr class="hr-horizontal"></li>
                     <li class="nav-item static-item">
@@ -277,6 +315,7 @@
                                 <li><hr class="dropdown-divider"></li>*@
                                     <form class="dropdown-item" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
                                         <button type="submit" class="nav-link btn btn-link text-dark">Cerrar</button>
+                                        @Html.AntiForgeryToken()
                                     </form>
                                   @*   <li><a class="dropdown-item" href="@Url.Action("CerrarSesion", "Login")">Cerrar</a></li> *@
                                 </ul>
@@ -321,7 +360,9 @@
             }
         </div>
         <container data-bs-target="#elements-section" data-bs-offset="0" tabindex="0">
-          @RenderBody()
+            <div class="container-fluid mt-n5 py-0">
+                 @RenderBody()
+             </div>
         </container>
     </main>
 
