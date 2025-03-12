@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using WorkshopsGov.Models;
 using DotNetEnv;
+using WorkshopsGov.Seeders;
 
 Env.Load(); // Carga las variables desde el archivo .env
 
@@ -22,6 +23,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // Permite usar vistas normales (MVC) y APIs con [ApiController]
 builder.Services.AddControllersWithViews(); // builder.Services.AddMvc();
+builder.Services.AddRazorPages();
 
 // Habilita Swagger para documentar y probar las APIs
 // Con esto, puedes usar https://localhost:5001/swagger para probar tus APIs y seguir desarrollando la interfaz con
@@ -74,8 +76,12 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddSingleton(tokenValidationParameter);
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+// builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
+//     .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => 
+        options.SignIn.RequireConfirmedAccount = false)
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 //////////////////////////////////////////////////// JWT
 
 var app = builder.Build();
@@ -85,8 +91,30 @@ if (app.Environment.IsDevelopment())
 {
     using (var scope = app.Services.CreateScope())
     {
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        context.SeedData();
+        var services = scope.ServiceProvider;
+        
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+
+        await AspNetRolesSeeder.SeedAsync(roleManager);
+        
+        BrandSeeder.Seed(context);
+        SectorSeeder.Seed(context);
+        ExternalWorkshopSeeder.Seed(context);
+        VehicleStatusSeeder.Seed(context);
+        VehicleTypeSeeder.Seed(context);
+        VehicleFailureSeeder.Seed(context);
+        DiagnosticPartSeeder.Seed(context);
+        DiagnosticServiceStatusSeeder.Seed(context);
+        DiagnosticStatusSeeder.Seed(context);
+        VehicleModelSeeder.Seed(context);
+        DepartmentSeeder.Seed(context);
+        await ApplicationUserSeeder.SeedAsync(userManager);
+        ExternalWorkshopBranchSeeder.Seed(context);
+        VehicleSeeder.Seed(context);
+        DiagnosticSeeder.Seed(context);
+        DiagnosticVehicleFailureSeeder.Seed(context);
     }
 }
 
