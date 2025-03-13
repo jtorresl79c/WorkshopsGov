@@ -15,35 +15,31 @@
 
         <div class="table-responsive mt-4">
             <table class="table table-striped mb-0">
-    <thead>
-        <tr>
-            <th>Descripción </th>
-            <th>Activo</th>
-            <th>Fecha de Creacion</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Active)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.Id"><i class="bi bi-folder-fill"></i></a> |
-                <a asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a> |
-                <a asp-action="Delete" asp-route-id="@item.Id"><i class="bi bi-trash-fill"></i></a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+                <thead>
+                    <tr>
+                        <th>Descripción </th>
+                        <th>Activo</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Active)
+                            </td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a> |
+                                <a asp-action="Delete" asp-route-id="@item.Id"><i class="bi bi-trash-fill"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
