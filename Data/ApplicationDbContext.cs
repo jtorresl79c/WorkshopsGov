@@ -339,6 +339,21 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany()
             .HasForeignKey(f => f.ApplicationUserId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<Inspection>()
+            .HasMany(i => i.Files)
+            .WithMany(f => f.Inspections)
+            .UsingEntity<Dictionary<string, object>>(
+                "inspection_file", // 🔹 Nombre de la tabla intermedia
+                j => j.HasOne<File>()
+                    .WithMany()
+                    .HasForeignKey("FileId")
+                    .OnDelete(DeleteBehavior.Cascade),
+                j => j.HasOne<Inspection>()
+                    .WithMany()
+                    .HasForeignKey("InspectionId")
+                    .OnDelete(DeleteBehavior.Cascade)
+            );
     }
     
     public override int SaveChanges()
