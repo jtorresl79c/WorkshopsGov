@@ -1,0 +1,179 @@
+﻿@model WorkshopsGov.Models.Inspection
+
+@{
+    ViewData["Title"] = "Crear Inspección";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+            <a asp-action="Index">Inspecciones</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Agregar nueva inspección</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-sm-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="MemoNumber" class="control-label">Número de Memo</label>
+                                <input asp-for="MemoNumber" class="form-control" />
+                                <span asp-validation-for="MemoNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="InspectionDate" class="control-label">Fecha de Inspección</label>
+                                <input asp-for="InspectionDate" type="date" class="form-control" />
+                                <span asp-validation-for="InspectionDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="CheckInTime" class="control-label">Hora de Ingreso</label>
+                                <input asp-for="CheckInTime" type="time" class="form-control" />
+                                <span asp-validation-for="CheckInTime" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="OperatorName" class="control-label">Operador</label>
+                                <input asp-for="OperatorName" class="form-control" />
+                                <span asp-validation-for="OperatorName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <input type="hidden" asp-for="ApplicationUserId" value="@ViewBag.CurrentUserId" />
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="InspectionServiceId" class="control-label">Tipo de Servicio</label>
+                                <select asp-for="InspectionServiceId" class="form-control" asp-items="ViewBag.InspectionServiceId"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="VehicleId" class="control-label">Vehículo</label>
+                                <select asp-for="VehicleId" class="form-control" asp-items="ViewBag.VehicleId"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="DepartmentId" class="control-label">Departamento</label>
+                                <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.DepartmentId"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="ExternalWorkshopBranchId" class="control-label">Sucursal Taller</label>
+                                <select asp-for="ExternalWorkshopBranchId" class="form-control" asp-items="ViewBag.ExternalWorkshopBranchId"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="DistanceUnit" class="control-label">Unidad de Distancia</label>
+                                <input asp-for="DistanceUnit" class="form-control" />
+                                <span asp-validation-for="DistanceUnit" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="DistanceValue" class="control-label">Valor de Distancia</label>
+                                <input asp-for="DistanceValue" class="form-control" />
+                                <span asp-validation-for="DistanceValue" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="FuelLevel" class="control-label">Nivel de Combustible</label>
+                                <input asp-for="FuelLevel" class="form-control" />
+                                <span asp-validation-for="FuelLevel" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                <label asp-for="FailureReport" class="control-label">Reporte de Fallas</label>
+                                <textarea asp-for="FailureReport" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="FailureReport" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="VehicleFailureObservation" class="control-label">Observaciones de Fallas</label>
+                        <textarea asp-for="VehicleFailureObservation" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="VehicleFailureObservation" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="InspectionStatusId" class="control-label">Estado de Inspección</label>
+                                <select asp-for="InspectionStatusId" class="form-control" asp-items="ViewBag.InspectionStatusId"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 form-check">
+                            <label class="form-check-label">
+                                <input class="form-check-input" asp-for="TowRequired" /> Se requiere grúa
+                            </label>
+                        </div>
+                        <div class="col-md-3 form-check">
+                            <label class="form-check-label">
+                                <input class="form-check-input" asp-for="Active" /> Activo
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Diagnostic" class="control-label">Diagnóstico</label>
+                        <textarea asp-for="Diagnostic" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Diagnostic" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="CreatedAt" class="control-label">Fecha de Creación</label>
+                                <input asp-for="CreatedAt" class="form-control" readonly />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="UpdatedAt" class="control-label">Última Actualización</label>
+                                <input asp-for="UpdatedAt" class="form-control" readonly />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <input type="submit" value="Guardar Inspección" class="btn btn-primary" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
