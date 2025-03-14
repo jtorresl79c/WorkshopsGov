@@ -344,7 +344,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasMany(i => i.Files)
             .WithMany(f => f.Inspections)
             .UsingEntity<Dictionary<string, object>>(
-                "InspectionFile", // 🔹 Nombre de la tabla intermedia
+                "inspection_file", // 🔹 Nombre de la tabla intermedia
                 j => j.HasOne<File>()
                     .WithMany()
                     .HasForeignKey("FileId")
