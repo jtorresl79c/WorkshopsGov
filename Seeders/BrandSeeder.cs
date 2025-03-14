@@ -10,8 +10,8 @@ namespace WorkshopsGov.Seeders
             if (!context.Brands.Any())
             {
                 context.Brands.AddRange(
-                    new Brand { Name = "Honda B", Active = true },
-                    new Brand { Name = "Toyota B", Active = true }
+                    new Brand { Name = "Ford", Active = true },
+                    new Brand { Name = "Ram", Active = true }
                 );
                 context.SaveChanges();
             }

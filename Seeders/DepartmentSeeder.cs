@@ -10,9 +10,9 @@ namespace WorkshopsGov.Seeders
             if (!context.Departments.Any())
             {
                 context.Departments.AddRange(
-                    new Department { Name = "IT Support", SectorId = 1, Active = true },
-                    new Department { Name = "Development", SectorId = 1, Active = true },
-                    new Department { Name = "Accounting", SectorId = 2, Active = true }
+                    new Department { Name = "C1", SectorId = 1, Active = true },
+                    new Department { Name = "C2", SectorId = 1, Active = true },
+                    new Department { Name = "C3", SectorId = 2, Active = true }
                 );
                 context.SaveChanges();
             }

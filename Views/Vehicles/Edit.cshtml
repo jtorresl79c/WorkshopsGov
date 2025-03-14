@@ -1,91 +1,109 @@
-@model WorkshopsGov.Models.Vehicle
+﻿@model WorkshopsGov.Models.Vehicle
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar Vehículo";
 }
 
-<h1>Edit</h1>
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+            <a asp-controller="Vehicles" asp-action="Index">Padrón Vehicular</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Editar Vehículo</li>
+    </ol>
+</nav>
 
-<h4>Vehicle</h4>
-<hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Oficialia" class="control-label"></label>
-                <input asp-for="Oficialia" class="form-control" />
-                <span asp-validation-for="Oficialia" class="text-danger"></span>
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Oficialia" class="control-label">Oficialía</label>
+                                <input asp-for="Oficialia" class="form-control" />
+                                <span asp-validation-for="Oficialia" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="LicensePlate" class="control-label">Número Económico</label>
+                                <input asp-for="LicensePlate" class="form-control" />
+                                <span asp-validation-for="LicensePlate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="VinNumber" class="control-label">Número de Serie (VIN)</label>
+                                <input asp-for="VinNumber" class="form-control" />
+                                <span asp-validation-for="VinNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Engine" class="control-label">Motor</label>
+                                <input asp-for="Engine" class="form-control" />
+                                <span asp-validation-for="Engine" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label asp-for="Description" class="control-label">Descripción</label>
+                                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 🔹 Selects para Relaciones -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="DepartmentId" class="control-label">Departamento</label>
+                                <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.DepartmentId"></select>
+                                <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="BrandId" class="control-label">Marca</label>
+                                <select asp-for="BrandId" class="form-control" asp-items="ViewBag.BrandId"></select>
+                                <span asp-validation-for="BrandId" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="ModelId" class="control-label">Modelo</label>
+                                <select asp-for="ModelId" class="form-control" asp-items="ViewBag.ModelId"></select>
+                                <span asp-validation-for="ModelId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 🔹 Activo/Inactivo -->
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="Active" /> @Html.DisplayNameFor(model => model.Active)
+                        </label>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <input type="submit" value="Guardar Cambios" class="btn btn-primary" />
+                        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label asp-for="LicensePlate" class="control-label"></label>
-                <input asp-for="LicensePlate" class="form-control" />
-                <span asp-validation-for="LicensePlate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="VinNumber" class="control-label"></label>
-                <input asp-for="VinNumber" class="form-control" />
-                <span asp-validation-for="VinNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DepartmentId" class="control-label"></label>
-                <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.DepartmentId"></select>
-                <span asp-validation-for="DepartmentId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="VehicleStatusId" class="control-label"></label>
-                <select asp-for="VehicleStatusId" class="form-control" asp-items="ViewBag.VehicleStatusId"></select>
-                <span asp-validation-for="VehicleStatusId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Year" class="control-label"></label>
-                <input asp-for="Year" class="form-control" />
-                <span asp-validation-for="Year" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="BrandId" class="control-label"></label>
-                <select asp-for="BrandId" class="form-control" asp-items="ViewBag.BrandId"></select>
-                <span asp-validation-for="BrandId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ModelId" class="control-label"></label>
-                <select asp-for="ModelId" class="form-control" asp-items="ViewBag.ModelId"></select>
-                <span asp-validation-for="ModelId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Engine" class="control-label"></label>
-                <input asp-for="Engine" class="form-control" />
-                <span asp-validation-for="Engine" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SectorId" class="control-label"></label>
-                <select asp-for="SectorId" class="form-control" asp-items="ViewBag.SectorId"></select>
-                <span asp-validation-for="SectorId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="VehicleTypeId" class="control-label"></label>
-                <select asp-for="VehicleTypeId" class="form-control" asp-items="ViewBag.VehicleTypeId"></select>
-                <span asp-validation-for="VehicleTypeId" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Active" /> @Html.DisplayNameFor(model => model.Active)
-                </label>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-

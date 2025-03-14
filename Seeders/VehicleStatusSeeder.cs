@@ -10,8 +10,8 @@ namespace WorkshopsGov.Seeders
             if (!context.VehicleStatuses.Any())
             {
                 context.VehicleStatuses.AddRange(
-                    new VehicleStatus { Name = "Activo VS", Active = true },
-                    new VehicleStatus { Name = "Inactivo VS", Active = true }
+                    new VehicleStatus { Name = "Activo", Active = true },
+                    new VehicleStatus { Name = "Inactivo", Active = true }
                 );
                 context.SaveChanges();
             }

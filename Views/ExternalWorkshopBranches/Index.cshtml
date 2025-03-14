@@ -1,0 +1,63 @@
+﻿@model IEnumerable<WorkshopsGov.Models.ExternalWorkshopBranch>
+
+@{
+    ViewData["Title"] = "Sucursales del Taller";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="ExternalWorkshops" asp-action="Index">Talleres</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Sucursales de @ViewBag.WorkshopName</li>
+    </ol>
+</nav>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="header-title">
+            <h4 class="card-title">Sucursales de @ViewBag.WorkshopName</h4>
+        </div>
+        <a asp-action="Create" asp-route-workshopId="@ViewBag.WorkshopId" class="btn btn-primary">Agregar Sucursal</a>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Any())
+        {
+            <div class="table-responsive mt-4">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Teléfono</th>
+                            <th>Dirección</th>
+                            <th>Activo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var branch in Model)
+                        {
+                            <tr>
+                                <td>@branch.Name</td>
+                                <td>@branch.Phone</td>
+                                <td>@branch.Address</td>
+                                <td>@(branch.Active ? "Sí" : "No")</td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@branch.Id"><i class="bi bi-pencil-square"></i></a> |
+                                    <a asp-action="Delete" asp-route-id="@branch.Id"><i class="bi bi-trash-fill"></i></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center p-4">
+                <h5 class="text-muted">No hay sucursales registradas para este taller.</h5>
+                <a asp-action="Create" asp-route-workshopId="@ViewBag.WorkshopId" class="btn btn-success mt-3">
+                    <i class="bi bi-plus-lg"></i> Agregar Sucursal
+                </a>
+            </div>
+        }
+    </div>
+</div>

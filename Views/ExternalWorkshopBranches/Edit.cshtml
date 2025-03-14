@@ -1,0 +1,63 @@
+﻿@model WorkshopsGov.Models.ExternalWorkshopBranch
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+            <a asp-controller="ExternalWorkshops" asp-action="Index">Talleres Externos</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-controller="ExternalWorkshopBranches" asp-action="Index" asp-route-workshopId="@ViewBag.WorkshopId">
+                @ViewBag.WorkshopName
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Editar sucursal</li>
+    </ol>
+</nav>
+
+
+<div class="row">
+    <div class="col-sm-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label">Nombre de la surcursal</label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Phone" class="control-label">Telefono</label>
+                        <input asp-for="Phone" class="form-control" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Address" class="control-label">Dirección</label>
+                        <input asp-for="Address" class="form-control" />
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                    <input type="hidden" asp-for="ExternalWorkshopId" value="@ViewBag.WorkshopId" />
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="Active" /> Activo
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Actualizar" class="btn btn-primary" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

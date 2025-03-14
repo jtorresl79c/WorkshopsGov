@@ -4,116 +4,108 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="header-title">
+            <h4 class="card-title">Padrón Vehicular</h4>
+        </div>
+        <a asp-action="Create" class="btn btn-primary">Agregar</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive mt-4">
+            <table class="table table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Oficialia)
+                        </th>
+                        <th>
+                            Departamento
+                        </th>
+                        <th>
+                            Estado
+                        </th>
+                        <th>
+                           Marca
+                        </th>
+                        <th>
+                           Modelo
+                        </th>
+                        <th>
+                            Sector
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Active)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Oficialia)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Department.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.VehicleStatus.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Brand.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Model.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Sector.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Active)
+                            </td>
+                        
+                            <td>
+                                <a href="javascript:void(0);" onclick="showDetails(@item.Id)"><i class="bi bi-eye-fill"></i></a> |
+                                <a asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a> |
+                                <a asp-action="Delete" asp-route-id="@item.Id"><i class="bi bi-trash-fill"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Oficialia)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LicensePlate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.VinNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Department)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.VehicleStatus)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Year)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Brand)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Model)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Engine)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Sector)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.VehicleType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Active)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Oficialia)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LicensePlate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.VinNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Department.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.VehicleStatus.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Year)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Brand.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Model.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Engine)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Sector.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.VehicleType.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Active)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedAt)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<!-- Modal para mostrar detalles -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel">Detalles del Vehículo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" id="modalContent">
+                <!-- Aquí se cargará la información del vehículo -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showDetails(id) {
+        $.ajax({
+            url: '/Vehicles/Details/' + id, // Asegúrate de que la URL sea correcta
+            type: 'GET',
+            success: function (data) {
+                $('#modalContent').html(data); // Insertar los detalles en el modal
+                $('#detailsModal').modal('show'); // Mostrar el modal
+            },
+            error: function () {
+                alert("Error al cargar los detalles.");
+            }
+        });
+    }
+</script>

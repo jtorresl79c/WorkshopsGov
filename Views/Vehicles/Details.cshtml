@@ -1,108 +1,64 @@
 @model WorkshopsGov.Models.Vehicle
 
 @{
-    ViewData["Title"] = "Details";
+    Layout = null;
 }
 
-<h1>Details</h1>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-5 fw-bold">Oficialia:</div>
+                <div class="col-md-7">@Html.DisplayFor(model => model.Oficialia)</div>
 
-<div>
-    <h4>Vehicle</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Oficialia)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Oficialia)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LicensePlate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LicensePlate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.VinNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.VinNumber)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Department)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Department.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.VehicleStatus)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.VehicleStatus.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Year)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Year)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Brand)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Brand.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Model)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Engine)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Engine)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Sector)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Sector.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.VehicleType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.VehicleType.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Active)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Active)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UpdatedAt)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+                <div class="col-md-5 fw-bold">Placa:</div>
+                <div class="col-md-7">@Html.DisplayFor(model => model.LicensePlate)</div>
+
+                <div class="col-md-5 fw-bold">Número de VIN:</div>
+                <div class="col-md-7">@Html.DisplayFor(model => model.VinNumber)</div>
+
+                <div class="col-md-5 fw-bold">Descripción:</div>
+                <div class="col-md-7">@Html.DisplayFor(model => model.Description)</div>
+
+                <div class="col-md-5 fw-bold">Departamento:</div>
+                <div class="col-md-7">@Html.DisplayFor(model => model.Department.Name)</div>
+
+                <div class="col-md-5 fw-bold">Estado del Vehículo:</div>
+                <div class="col-md-7">@Html.DisplayFor(model => model.VehicleStatus.Name)</div>
+
+                <div class="col-md-5 fw-bold">Año:</div>
+                <div class="col-md-7">@Html.DisplayFor(model => model.Year)</div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-5 fw-bold">Marca:</div>
+                <div class="col-md-7">@Html.DisplayFor(model => model.Brand.Name)</div>
+
+                <div class="col-md-5 fw-bold">Modelo:</div>
+                <div class="col-md-7">@Html.DisplayFor(model => model.Model.Name)</div>
+
+                <div class="col-md-5 fw-bold">Motor:</div>
+                <div class="col-md-7">@Html.DisplayFor(model => model.Engine)</div>
+
+                <div class="col-md-5 fw-bold">Sector:</div>
+                <div class="col-md-7">@Html.DisplayFor(model => model.Sector.Name)</div>
+
+                <div class="col-md-5 fw-bold">Tipo de Vehículo:</div>
+                <div class="col-md-7">@Html.DisplayFor(model => model.VehicleType.Name)</div>
+
+                <div class="col-md-5 fw-bold">Activo:</div>
+                <div class="col-md-7">@(Model.Active ? "Sí" : "No")</div>
+
+                <div class="col-md-5 fw-bold">Última Actualización:</div>
+                <div class="col-md-7">@Html.DisplayFor(model => model.UpdatedAt)</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 text-end">
+        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Editar</a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+    </div>
 </div>
