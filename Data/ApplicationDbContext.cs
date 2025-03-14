@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using WorkshopsGov.Models;
 using Microsoft.EntityFrameworkCore.Metadata;
 using WorkshopsGov.Models.Common;
+using File = WorkshopsGov.Models.File;
 
 namespace WorkshopsGov.Data;
 
@@ -25,6 +26,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Vehicle> Vehicles { get; set; }
     public DbSet<InspectionPart> InspectionParts { get; set; }
     public DbSet<Inspection> Inspections { get; set; }
+    public DbSet<FileType> FileTypes { get; set; }
+    public DbSet<File> Files { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -286,6 +289,56 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .Property(i => i.Diagnostic)
             .HasDefaultValue(string.Empty)
             .IsRequired();
+        
+        modelBuilder.Entity<FileType>()
+            .Property(ft => ft.Active)
+            .IsRequired()
+            .HasDefaultValue(true);
+
+        modelBuilder.Entity<FileType>()
+            .Property(ft => ft.Name)
+            .IsRequired()
+            .HasMaxLength(255);
+        
+        // FileType
+        modelBuilder.Entity<File>()
+            .Property(f => f.Name)
+            .IsRequired()
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<File>()
+            .Property(f => f.Format)
+            .IsRequired()
+            .HasMaxLength(50);
+
+        modelBuilder.Entity<File>()
+            .Property(f => f.Path)
+            .IsRequired();
+
+        modelBuilder.Entity<File>()
+            .Property(f => f.Description)
+            .HasDefaultValue(string.Empty);
+
+        modelBuilder.Entity<File>()
+            .Property(f => f.Active)
+            .IsRequired()
+            .HasDefaultValue(true);
+
+        modelBuilder.Entity<File>()
+            .Property(f => f.ApplicationUserId)
+            .IsRequired();
+
+        modelBuilder.Entity<File>()
+            .HasOne(f => f.FileType)
+            .WithMany()
+            .HasForeignKey(f => f.FileTypeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<File>()
+            .HasOne(f => f.ApplicationUser)
+            .WithMany()
+            .HasForeignKey(f => f.ApplicationUserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
     
     public override int SaveChanges()
