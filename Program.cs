@@ -116,8 +116,8 @@ if (app.Environment.IsDevelopment())
         VehicleTypeSeeder.Seed(context);
         VehicleFailureSeeder.Seed(context);
         InspectionPartSeeder.Seed(context);
-        InspectionServiceStatusSeeder.Seed(context);
         InspectionStatusSeeder.Seed(context);
+        InspectionServiceSeeder.Seed(context);
         VehicleModelSeeder.Seed(context);
         DepartmentSeeder.Seed(context);
         await ApplicationUserSeeder.SeedAsync(userManager);

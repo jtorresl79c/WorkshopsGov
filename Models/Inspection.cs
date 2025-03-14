@@ -29,12 +29,11 @@ namespace WorkshopsGov.Models
 
         [ForeignKey(nameof(ApplicationUserId))]
         public ApplicationUser ApplicationUser { get; set; } = null!;
-
+        
         // Relación con otros modelos
         [Required]
-        public int InspectionServiceStatusId { get; set; }
-        public InspectionServiceStatus InspectionServiceStatus { get; set; } = null!;
-
+        public int InspectionServiceId { get; set; }
+        public InspectionService InspectionService { get; set; } = null!;
         [Required]
         public int VehicleId { get; set; }
         public Vehicle Vehicle { get; set; } = null!;
@@ -62,23 +61,19 @@ namespace WorkshopsGov.Models
 
         [Required]
         public string VehicleFailureObservation { get; set; } = string.Empty;
-
+        
         [Required]
-        public string Repairs { get; set; } = string.Empty;
+        public bool TowRequired { get; set; } = false;
 
         [Required]
         public int InspectionStatusId { get; set; }
         public InspectionStatus InspectionStatus { get; set; } = null!;
 
         [Required]
-        [MaxLength(255)]
-        public string MechanicName { get; set; } = string.Empty;
-
+        public string Diagnostic { get; set; } = string.Empty;
+        
         [Required]
-        public int InspectionPartId { get; set; }
-        public InspectionPart InspectionPart { get; set; } = null!;
-
-        public DateTime? CompletionDate { get; set; }
+        public bool Active { get; set; } = true;
 
         // Relación muchos a muchos con VehicleFailure
         public ICollection<VehicleFailure> VehicleFailures { get; set; } = new List<VehicleFailure>();

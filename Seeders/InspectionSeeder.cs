@@ -16,7 +16,7 @@ namespace WorkshopsGov.Seeders
                 CheckInTime = new TimeSpan(8, 30, 0),
                 OperatorName = "Juan Pérez",
                 ApplicationUserId = foundUser.Id,
-                InspectionServiceStatusId = 1,
+                InspectionServiceId = 1,
                 VehicleId = 1,
                 DepartmentId = 1,
                 ExternalWorkshopBranchId = 1,
@@ -25,11 +25,10 @@ namespace WorkshopsGov.Seeders
                 FuelLevel = 75.5f,
                 FailureReport = "El motor hace un ruido extraño.",
                 VehicleFailureObservation = "Posible problema con la transmisión.",
-                Repairs = "Revisión del sistema de transmisión.",
+                TowRequired = false,
                 InspectionStatusId = 1,
-                MechanicName = "Carlos Gómez",
-                InspectionPartId = 1,
-                CompletionDate = DateTime.UtcNow,
+                Diagnostic = "Hay que arreglar el motor",
+                Active = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow 
             };

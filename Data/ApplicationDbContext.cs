@@ -19,7 +19,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<VehicleStatus> VehicleStatuses { get; set; }
     public DbSet<VehicleType> VehicleTypes { get; set; }
     public DbSet<VehicleFailure> VehicleFailures { get; set; }
-    public DbSet<InspectionServiceStatus> InspectionServiceStatuses { get; set; }
+    public DbSet<InspectionService> InspectionServices { get; set; }
     public DbSet<InspectionStatus> InspectionStatuses { get; set; }
     public DbSet<VehicleModel> VehicleModels { get; set; }
     public DbSet<Vehicle> Vehicles { get; set; }
@@ -96,7 +96,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .Property(vf => vf.Active)
             .HasDefaultValue(true); // Valor por defecto en la BD
         
-        modelBuilder.Entity<InspectionServiceStatus>()
+        modelBuilder.Entity<InspectionService>()
             .Property(dss => dss.Active)
             .HasDefaultValue(true); // Valor por defecto en la BD
         
@@ -217,18 +217,18 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .OnDelete(DeleteBehavior.Restrict);
         
         modelBuilder.Entity<InspectionPart>()
-            .Property(dp => dp.Active)
+            .Property(ip => ip.Active)
             .IsRequired()
             .HasDefaultValue(true);
 
         modelBuilder.Entity<InspectionPart>()
-            .Property(dp => dp.Name)
+            .Property(ip => ip.Name)
             .IsRequired()
             .HasMaxLength(255);
         
         // Relación muchos a muchos entre Inspection y VehicleFailure sin modelo intermedio
         modelBuilder.Entity<Inspection>()
-            .HasMany(d => d.VehicleFailures)
+            .HasMany(i => i.VehicleFailures)
             .WithMany(vf => vf.Inspections)
             .UsingEntity<Dictionary<string, object>>(
                 "InspectionVehicleFailure", // Nombre de la tabla intermedia
@@ -244,51 +244,47 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         
         // Asegurar que los campos Required sean NOT NULL en la BD
         modelBuilder.Entity<Inspection>()
-            .Property(d => d.MemoNumber)
+            .Property(i => i.MemoNumber)
             .IsRequired();
 
         modelBuilder.Entity<Inspection>()
-            .Property(d => d.InspectionDate)
+            .Property(i => i.InspectionDate)
             .IsRequired();
 
         modelBuilder.Entity<Inspection>()
-            .Property(d => d.CheckInTime)
+            .Property(i => i.CheckInTime)
             .IsRequired();
 
         modelBuilder.Entity<Inspection>()
-            .Property(d => d.OperatorName)
+            .Property(i => i.OperatorName)
             .HasMaxLength(255)
             .IsRequired();
 
         modelBuilder.Entity<Inspection>()
-            .Property(d => d.DistanceUnit)
+            .Property(i => i.DistanceUnit)
             .HasMaxLength(50)
             .IsRequired();
 
         modelBuilder.Entity<Inspection>()
-            .Property(d => d.DistanceValue)
+            .Property(i => i.DistanceValue)
             .IsRequired();
 
         modelBuilder.Entity<Inspection>()
-            .Property(d => d.FuelLevel)
+            .Property(i => i.FuelLevel)
             .IsRequired();
 
         modelBuilder.Entity<Inspection>()
-            .Property(d => d.FailureReport)
+            .Property(i => i.FailureReport)
             .IsRequired();
 
         modelBuilder.Entity<Inspection>()
-            .Property(d => d.VehicleFailureObservation)
+            .Property(i => i.VehicleFailureObservation)
             .HasMaxLength(500)
             .IsRequired();
 
         modelBuilder.Entity<Inspection>()
-            .Property(d => d.Repairs)
-            .IsRequired();
-
-        modelBuilder.Entity<Inspection>()
-            .Property(d => d.MechanicName)
-            .HasMaxLength(255)
+            .Property(i => i.Diagnostic)
+            .HasDefaultValue(string.Empty)
             .IsRequired();
     }
     
