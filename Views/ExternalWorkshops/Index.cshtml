@@ -1,53 +1,50 @@
-@model IEnumerable<WorkshopsGov.Models.ExternalWorkshop>
-
-@{
-    ViewData["Title"] = "Index";
+﻿@{
+    ViewData["Title"] = "Talleres Externos";
+    var workshops = ViewBag.Workshops as IEnumerable<dynamic>; // 🔹 Convertir ViewBag en una lista dinámica
 }
 
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Active)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Active)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedAt)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="header-title">
+            <h4 class="card-title">Talleres Externos</h4>
+        </div>
+        <a asp-action="Create" class="btn btn-primary">Agregar</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive mt-4">
+            <table class="table table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th> <!-- 🔹 Contador de talleres -->
+                        <th>Nombre</th>
+                        <th>Activo</th>
+                        <th>Sucursales</th> <!-- 🔹 Nueva columna -->
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int index = 1;
+                    }
+                    @foreach (var item in workshops)
+                    {
+                        <tr>
+                            <td>@index</td> <!-- 🔹 Contador -->
+                            <td>@item.Name</td>
+                            <td>@(item.Active ? "Sí" : "No")</td>
+                            <td>@item.BranchCount</td> <!-- 🔹 Muestra cantidad de sucursales -->
+                            <td>
+                                <a asp-controller="ExternalWorkshopBranches" asp-action="Index" asp-route-workshopId="@item.Id" class="btn btn-info">
+                                    Ver Sucursales
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a> |
+                                <a asp-action="Delete" asp-route-id="@item.Id"><i class="bi bi-trash-fill"></i></a>
+                            </td>
+                        </tr>
+                        index++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

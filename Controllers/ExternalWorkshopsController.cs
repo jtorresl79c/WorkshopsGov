@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,10 +20,24 @@ namespace WorkshopsGov.Controllers
         }
 
         // GET: ExternalWorkshops
+        // GET: ExternalWorkshops
         public async Task<IActionResult> Index()
         {
-            return View(await _context.ExternalWorkshops.ToListAsync());
+            var workshops = await _context.ExternalWorkshops
+                .Select(workshop => new
+                {
+                    workshop.Id,
+                    workshop.Name,
+                    workshop.Active,
+                    BranchCount = _context.ExternalWorkshopBranches.Count(b => b.ExternalWorkshopId == workshop.Id) // 🔹 Contador de sucursales
+                })
+                .ToListAsync();
+
+            ViewBag.Workshops = workshops;
+            return View();
         }
+
+
 
         // GET: ExternalWorkshops/Details/5
         public async Task<IActionResult> Details(int? id)

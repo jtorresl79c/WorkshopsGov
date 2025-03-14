@@ -12,25 +12,25 @@ namespace WorkshopsGov.Seeders
                 context.VehicleModels.AddRange(
                     new VehicleModel
                     {
-                        Name = "Civic",
+                        Name = "1500",
                         BrandId = 1,
                         Active = true
                     },
                     new VehicleModel
                     {
-                        Name = "Accord",
+                        Name = "2500",
                         BrandId = 1,
                         Active = true
                     },
                     new VehicleModel
                     {
-                        Name = "Corolla",
+                        Name = "F150",
                         BrandId = 2,
                         Active = true
                     },
                     new VehicleModel
                     {
-                        Name = "Hilux",
+                        Name = "pickup Heavy Duty",
                         BrandId = 2,
                         Active = true
                     }
