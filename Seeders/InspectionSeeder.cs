@@ -3,20 +3,20 @@ using WorkshopsGov.Models;
 
 namespace WorkshopsGov.Seeders
 {
-    public static class DiagnosticSeeder
+    public static class InspectionSeeder
     {
         public static void Seed(ApplicationDbContext context)
         {
             var foundUser = context.Users.FirstOrDefault();
-            var newDiagnostic1 = new Diagnostic
+            var newInspection1 = new Inspection
             {
                 Id = 1,
                 MemoNumber = "MEMO-001",
-                DiagnosticDate = DateTime.UtcNow,
+                InspectionDate = DateTime.UtcNow,
                 CheckInTime = new TimeSpan(8, 30, 0),
                 OperatorName = "Juan Pérez",
                 ApplicationUserId = foundUser.Id,
-                DiagnosticServiceStatusId = 1,
+                InspectionServiceStatusId = 1,
                 VehicleId = 1,
                 DepartmentId = 1,
                 ExternalWorkshopBranchId = 1,
@@ -26,19 +26,19 @@ namespace WorkshopsGov.Seeders
                 FailureReport = "El motor hace un ruido extraño.",
                 VehicleFailureObservation = "Posible problema con la transmisión.",
                 Repairs = "Revisión del sistema de transmisión.",
-                DiagnosticStatusId = 1,
+                InspectionStatusId = 1,
                 MechanicName = "Carlos Gómez",
-                DiagnosticPartId = 1,
+                InspectionPartId = 1,
                 CompletionDate = DateTime.UtcNow,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow 
             };
 
             
-            if (!context.Diagnostics.Any())
+            if (!context.Inspections.Any())
             {
-                context.Diagnostics.AddRange(
-                    newDiagnostic1
+                context.Inspections.AddRange(
+                    newInspection1
                 );
                 context.SaveChanges();
             }

@@ -115,16 +115,16 @@ if (app.Environment.IsDevelopment())
         VehicleStatusSeeder.Seed(context);
         VehicleTypeSeeder.Seed(context);
         VehicleFailureSeeder.Seed(context);
-        DiagnosticPartSeeder.Seed(context);
-        DiagnosticServiceStatusSeeder.Seed(context);
-        DiagnosticStatusSeeder.Seed(context);
+        InspectionPartSeeder.Seed(context);
+        InspectionServiceStatusSeeder.Seed(context);
+        InspectionStatusSeeder.Seed(context);
         VehicleModelSeeder.Seed(context);
         DepartmentSeeder.Seed(context);
         await ApplicationUserSeeder.SeedAsync(userManager);
         ExternalWorkshopBranchSeeder.Seed(context);
         VehicleSeeder.Seed(context);
-        DiagnosticSeeder.Seed(context);
-        DiagnosticVehicleFailureSeeder.Seed(context);
+        InspectionSeeder.Seed(context);
+        InspectionVehicleFailureSeeder.Seed(context);
     }
 }
 

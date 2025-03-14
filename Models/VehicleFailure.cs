@@ -16,6 +16,6 @@ namespace WorkshopsGov.Models
         public bool Active { get; set; } = true;
         
         // Relación muchos a muchos con Diagnostic
-        public ICollection<Diagnostic> Diagnostics { get; set; } = new List<Diagnostic>();
+        public ICollection<Inspection> Inspections { get; set; } = new List<Inspection>();
     }
 }

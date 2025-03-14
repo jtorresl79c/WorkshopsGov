@@ -4,7 +4,7 @@ using WorkshopsGov.Models.Common;
 
 namespace WorkshopsGov.Models
 {
-    public class Diagnostic : AuditableEntityBase
+    public class Inspection : AuditableEntityBase
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -14,7 +14,7 @@ namespace WorkshopsGov.Models
         public string MemoNumber { get; set; } = string.Empty;
 
         [Required]
-        public DateTime DiagnosticDate { get; set; }
+        public DateTime InspectionDate { get; set; }
 
         [Required]
         public TimeSpan CheckInTime { get; set; }
@@ -23,7 +23,7 @@ namespace WorkshopsGov.Models
         [MaxLength(255)]
         public string OperatorName { get; set; } = string.Empty;
 
-        // Relación con ApplicationUser (Usuario que hizo el diagnóstico)
+        // Relación con ApplicationUser (Usuario que hizo la inspeccion)
         [Required]
         public string ApplicationUserId { get; set; } = string.Empty;
 
@@ -32,8 +32,8 @@ namespace WorkshopsGov.Models
 
         // Relación con otros modelos
         [Required]
-        public int DiagnosticServiceStatusId { get; set; }
-        public DiagnosticServiceStatus DiagnosticServiceStatus { get; set; } = null!;
+        public int InspectionServiceStatusId { get; set; }
+        public InspectionServiceStatus InspectionServiceStatus { get; set; } = null!;
 
         [Required]
         public int VehicleId { get; set; }
@@ -67,16 +67,16 @@ namespace WorkshopsGov.Models
         public string Repairs { get; set; } = string.Empty;
 
         [Required]
-        public int DiagnosticStatusId { get; set; }
-        public DiagnosticStatus DiagnosticStatus { get; set; } = null!;
+        public int InspectionStatusId { get; set; }
+        public InspectionStatus InspectionStatus { get; set; } = null!;
 
         [Required]
         [MaxLength(255)]
         public string MechanicName { get; set; } = string.Empty;
 
         [Required]
-        public int DiagnosticPartId { get; set; }
-        public DiagnosticPart DiagnosticPart { get; set; } = null!;
+        public int InspectionPartId { get; set; }
+        public InspectionPart InspectionPart { get; set; } = null!;
 
         public DateTime? CompletionDate { get; set; }
 
