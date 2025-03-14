@@ -4,7 +4,7 @@ using WorkshopsGov.Models.Common;
 
 namespace WorkshopsGov.Models
 {
-    public class DiagnosticServiceStatus : AuditableEntityBase
+    public class InspectionService : AuditableEntityBase
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

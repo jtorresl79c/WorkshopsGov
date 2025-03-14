@@ -19,12 +19,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<VehicleStatus> VehicleStatuses { get; set; }
     public DbSet<VehicleType> VehicleTypes { get; set; }
     public DbSet<VehicleFailure> VehicleFailures { get; set; }
-    public DbSet<DiagnosticServiceStatus> DiagnosticServiceStatuses { get; set; }
-    public DbSet<DiagnosticStatus> DiagnosticStatuses { get; set; }
+    public DbSet<InspectionService> InspectionServices { get; set; }
+    public DbSet<InspectionStatus> InspectionStatuses { get; set; }
     public DbSet<VehicleModel> VehicleModels { get; set; }
     public DbSet<Vehicle> Vehicles { get; set; }
-    public DbSet<DiagnosticPart> DiagnosticParts { get; set; }
-    public DbSet<Diagnostic> Diagnostics { get; set; }
+    public DbSet<InspectionPart> InspectionParts { get; set; }
+    public DbSet<Inspection> Inspections { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -96,11 +96,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .Property(vf => vf.Active)
             .HasDefaultValue(true); // Valor por defecto en la BD
         
-        modelBuilder.Entity<DiagnosticServiceStatus>()
+        modelBuilder.Entity<InspectionService>()
             .Property(dss => dss.Active)
             .HasDefaultValue(true); // Valor por defecto en la BD
         
-        modelBuilder.Entity<DiagnosticStatus>()
+        modelBuilder.Entity<InspectionStatus>()
             .Property(ds => ds.Active)
             .HasDefaultValue(true); // Valor por defecto en la BD
         
@@ -216,79 +216,75 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(v => v.VehicleTypeId)
             .OnDelete(DeleteBehavior.Restrict);
         
-        modelBuilder.Entity<DiagnosticPart>()
-            .Property(dp => dp.Active)
+        modelBuilder.Entity<InspectionPart>()
+            .Property(ip => ip.Active)
             .IsRequired()
             .HasDefaultValue(true);
 
-        modelBuilder.Entity<DiagnosticPart>()
-            .Property(dp => dp.Name)
+        modelBuilder.Entity<InspectionPart>()
+            .Property(ip => ip.Name)
             .IsRequired()
             .HasMaxLength(255);
         
-        // Relación muchos a muchos entre Diagnostic y VehicleFailure sin modelo intermedio
-        modelBuilder.Entity<Diagnostic>()
-            .HasMany(d => d.VehicleFailures)
-            .WithMany(vf => vf.Diagnostics)
+        // Relación muchos a muchos entre Inspection y VehicleFailure sin modelo intermedio
+        modelBuilder.Entity<Inspection>()
+            .HasMany(i => i.VehicleFailures)
+            .WithMany(vf => vf.Inspections)
             .UsingEntity<Dictionary<string, object>>(
-                "DiagnosticVehicleFailure", // Nombre de la tabla intermedia
+                "InspectionVehicleFailure", // Nombre de la tabla intermedia
                 j => j.HasOne<VehicleFailure>()
                     .WithMany()
                     .HasForeignKey("VehicleFailureId")
                     .OnDelete(DeleteBehavior.Cascade),
-                j => j.HasOne<Diagnostic>()
+                j => j.HasOne<Inspection>()
                     .WithMany()
-                    .HasForeignKey("DiagnosticId")
+                    .HasForeignKey("InspectionId")
                     .OnDelete(DeleteBehavior.Cascade)
             );
         
         // Asegurar que los campos Required sean NOT NULL en la BD
-        modelBuilder.Entity<Diagnostic>()
-            .Property(d => d.MemoNumber)
+        modelBuilder.Entity<Inspection>()
+            .Property(i => i.MemoNumber)
             .IsRequired();
 
-        modelBuilder.Entity<Diagnostic>()
-            .Property(d => d.DiagnosticDate)
+        modelBuilder.Entity<Inspection>()
+            .Property(i => i.InspectionDate)
             .IsRequired();
 
-        modelBuilder.Entity<Diagnostic>()
-            .Property(d => d.CheckInTime)
+        modelBuilder.Entity<Inspection>()
+            .Property(i => i.CheckInTime)
             .IsRequired();
 
-        modelBuilder.Entity<Diagnostic>()
-            .Property(d => d.OperatorName)
+        modelBuilder.Entity<Inspection>()
+            .Property(i => i.OperatorName)
             .HasMaxLength(255)
             .IsRequired();
 
-        modelBuilder.Entity<Diagnostic>()
-            .Property(d => d.DistanceUnit)
+        modelBuilder.Entity<Inspection>()
+            .Property(i => i.DistanceUnit)
             .HasMaxLength(50)
             .IsRequired();
 
-        modelBuilder.Entity<Diagnostic>()
-            .Property(d => d.DistanceValue)
+        modelBuilder.Entity<Inspection>()
+            .Property(i => i.DistanceValue)
             .IsRequired();
 
-        modelBuilder.Entity<Diagnostic>()
-            .Property(d => d.FuelLevel)
+        modelBuilder.Entity<Inspection>()
+            .Property(i => i.FuelLevel)
             .IsRequired();
 
-        modelBuilder.Entity<Diagnostic>()
-            .Property(d => d.FailureReport)
+        modelBuilder.Entity<Inspection>()
+            .Property(i => i.FailureReport)
             .IsRequired();
 
-        modelBuilder.Entity<Diagnostic>()
-            .Property(d => d.VehicleFailureObservation)
+        modelBuilder.Entity<Inspection>()
+            .Property(i => i.VehicleFailureObservation)
             .HasMaxLength(500)
             .IsRequired();
 
-        modelBuilder.Entity<Diagnostic>()
-            .Property(d => d.Repairs)
-            .IsRequired();
-
-        modelBuilder.Entity<Diagnostic>()
-            .Property(d => d.MechanicName)
-            .HasMaxLength(255)
+        modelBuilder.Entity<Inspection>()
+            .Property(i => i.Diagnostic)
+            .HasDefaultValue(string.Empty)
             .IsRequired();
     }
     

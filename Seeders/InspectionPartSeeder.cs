@@ -3,7 +3,7 @@ using WorkshopsGov.Models;
 
 namespace WorkshopsGov.Seeders
 {
-    public static class DiagnosticPartSeeder
+    public static class InspectionPartSeeder
     {
         public static void Seed(ApplicationDbContext context)
         {
@@ -21,11 +21,11 @@ namespace WorkshopsGov.Seeders
                 "Battery"
             ];
             
-            if (!context.DiagnosticParts.Any())
+            if (!context.InspectionParts.Any())
             {
                 foreach (var part in parts)
                 {
-                    context.DiagnosticParts.Add(new DiagnosticPart(part) { Name = part, Active = true });
+                    context.InspectionParts.Add(new InspectionPart(part) { Name = part, Active = true });
                 }
                 context.SaveChanges();
             }

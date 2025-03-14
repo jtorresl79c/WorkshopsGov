@@ -4,18 +4,17 @@ using WorkshopsGov.Models.Common;
 
 namespace WorkshopsGov.Models
 {
-    public class VehicleFailure : AuditableEntityBase
+    public class InspectionStatus : AuditableEntityBase
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         [Required]
-        public string Description { get; set; } = string.Empty;
+        [MaxLength(255)]
+        public string Name { get; set; } = string.Empty;
 
+        [Required]
         public bool Active { get; set; } = true;
-        
-        // Relación muchos a muchos con Diagnostic
-        public ICollection<Inspection> Inspections { get; set; } = new List<Inspection>();
     }
 }
