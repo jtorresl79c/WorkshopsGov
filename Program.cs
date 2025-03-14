@@ -125,6 +125,8 @@ if (app.Environment.IsDevelopment())
         VehicleSeeder.Seed(context);
         InspectionSeeder.Seed(context);
         InspectionVehicleFailureSeeder.Seed(context);
+        FileTypeSeeder.Seed(context);
+        FileSeeder.Seed(context);
     }
 }
 
