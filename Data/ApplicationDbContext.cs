@@ -25,6 +25,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Vehicle> Vehicles { get; set; }
     public DbSet<InspectionPart> InspectionParts { get; set; }
     public DbSet<Inspection> Inspections { get; set; }
+    public DbSet<FileType> FileTypes { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -286,6 +287,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .Property(i => i.Diagnostic)
             .HasDefaultValue(string.Empty)
             .IsRequired();
+        
+        modelBuilder.Entity<FileType>()
+            .Property(ft => ft.Active)
+            .IsRequired()
+            .HasDefaultValue(true);
+
+        modelBuilder.Entity<FileType>()
+            .Property(ft => ft.Name)
+            .IsRequired()
+            .HasMaxLength(255);
     }
     
     public override int SaveChanges()
