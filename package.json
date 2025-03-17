@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "pnpm": {
+    "ignoredBuiltDependencies": ["esbuild"],
+    "onlyBuiltDependencies": ["esbuild"]
+  }
+}
