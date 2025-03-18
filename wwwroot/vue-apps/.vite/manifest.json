@@ -1,0 +1,18 @@
+{
+  "src/common/assets/vue-logo.svg": {
+    "file": "assets/vue-logo/vue-logo._cUAdIX-.svg",
+    "src": "src/common/assets/vue-logo.svg"
+  },
+  "src/pages/playground/index.js": {
+    "file": "assets/playground/playground.wqs29pZq.js",
+    "name": "playground",
+    "src": "src/pages/playground/index.js",
+    "isEntry": true,
+    "css": [
+      "assets/playground/playground.BDMFA-Tz.css"
+    ],
+    "assets": [
+      "assets/vue-logo/vue-logo._cUAdIX-.svg"
+    ]
+  }
+}

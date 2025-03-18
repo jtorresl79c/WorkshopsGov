@@ -11,13 +11,6 @@
 </div>
 
 @section Scripts {
-    <environment include="Development">
-        @* Carga la aplicación Vue desde el servidor de desarrollo de Vite *@
-        <script type="module" src="http://localhost:5173/src/pages/playground/index.js"></script>
-    </environment>
-    <environment exclude="Development">
-        @* Carga la aplicación Vue compilada para producción *@
-        <script type="module" src="~/vue-apps/assets/playground/playground.js"></script>
-        <link rel="stylesheet" href="~/vue-apps/assets/playground/playground.css">
-    </environment>
+    <vite-script entry="playground" dev-server="http://localhost:5173"></vite-script>
+    <vite-style entry="playground"></vite-style>
 }

@@ -27,6 +27,7 @@ export default defineConfig({
 
   // Configuración de múltiples entradas
   build: {
+    manifest: true,
     rollupOptions: {
       input: entries,
       output: {

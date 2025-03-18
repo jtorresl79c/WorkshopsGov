@@ -16,6 +16,8 @@ Env.Load(); // Carga las variables desde el archivo .env
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddViteManifest();
+
 // Add services to the container.
 string dbUrl = Environment.GetEnvironmentVariable("POSTGRESQL_CONNECTION") ?? throw new InvalidOperationException("POSTGRESQL_CONNECTION not found.");
 var connectionString = dbUrl ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
