@@ -1,8 +1,12 @@
 {
   "private": true,
   "pnpm": {
-    "ignoredBuiltDependencies": ["esbuild"],
-    "onlyBuiltDependencies": ["esbuild"]
+    "ignoredBuiltDependencies": [
+      "esbuild"
+    ],
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   },
   "scripts": {
     "prestart": "dotnet build",
@@ -12,5 +16,8 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "animejs": "^3.2.2"
   }
 }
