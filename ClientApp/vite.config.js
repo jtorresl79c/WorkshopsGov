@@ -14,7 +14,11 @@ entryFiles.forEach(file => {
 
 export default defineConfig({
   plugins: [vue()],
-
+  css: {
+    preprocessorOptions: {
+      scss: {}
+    }
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

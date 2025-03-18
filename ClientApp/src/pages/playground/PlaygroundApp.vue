@@ -26,8 +26,7 @@ export default {
 }
 </script>
 
-<!--<style scoped lang="scss">-->
-<style scoped>
+<style scoped lang="scss">
 .vue-logo{
   max-width: 500px;
   display: block;
