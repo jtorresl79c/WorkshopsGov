@@ -89,14 +89,18 @@
                 <div class="card text-center bg-secondary bg-lighten-1">
                     <div class="card-content text-white">
                         <div class="card-body">
-                            <h4 class="alert-heading d-flex justify-content-between">Refacciones</h4>
+                            <h4 class="alert-heading d-flex justify-content-between">Estado</h4>
                             <div class="list-group">
-                                N/A
+                                {{inspection.inspectionStatus.name}}
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <div class="alert alert-secondary">
+                    <h4 class="alert-heading">Formatos</h4>
+                    <p>N/A</p>
+                </div>
 
                 <!-- 🔹 Panel del nivel de combustible -->
                 <div class="card" id="nivelCombustible">
@@ -113,12 +117,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="alert alert-secondary">
-                    <h4 class="alert-heading">Fecha de Terminacion</h4>
-                    <p>N/A</p>
-                </div>
-
 
             </div>
         </div>

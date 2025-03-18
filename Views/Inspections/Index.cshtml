@@ -18,64 +18,19 @@
                 <thead>
                     <tr>
                         <th>
-                            @Html.DisplayNameFor(model => model.MemoNumber)
+                            Memo
                         </th>
                         <th>
-                            @Html.DisplayNameFor(model => model.InspectionDate)
+                            Unidad
                         </th>
                         <th>
-                            @Html.DisplayNameFor(model => model.CheckInTime)
+                            Departamento
                         </th>
                         <th>
-                            @Html.DisplayNameFor(model => model.OperatorName)
+                            Taller Externo
                         </th>
                         <th>
-                            @Html.DisplayNameFor(model => model.ApplicationUser)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.InspectionService)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.Vehicle)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.Department)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.ExternalWorkshopBranch)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.DistanceUnit)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.DistanceValue)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.FuelLevel)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.FailureReport)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.VehicleFailureObservation)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.TowRequired)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.InspectionStatus)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.Diagnostic)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.Active)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.CreatedAt)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.UpdatedAt)
+                            Estado
                         </th>
                         <th></th>
                     </tr>
@@ -88,22 +43,7 @@
                                 @Html.DisplayFor(modelItem => item.MemoNumber)
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.InspectionDate)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.CheckInTime)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.OperatorName)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.ApplicationUser.Id)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.InspectionService.Name)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Vehicle.Description)
+                                @Html.DisplayFor(modelItem => item.Vehicle.Oficialia)
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.Department.Name)
@@ -111,43 +51,16 @@
                             <td>
                                 @Html.DisplayFor(modelItem => item.ExternalWorkshopBranch.Name)
                             </td>
+                           
                             <td>
-                                @Html.DisplayFor(modelItem => item.DistanceUnit)
+                                <span class="badge text-bg-secondary">@Html.DisplayFor(modelItem => item.InspectionStatus.Name)</span>
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.DistanceValue)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.FuelLevel)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.FailureReport)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.VehicleFailureObservation)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.TowRequired)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.InspectionStatus.Name)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Diagnostic)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Active)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.CreatedAt)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.UpdatedAt)
-                            </td>
-                            <td>
-                                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info">
+                                    Detalles
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a> |
+                                <a asp-action="Delete" asp-route-id="@item.Id"><i class="bi bi-trash-fill"></i></a>
                             </td>
                         </tr>
                     }
