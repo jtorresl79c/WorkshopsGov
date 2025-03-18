@@ -17,6 +17,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.14" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.14" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.14" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.3" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.14" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.1" />
@@ -40,6 +42,10 @@
       <_ContentIncludedByDefault Remove="Views\DiagnosticStatus\Details.cshtml" />
       <_ContentIncludedByDefault Remove="Views\DiagnosticStatus\Edit.cshtml" />
       <_ContentIncludedByDefault Remove="Views\DiagnosticStatus\Index.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="ClientApp\src\common\assets\" />
     </ItemGroup>
 
 </Project>

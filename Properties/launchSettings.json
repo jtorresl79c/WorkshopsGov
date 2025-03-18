@@ -9,6 +9,15 @@
     }
   },
   "profiles": {
+    "DebugInProductionEnvironment": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "applicationUrl": "http://localhost:5285",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Production"
+      }
+    },
     "http": {
       "commandName": "Project",
       "dotnetRunMessages": true,
