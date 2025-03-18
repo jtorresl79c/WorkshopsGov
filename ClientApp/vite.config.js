@@ -5,15 +5,12 @@ import { fileURLToPath, URL } from 'node:url'
 
 // Busca automáticamente los archivos de entrada
 const entries = {}
-// const entryFiles = glob.sync('./src/pages/**/*App.vue')
 const entryFiles = glob.sync('./src/pages/**/index.js')
 
 entryFiles.forEach(file => {
   const pageName = file.split('/').slice(-2)[0]
   entries[pageName] = fileURLToPath(new URL(file, import.meta.url))
 })
-
-console.log(entries)
 
 export default defineConfig({
   plugins: [vue()],
@@ -38,7 +35,7 @@ export default defineConfig({
     },
     emptyOutDir: true,
     outDir: '../wwwroot/vue-apps',
-    assetsInlineLimit: 0 // Sin esta opcion cuando agrego un svg se pasa automaticamente a base64
+    // assetsInlineLimit: 0 // Sin esta opcion cuando agrego un svg se pasa automaticamente a base64 
     // esta linea fuerza a que sea un archivo.
   },
 

@@ -116,6 +116,15 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/vue-apps"))
+    {
+        Console.WriteLine($"Solicitando: {context.Request.Path}");
+    }
+    await next();
+});
+
 // Ejecutar seeders manualmente
 if (app.Environment.IsDevelopment())
 {

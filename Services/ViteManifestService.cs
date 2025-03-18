@@ -17,8 +17,14 @@ namespace WorkshopsGov.Services
             if (File.Exists(manifestPath))
             {
                 var manifestJson = File.ReadAllText(manifestPath);
-                _manifest = JsonSerializer.Deserialize<Dictionary<string, ManifestEntry>>(manifestJson) 
-                    ?? new Dictionary<string, ManifestEntry>();
+                
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                
+                _manifest = JsonSerializer.Deserialize<Dictionary<string, ManifestEntry>>(manifestJson, options)  
+                            ?? new Dictionary<string, ManifestEntry>();
             }
             else
             {
@@ -59,21 +65,30 @@ namespace WorkshopsGov.Services
         
         public string GetStylePath(string name)
         {
+            // Verifica si la clave existe exactamente como la esperas
             string assetKey = $"src/pages/{name}/index.js";
+            
             if (_manifest.TryGetValue(assetKey, out var entry) && entry.Css.Count > 0)
             {
                 return _baseUrl + entry.Css[0];
             }
-            
-            // Buscar cualquier CSS relacionado con el nombre
-            foreach (var item in _manifest.Values)
+    
+            // Intenta buscar cualquier entrada que contenga el nombre y tenga CSS
+            foreach (var pair in _manifest)
             {
-                if (item.File.Contains(name) && item.Css.Count > 0)
+                if (pair.Key.Contains(name) && pair.Value.Css.Count > 0)
                 {
-                    return _baseUrl + item.Css[0];
+                    return _baseUrl + pair.Value.Css[0];
                 }
             }
-            
+    
+            // Para debugging, puedes imprimir las claves disponibles
+            Console.WriteLine($"No se encontró CSS para {name}. Claves disponibles:");
+            foreach (var key in _manifest.Keys)
+            {
+                Console.WriteLine($"- {key}");
+            }
+    
             // Fallback path si no se encuentra un CSS
             return _baseUrl + $"assets/{name}/{name}.css";
         }
