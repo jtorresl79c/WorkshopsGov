@@ -25,9 +25,14 @@ export default {
     }
   },
   mounted() {
-    axios.get('https://api.github.com/users/hadley/orgs')
+    axios.get('/api/Playground/Get')
         .then((response) => {
-          console.log(response)
+          console.log(response.data)
+        })
+
+    axios.post('/api/Playground/Create')
+        .then((response) => {
+          console.log(response.data)
         })
   },
 }
