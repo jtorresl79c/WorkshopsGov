@@ -17,6 +17,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.14" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.14" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.14" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.3" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.14" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.1" />
@@ -43,7 +45,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="ClientApp\src\pages\playground\components\" />
+      <Folder Include="ClientApp\src\common\assets\" />
     </ItemGroup>
 
 </Project>

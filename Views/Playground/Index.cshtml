@@ -1,41 +1,23 @@
-@* @{ *@
-@*     ViewBag.Title = "title"; *@
-@*     Layout = "_Layout"; *@
-@* } *@
-@* *@
-@* <h2>Playground</h2> *@
-
+@* En tu vista Razor específica, por ejemplo Views/Dashboard/Index.cshtml *@
 @{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Playground";
 }
 
 <div class="container">
-    <h1>Dashboard MVC</h1>
+    <h1>Playground Index</h1>
     
-    <!-- Contenido MVC regular -->
-    <div class="row mb-4">
-        <div class="col">
-            <p>Este es contenido renderizado por MVC.</p>
-        </div>
-    </div>
-    
-    <!-- Componente Vue -->
-    <div id="dashboard-app"></div>
+    @* Aquí incluyes el div donde se montará tu componente Vue *@
+    <div id="playground-app"></div>
 </div>
 
 @section Scripts {
     <environment include="Development">
-        <!-- En desarrollo, carga desde el servidor de Vite -->
-        <script type="module">
-            import { createApp } from 'http://localhost:5173/@vite/client';
-            import DashboardApp from 'http://localhost:5173/src/pages/dashboard/DashboardApp.vue';
-            
-            createApp(DashboardApp).mount('#dashboard-app');
-        </script>
+        @* Carga la aplicación Vue desde el servidor de desarrollo de Vite *@
+        <script type="module" src="http://localhost:5173/src/pages/playground/PlaygroundApp.js"></script>
     </environment>
     <environment exclude="Development">
-        <!-- En producción, carga desde los archivos compilados -->
-        <script type="module" src="~/vue-apps/assets/dashboard/dashboard.js"></script>
-        <link rel="stylesheet" href="~/vue-apps/assets/dashboard/dashboard.css">
+        @* Carga la aplicación Vue compilada para producción *@
+        <script type="module" src="~/vue-apps/assets/playground/playground.js"></script>
+        <link rel="stylesheet" href="~/vue-apps/assets/playground/playground.css">
     </environment>
 }

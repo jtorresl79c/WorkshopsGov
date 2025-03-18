@@ -1,37 +1,29 @@
-// import { defineConfig } from 'vite'
-// import vue from '@vitejs/plugin-vue'
-// import path from 'path'
-//
-// export default defineConfig({
-//   plugins: [vue()],
-//   resolve: {
-//     alias: {
-//       '@': path.resolve(__dirname, 'src')
-//     }
-//   },
-//   server: {
-//     port: 5173,
-//     strictPort: true
-//   }
-// })
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import path from 'path'
 import { glob } from 'glob'
+import { fileURLToPath, URL } from 'node:url'
 
 // Busca automáticamente los archivos de entrada
 const entries = {}
-const entryFiles = glob.sync('./src/pages/**/*/App.{js,vue}')
+// const entryFiles = glob.sync('./src/pages/**/*App.vue')
+const entryFiles = glob.sync('./src/pages/**/index.js')
 
 entryFiles.forEach(file => {
-  // Extrae el nombre de la página del path
   const pageName = file.split('/').slice(-2)[0]
-  entries[pageName] = path.resolve(__dirname, file)
+  entries[pageName] = fileURLToPath(new URL(file, import.meta.url))
 })
+
+console.log(entries)
 
 export default defineConfig({
   plugins: [vue()],
+
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    },
+    extensions: ['.js', '.ts', '.vue', '.json']
+  },
 
   // Configuración de múltiples entradas
   build: {
@@ -44,11 +36,14 @@ export default defineConfig({
       }
     },
     emptyOutDir: true,
-    outDir: '../wwwroot/vue-apps'
+    outDir: '../wwwroot/vue-apps',
+    assetsInlineLimit: 0 // Sin esta opcion cuando agrego un svg se pasa automaticamente a base64
+    // esta linea fuerza a que sea un archivo.
   },
 
   server: {
     port: 5173,
-    strictPort: true
+    strictPort: false,
+    origin: 'http://localhost:5173'
   }
 })

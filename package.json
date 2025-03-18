@@ -3,5 +3,14 @@
   "pnpm": {
     "ignoredBuiltDependencies": ["esbuild"],
     "onlyBuiltDependencies": ["esbuild"]
+  },
+  "scripts": {
+    "prestart": "dotnet build",
+    "start": "dotnet run",
+    "build": "cd ClientApp && pnpm build",
+    "dev": "concurrently \"dotnet run\" \"cd ClientApp && pnpm dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
   }
 }
