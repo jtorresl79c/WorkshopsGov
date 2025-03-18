@@ -10,10 +10,13 @@ using DotNetEnv;
 using WorkshopsGov.Seeders;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using WorkshopsGov.Services; // Asegúrate de importar el namespace
+using Microsoft.Extensions.DependencyInjection;
 
 Env.Load(); // Carga las variables desde el archivo .env
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddViteManifest();
 
 // Add services to the container.
 string dbUrl = Environment.GetEnvironmentVariable("POSTGRESQL_CONNECTION") ?? throw new InvalidOperationException("POSTGRESQL_CONNECTION not found.");
@@ -94,7 +97,33 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 // Agrega esto antes de builder.Build();
 builder.Services.AddSingleton<IEmailSender, DummyEmailSender>();
 
+// Configurar el servicio SPA
+builder.Services.AddSpaStaticFiles(configuration => {
+    configuration.RootPath = "ClientApp/dist";
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowViteDevServer",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        });
+});
+
 var app = builder.Build();
+
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/vue-apps"))
+    {
+        Console.WriteLine($"Solicitando: {context.Request.Path}");
+    }
+    await next();
+});
 
 // Ejecutar seeders manualmente
 if (app.Environment.IsDevelopment())
@@ -137,6 +166,7 @@ if (app.Environment.IsDevelopment()) // Si la aplicación se está ejecutando en
     app.UseMigrationsEndPoint();
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage(); // Para el SPA
 }
 else
 {
@@ -152,8 +182,11 @@ else
 
 app.UseHttpsRedirection(); // Fuerza a la aplicación a redirigir todas las solicitudes HTTP a HTTPS para asegurar las conexiones.
 
+app.UseCors("AllowViteDevServer"); // Agrega esto antes de UseRouting()
+
 // // Middleware esenciales
 app.UseStaticFiles();
+app.UseSpaStaticFiles(); // Para el SPA vue
 app.UseRouting();
 
 // Autentificacion

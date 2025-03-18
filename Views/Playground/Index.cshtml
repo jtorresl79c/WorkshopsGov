@@ -1,6 +1,16 @@
+@* En tu vista Razor específica, por ejemplo Views/Dashboard/Index.cshtml *@
 @{
-    ViewBag.Title = "title";
-    Layout = "_Layout";
+    ViewData["Title"] = "Playground";
 }
 
-<h2>Playground</h2>
+<div class="container">
+    <h1>Playground Index</h1>
+    
+    @* Aquí incluyes el div donde se montará tu componente Vue *@
+    <div id="playground-app"></div>
+</div>
+
+@section Scripts {
+    <vite-script entry="playground" dev-server="http://localhost:5173"></vite-script>
+    <vite-style entry="playground"></vite-style>
+}
