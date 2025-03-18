@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -53,7 +54,8 @@ namespace WorkshopsGov.Controllers
         // GET: Inspections/Create
         public IActionResult Create()
         {
-            ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id");
+            ViewBag.CurrentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id", ViewBag.CurrentUserId);
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name");
             ViewData["ExternalWorkshopBranchId"] = new SelectList(_context.ExternalWorkshopBranches, "Id", "Name");
             ViewData["InspectionServiceId"] = new SelectList(_context.InspectionServices, "Id", "Name");
@@ -69,6 +71,19 @@ namespace WorkshopsGov.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,MemoNumber,InspectionDate,CheckInTime,OperatorName,ApplicationUserId,InspectionServiceId,VehicleId,DepartmentId,ExternalWorkshopBranchId,DistanceUnit,DistanceValue,FuelLevel,FailureReport,VehicleFailureObservation,TowRequired,InspectionStatusId,Diagnostic,Active,CreatedAt,UpdatedAt")] Inspection inspection)
         {
+
+            ModelState.Remove("Vehicle");
+            ModelState.Remove("Department");
+            ModelState.Remove("ApplicationUser");
+            ModelState.Remove("InspectionStatus");
+            ModelState.Remove("InspectionService");
+            ModelState.Remove("ExternalWorkshopBranch");
+
+            inspection.InspectionStatusId = 1;  // ID por defecto
+            inspection.InspectionDate = DateTime.SpecifyKind(inspection.InspectionDate, DateTimeKind.Utc);
+            inspection.CreatedAt = DateTime.UtcNow;
+            inspection.UpdatedAt = DateTime.UtcNow;
+
             if (ModelState.IsValid)
             {
                 _context.Add(inspection);

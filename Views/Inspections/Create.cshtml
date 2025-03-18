@@ -4,6 +4,7 @@
     ViewData["Title"] = "Crear Inspección";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<link rel="stylesheet" href="~/css/gasolina.css" />
 
 <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb mb-0">
@@ -48,6 +49,12 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
+                                <label asp-for="InspectionServiceId" class="control-label">Tipo de Servicio</label>
+                                <select asp-for="InspectionServiceId" class="form-control" asp-items="ViewBag.InspectionServiceId"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
                                 <label asp-for="OperatorName" class="control-label">Operador</label>
                                 <input asp-for="OperatorName" class="form-control" />
                                 <span asp-validation-for="OperatorName" class="text-danger"></span>
@@ -59,20 +66,51 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label asp-for="InspectionServiceId" class="control-label">Tipo de Servicio</label>
-                                <select asp-for="InspectionServiceId" class="form-control" asp-items="ViewBag.InspectionServiceId"></select>
+                                <label asp-for="VehicleId" class="control-label">Unidad</label>
+                                <select asp-for="VehicleId" class="form-control" asp-items="ViewBag.VehicleId">
+                                    <option value="" selected>-- Seleccionar Unidad --</option>
+                                </select>
+                                <span asp-validation-for="VehicleId" class="text-danger"></span>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label asp-for="VehicleId" class="control-label">Vehículo</label>
-                                <select asp-for="VehicleId" class="form-control" asp-items="ViewBag.VehicleId"></select>
-                            </div>
+
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label asp-for="DepartmentId" class="control-label">Departamento</label>
-                                <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.DepartmentId"></select>
+                                <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.DepartmentId">
+                                    <option value="" selected>-- Seleccionar Departamento --</option>
+                                </select>
+                                <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="ExternalWorkshopBranchId" class="control-label">Sucursal Taller</label>
+                                <select asp-for="ExternalWorkshopBranchId" class="form-control" asp-items="ViewBag.ExternalWorkshopBranchId">
+                                    <option value="" selected>-- Seleccionar Sucursal --</option>
+                                </select>
+                                <span asp-validation-for="ExternalWorkshopBranchId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="DistanceUnit" class="control-label">Unidad de Distancia</label>
+                                <select asp-for="DistanceUnit" class="form-control" id="distanceUnit">
+                                    <option value="" selected>-- Seleccionar Unidad --</option>
+                                    <option value="KM">Kilómetros</option>
+                                    <option value="MI">Millas</option>
+                                </select>
+                                <span asp-validation-for="DistanceUnit" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="DistanceValue" class="control-label">Valor de Distancia</label>
+                                <input asp-for="DistanceValue" class="form-control" id="distanceValue" disabled />
+                                <span asp-validation-for="DistanceValue" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -80,41 +118,45 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label asp-for="ExternalWorkshopBranchId" class="control-label">Sucursal Taller</label>
-                                <select asp-for="ExternalWorkshopBranchId" class="form-control" asp-items="ViewBag.ExternalWorkshopBranchId"></select>
+                                <label asp-for="FuelLevel" class="control-label">Nivel de Combustible</label>
+                                <div class="d-flex align-items-center justify-content-center border p-3">
+                                    <div class="svg-container mb-4 ">
+                                        <img class="gasolina-bg img-fluid " src="~/images/gasolina_fondo.svg" alt="Fondo de Gasolina">
+                                        <svg class="aguja-gasolina" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="12" y1="2" x2="12" y2="18" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></line>
+                                            <circle cx="12" cy="20" r="2" fill="red"></circle>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="input-group">
+                                    <button type="button" class="btn btn-danger" onclick="disminuirValor()">-</button>
+                                    <input asp-for="FuelLevel" class="form-control text-center" type="number" min="1" max="100" id="valorPluma" value="50" />
+                                    <button type="button" class="btn btn-primary" onclick="aumentarValor()">+</button>
+                                </div>
+                                <span asp-validation-for="FuelLevel" class="text-danger"></span>
                             </div>
                         </div>
-                        <div class="col-md-3">
+
+                        <div class="col-md-6">
                             <div class="form-group">
-                                <label asp-for="DistanceUnit" class="control-label">Unidad de Distancia</label>
-                                <input asp-for="DistanceUnit" class="form-control" />
-                                <span asp-validation-for="DistanceUnit" class="text-danger"></span>
+                                <label asp-for="FailureReport" class="control-label">Reporte de Fallas</label>
+                                <textarea asp-for="FailureReport" class="form-control" rows="12"></textarea>
+                                <span asp-validation-for="FailureReport" class="text-danger"></span>
                             </div>
                         </div>
-                        <div class="col-md-3">
+
+                        <div class="col-md-3 ">
                             <div class="form-group">
-                                <label asp-for="DistanceValue" class="control-label">Valor de Distancia</label>
-                                <input asp-for="DistanceValue" class="form-control" />
-                                <span asp-validation-for="DistanceValue" class="text-danger"></span>
+                            <label class="form-check-label">
+                                <input class="form-check-input" asp-for="TowRequired" /> Se requiere grúa
+                            </label>
+
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label asp-for="FuelLevel" class="control-label">Nivel de Combustible</label>
-                                <input asp-for="FuelLevel" class="form-control" />
-                                <span asp-validation-for="FuelLevel" class="text-danger"></span>
-                            </div>
-                        </div>
-                        <div class="col-md-9">
-                            <div class="form-group">
-                                <label asp-for="FailureReport" class="control-label">Reporte de Fallas</label>
-                                <textarea asp-for="FailureReport" class="form-control" rows="3"></textarea>
-                                <span asp-validation-for="FailureReport" class="text-danger"></span>
-                            </div>
-                        </div>
+                       
                     </div>
 
                     <div class="form-group">
@@ -123,44 +165,11 @@
                         <span asp-validation-for="VehicleFailureObservation" class="text-danger"></span>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="InspectionStatusId" class="control-label">Estado de Inspección</label>
-                                <select asp-for="InspectionStatusId" class="form-control" asp-items="ViewBag.InspectionStatusId"></select>
-                            </div>
-                        </div>
-                        <div class="col-md-3 form-check">
-                            <label class="form-check-label">
-                                <input class="form-check-input" asp-for="TowRequired" /> Se requiere grúa
-                            </label>
-                        </div>
-                        <div class="col-md-3 form-check">
-                            <label class="form-check-label">
-                                <input class="form-check-input" asp-for="Active" /> Activo
-                            </label>
-                        </div>
-                    </div>
 
                     <div class="form-group">
                         <label asp-for="Diagnostic" class="control-label">Diagnóstico</label>
                         <textarea asp-for="Diagnostic" class="form-control" rows="3"></textarea>
                         <span asp-validation-for="Diagnostic" class="text-danger"></span>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="CreatedAt" class="control-label">Fecha de Creación</label>
-                                <input asp-for="CreatedAt" class="form-control" readonly />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="UpdatedAt" class="control-label">Última Actualización</label>
-                                <input asp-for="UpdatedAt" class="form-control" readonly />
-                            </div>
-                        </div>
                     </div>
 
                     <div class="form-group mt-3">
@@ -171,6 +180,27 @@
         </div>
     </div>
 </div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<script src="~/js/gasolina.js"></script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let distanceUnit = document.getElementById("distanceUnit");
+        let distanceValue = document.getElementById("distanceValue");
+
+        distanceUnit.addEventListener("change", function () {
+            if (distanceUnit.value === "KM" || distanceUnit.value === "MI") {
+                distanceValue.removeAttribute("disabled"); // Habilita el campo
+            } else {
+                distanceValue.setAttribute("disabled", "disabled"); // Lo desactiva si no hay selección
+                distanceValue.value = ""; // Limpia el valor si se deshabilita
+            }
+        });
+    });
+</script>
 
 @section Scripts {
     @{
