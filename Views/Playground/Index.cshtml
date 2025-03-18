@@ -1,6 +1,41 @@
+@* @{ *@
+@*     ViewBag.Title = "title"; *@
+@*     Layout = "_Layout"; *@
+@* } *@
+@* *@
+@* <h2>Playground</h2> *@
+
 @{
-    ViewBag.Title = "title";
-    Layout = "_Layout";
+    ViewData["Title"] = "Dashboard";
 }
 
-<h2>Playground</h2>
+<div class="container">
+    <h1>Dashboard MVC</h1>
+    
+    <!-- Contenido MVC regular -->
+    <div class="row mb-4">
+        <div class="col">
+            <p>Este es contenido renderizado por MVC.</p>
+        </div>
+    </div>
+    
+    <!-- Componente Vue -->
+    <div id="dashboard-app"></div>
+</div>
+
+@section Scripts {
+    <environment include="Development">
+        <!-- En desarrollo, carga desde el servidor de Vite -->
+        <script type="module">
+            import { createApp } from 'http://localhost:5173/@vite/client';
+            import DashboardApp from 'http://localhost:5173/src/pages/dashboard/DashboardApp.vue';
+            
+            createApp(DashboardApp).mount('#dashboard-app');
+        </script>
+    </environment>
+    <environment exclude="Development">
+        <!-- En producción, carga desde los archivos compilados -->
+        <script type="module" src="~/vue-apps/assets/dashboard/dashboard.js"></script>
+        <link rel="stylesheet" href="~/vue-apps/assets/dashboard/dashboard.css">
+    </environment>
+}

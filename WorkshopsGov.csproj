@@ -42,4 +42,8 @@
       <_ContentIncludedByDefault Remove="Views\DiagnosticStatus\Index.cshtml" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="ClientApp\src\pages\playground\components\" />
+    </ItemGroup>
+
 </Project>
