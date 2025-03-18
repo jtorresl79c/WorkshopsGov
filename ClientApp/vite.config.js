@@ -2,14 +2,18 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { glob } from 'glob'
 import { fileURLToPath, URL } from 'node:url'
+import path from 'path';
 
 // Busca automáticamente los archivos de entrada
 const entries = {}
 const entryFiles = glob.sync('./src/pages/**/index.js')
 
 entryFiles.forEach(file => {
-  const pageName = file.split('/').slice(-2)[0]
-  entries[pageName] = fileURLToPath(new URL(file, import.meta.url))
+    // Normaliza la ruta para que funcione en Windows y Linux/Mac
+    const normalizedPath = file.split(path.sep).join('/');
+    const pageName = normalizedPath.split('/').slice(-2)[0];
+
+    entries[pageName] = fileURLToPath(new URL(normalizedPath, import.meta.url));
 })
 
 export default defineConfig({
@@ -31,10 +35,11 @@ export default defineConfig({
     manifest: true,
     rollupOptions: {
       input: entries,
-      output: {
-        entryFileNames: 'assets/[name]/[name].[hash].js',
-        chunkFileNames: 'assets/[name]/chunks/[name].[hash].js',
-        assetFileNames: 'assets/[name]/[name].[hash].[ext]'
+        output: {
+          format: "es",
+          entryFileNames: 'assets/pages/[name]/[name].[hash].js',
+          chunkFileNames: 'assets/chunks/[name].[hash].js',
+          assetFileNames: 'assets/[name].[hash].[ext]'
       }
     },
     emptyOutDir: true,
@@ -46,6 +51,9 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: false,
-    origin: 'http://localhost:5173'
+      origin: 'http://localhost:5173',
+      headers: {
+          'Content-Type': 'text/html; charset=UTF-8'
+      }
   }
 })

@@ -10,8 +10,16 @@ namespace WorkshopsGov.Seeders
             if (!context.Sectors.Any())
             {
                 context.Sectors.AddRange(
-                    new Sector { Name = "Technology", Active = true },
-                    new Sector { Name = "Finance", Active = true }
+                    new Sector { Name = "SECTOR LIBERTAD (Transferencia)", Active = true },
+                    new Sector { Name = "SECTOR PRESA (Transferencia)", Active = true },
+                    new Sector { Name = "SECTOR SAB (Valle Sur Transferencia)", Active = true },
+                    new Sector { Name = "SECTOR OTAY", Active = true },
+                    new Sector { Name = "SECTOR PLAYAS", Active = true },
+                    new Sector { Name = "SECTOR MAQUINARIA Y EQUIPO", Active = true },
+                    new Sector { Name = "SECTOR LA MESA", Active = true },
+                    new Sector { Name = "PALACIO MUNICIPAL", Active = true },
+                    new Sector { Name = "SEGURIDAD PUBLICA", Active = true },
+                    new Sector { Name = "TALLER CENTRAL (Vía Rápida)", Active = true }
                 );
                 context.SaveChanges();
             }

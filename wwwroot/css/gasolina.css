@@ -1,0 +1,41 @@
+﻿.svg-container {
+    position: relative;
+    width: 300px; /* Ajusta el tamaño del contenedor según sea necesario */
+    height: 200px; /* Ajusta el tamaño del contenedor según sea necesario */
+}
+@media (max-width: 767px) {
+    .svg-container {
+        position: relative;
+        width: 268px;
+        height: 145px;
+    }
+}
+
+.gasolina-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.aguja-gasolina {
+    position: absolute;
+    top: 38%;
+    left: 34%;
+    width: 100px; /* Ajusta el tamaño según sea necesario */
+    height: 100px; /* Ajusta el tamaño según sea necesario */
+    transform-origin: center bottom; /* Ajusta el punto de rotación */
+    cursor: pointer;
+}
+@media (max-width: 767px) {
+    .aguja-gasolina {
+        position: absolute;
+        top: 26%;
+        left: 28%;
+        width: 100px;
+        height: 100px;
+        transform-origin: center bottom;
+        cursor: pointer;
+    }
+}
