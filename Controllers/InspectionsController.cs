@@ -88,7 +88,8 @@ namespace WorkshopsGov.Controllers
             {
                 _context.Add(inspection);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", new { id = inspection.Id });
+                //return RedirectToAction(nameof(Index));
             }
             ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id", inspection.ApplicationUserId);
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", inspection.DepartmentId);
