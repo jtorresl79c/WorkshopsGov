@@ -28,11 +28,23 @@ namespace WorkshopsGov.Controllers
         }
 
         // GET: Inspections/Details/5
-        public async Task<IActionResult> Details(int? id)
+
+        public IActionResult Details(int? id)
         {
             if (id == null)
             {
                 return NotFound();
+            }
+
+            return View();
+        }
+
+        [HttpGet("api/inspections/{id}")]
+        public async Task<IActionResult> GetInspectionDetails(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest(new { message = "ID inválido" });
             }
 
             var inspection = await _context.Inspections
@@ -43,13 +55,87 @@ namespace WorkshopsGov.Controllers
                 .Include(i => i.InspectionStatus)
                 .Include(i => i.Vehicle)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (inspection == null)
             {
-                return NotFound();
+                return NotFound(new { message = "Inspección no encontrada" });
             }
 
-            return View(inspection);
+            var inspectionDto = new
+            {
+                Id = inspection.Id,
+                MemoNumber = inspection.MemoNumber,
+                InspectionDate = inspection.InspectionDate.ToString("yyyy-MM-dd"),
+                CheckInTime = inspection.CheckInTime,
+                OperatorName = inspection.OperatorName,
+                FailureReport = inspection.FailureReport,
+                DistanceUnit = inspection.DistanceUnit,
+                DistanceValue = inspection.DistanceValue,
+                FuelLevel = inspection.FuelLevel,
+                // Relaciones
+                ApplicationUser = new
+                {
+                    Id = inspection.ApplicationUser?.Id,
+                    UserName = inspection.ApplicationUser?.UserName,
+                    Email = inspection.ApplicationUser?.Email
+                },
+                Department = new
+                {
+                    Id = inspection.Department?.Id,
+                    Name = inspection.Department?.Name
+                },
+                ExternalWorkshopBranch = new
+                {
+                    Id = inspection.ExternalWorkshopBranch?.Id,
+                    Name = inspection.ExternalWorkshopBranch?.Name
+                },
+                InspectionService = new
+                {
+                    Id = inspection.InspectionService?.Id,
+                    Name = inspection.InspectionService?.Name
+                },
+                InspectionStatus = new
+                {
+                    Id = inspection.InspectionStatus?.Id,
+                    Name = inspection.InspectionStatus?.Name
+                },
+                Vehicle = new
+                {
+                    Id = inspection.Vehicle?.Id,
+                    Description = inspection.Vehicle?.Description,
+                    LicensePlate = inspection.Vehicle?.LicensePlate // CORREGIDO
+                },
+                TowRequired = inspection.TowRequired
+            };
+
+            return Ok(inspectionDto);
         }
+
+
+
+
+        //public Task<IActionResult> Details(int? id)
+        //{
+        //    //if (id == null)
+        //    //{
+        //    //    return NotFound();
+        //    //}
+
+        //    //var inspection = await _context.Inspections
+        //    //    .Include(i => i.ApplicationUser)
+        //    //    .Include(i => i.Department)
+        //    //    .Include(i => i.ExternalWorkshopBranch)
+        //    //    .Include(i => i.InspectionService)
+        //    //    .Include(i => i.InspectionStatus)
+        //    //    .Include(i => i.Vehicle)
+        //    //    .FirstOrDefaultAsync(m => m.Id == id);
+        //    //if (inspection == null)
+        //    //{
+        //    //    return NotFound();
+        //    //}
+
+        //    return View();
+        //}
 
         // GET: Inspections/Create
         public IActionResult Create()

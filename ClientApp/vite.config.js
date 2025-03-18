@@ -52,8 +52,6 @@ export default defineConfig({
     port: 5173,
     strictPort: false,
       origin: 'http://localhost:5173',
-      headers: {
-          'Content-Type': 'text/html; charset=UTF-8'
-      }
+      'Access-Control-Allow-Origin': '*'
   }
 })

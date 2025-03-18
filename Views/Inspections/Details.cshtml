@@ -1,9 +1,11 @@
 ﻿@model WorkshopsGov.Models.Inspection
 
+
 @{
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<link rel="stylesheet" href="~/css/gasolina.css" />
 
 <div id="inspections-app"></div>
 
@@ -12,21 +14,13 @@
 <vite-style entry="inspections"></vite-style>
 }
 
-<nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item">
-            <a asp-action="Index">Inspecciones</a>
-        </li>
-        <li class="breadcrumb-item active" aria-current="page">Agregar nueva inspección</li>
-    </ol>
-</nav>
+
 
 <div class="row">
     <div class="col-sm-12 col-lg-12">
         <div class="card">
             <div class="card-body">
 
-                <h1>Detailss</h1>
 
                 <div>
                     <h4>Inspection</h4>
@@ -154,11 +148,9 @@
                         </dd>
                     </dl>
                 </div>
-                <div>
-                    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-                    <a asp-action="Index">Back to List</a>
-                </div>
+               
             </div>
         </div>
     </div>
 </div>
+
