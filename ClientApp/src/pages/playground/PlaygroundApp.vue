@@ -14,6 +14,7 @@
 import HelloWorld from '@/pages/playground/components/HelloWorld'
 import logoSrc from '@/common/assets/vue-logo.svg'
 import gundamColors from '@/common/assets/gundam-colors.png'
+import axios from 'axios'
 export default {
   name: "PlaygroundApp",
   components: { HelloWorld },
@@ -22,6 +23,12 @@ export default {
       logoSrc,
       gundamColors
     }
+  },
+  mounted() {
+    axios.get('https://api.github.com/users/hadley/orgs')
+        .then((response) => {
+          console.log(response)
+        })
   },
 }
 </script>
