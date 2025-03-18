@@ -64,16 +64,16 @@
                                 <p class="fw-bold m-0">Fecha</p>
                                 <p class="m-0">{{inspection.inspectionDate}}</p>
                             </div>
-                            <div class="col-12 col-lg-5 mb-2 mb-lg-0">
-                                <p class="fw-bold m-0">Reporte de Falla</p>
-                                {{inspection.failureReport}}
-                            </div>
+
 
                             <div class="col-12 col-lg-4 mb-2 mb-lg-0">
                                 <p class="fw-bold m-0">MILLAS /KM</p>
                                 {{inspection.distanceValue}} ({{inspection.distanceUnit}})
                             </div>
-
+                        </div>
+                        <div class="col-12 col-lg-12 mb-2 mb-lg-0">
+                            <p class="fw-bold m-0">Reporte de Falla</p>
+                            {{inspection.failureReport}}
                         </div>
                     </div>
                 </div>
@@ -101,6 +101,18 @@
                     <h4 class="alert-heading">Formatos</h4>
                     <p>N/A</p>
                 </div>
+                
+                <div class="bg-white border p-4 mb-4">
+                    <div class="d-flex flex-column align-items-end">
+                        <i class="bi bi-file-earmark-pdf-fill text-danger" style="font-size: 5em"></i>
+                        <!-- Enlace de descarga -->
+                        <a href="ruta-del-archivo.pdf" class="mt-2 text-primary fw-bold" download>Descargar Formato</a>
+
+                        <!-- Nombre del formato -->
+                        <p class="mt-1 text-muted">Nombre del Formato</p>
+                    </div>
+                </div>
+
 
                 <!-- 🔹 Panel del nivel de combustible -->
                 <div class="card" id="nivelCombustible">
