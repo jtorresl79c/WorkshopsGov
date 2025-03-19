@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WorkshopsGov.Data;
 using WorkshopsGov.Models;
+using WorkshopsGov.Services;
 
 namespace WorkshopsGov.Controllers
 {
@@ -111,7 +112,26 @@ namespace WorkshopsGov.Controllers
             return Ok(inspectionDto);
         }
 
+        [HttpPost("api/inspections/{id}/generate-pdf")]
+        public async Task<IActionResult> GeneratePdf(int id)
+        {
+            var inspection = await _context.Inspections.FindAsync(id);
 
+            if (inspection == null)
+            {
+                return NotFound(new { message = "Inspección no encontrada" });
+            }
+
+            var fileName = InspectionPdfGenerator.GenerateAndSavePdf(id);
+
+            if (fileName == null)
+            {
+                return StatusCode(500, new { message = "Error al generar el PDF" });
+            }
+
+            var filePath = $"/Formats/{fileName}";
+            return Ok(new { fileName, filePath });
+        }
 
 
         //public Task<IActionResult> Details(int? id)

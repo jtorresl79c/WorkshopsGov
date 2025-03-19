@@ -20,7 +20,7 @@
     <div v-else>
 
         <div class="row">
-            <div class="col-12 mb-4 col-lg-8 mb-lg-0">
+            <div class="col-md-8">
                 <div class="bg-white">
                     <div class="w-100 d-flex justify-content-between align-items-center border p-4 mb-4">
                         <div class="d-flex flex-column">
@@ -82,7 +82,7 @@
 
 
 
-            <div class="col-12 mb-4 col-lg-4 mb-lg-0">
+            <div class="col-md-4">
 
 
 
@@ -101,15 +101,17 @@
                     <h4 class="alert-heading">Formatos</h4>
                     <p>N/A</p>
                 </div>
-                
+
                 <div class="bg-white border p-4 mb-4">
                     <div class="d-flex flex-column align-items-end">
                         <i class="bi bi-file-earmark-pdf-fill text-danger" style="font-size: 5em"></i>
-                        <!-- Enlace de descarga -->
-                        <a href="ruta-del-archivo.pdf" class="mt-2 text-primary fw-bold" download>Descargar Formato</a>
 
-                        <!-- Nombre del formato -->
-                        <p class="mt-1 text-muted">Nombre del Formato</p>
+                        <!-- 🔹 Botón para abrir PDF en nueva pestaña -->
+                        <button @click="viewPdf" class="btn btn-success mt-2">
+                            Ver PDF
+                        </button>
+
+                        <p class="mt-1 text-muted">Formato de Inspección</p>
                     </div>
                 </div>
 
@@ -160,14 +162,15 @@
                 fuelLevel: 0 // Nuevo campo
             });
 
-            // Estado de carga
+            // Estados de carga y PDF
             const isLoading = ref(true);
+            const pdfUrl = ref(null);  // Guarda la URL del PDF generado
             const aguja = ref(null);
 
-            // Función para animar la aguja
+            // 🔹 Función para animar la aguja de gasolina
             const moverAguja = (valor) => {
                 valor = Math.max(0, Math.min(100, valor));
-                const nuevaRotacion = -60 + (120 * valor) / 100; // Rango de rotación entre -60 y 60 grados
+                const nuevaRotacion = -60 + (120 * valor) / 100; // Rango de -60° a 60°
                 anime({
                     targets: aguja.value,
                     rotate: nuevaRotacion,
@@ -176,7 +179,7 @@
                 });
             };
 
-            // Función para obtener los datos
+            // 🔹 Función para obtener los datos de inspección
             const fetchInspection = async () => {
                 try {
                     const inspectionId = window.location.pathname.split("/").pop();
@@ -184,15 +187,35 @@
 
                     // Actualiza el modelo reactivo con los datos recibidos
                     Object.assign(inspection, response.data);
+
+                    // Verifica si existe un PDF previamente generado
+                    pdfUrl.value = `/Formats/Inspeccion_${inspectionId}.pdf`; // Ruta donde se guardará
                 } catch (error) {
                     console.error("Error cargando la inspección:", error);
                 } finally {
-                    // Desactiva el estado de carga cuando termine la petición
                     isLoading.value = false;
                 }
             };
 
-            // Vigilar cambios en fuelLevel y actualizar la aguja
+            // 🔹 Función para generar el PDF y abrirlo en una nueva pestaña
+            const viewPdf = async () => {
+                try {
+                    const inspectionId = inspection.id;
+                    const response = await axios.post(`/api/inspections/${inspectionId}/generate-pdf`);
+
+                    if (response.data.fileName) {
+                        const newPdfUrl = `/Formats/${response.data.fileName}`;
+                        pdfUrl.value = newPdfUrl;
+
+                        // 🔹 Abrir el PDF en una nueva pestaña
+                        window.open(newPdfUrl, "_blank");
+                    }
+                } catch (error) {
+                    console.error("Error generando el PDF:", error);
+                }
+            };
+
+            // Observa cambios en fuelLevel para animar la aguja
             watch(() => inspection.fuelLevel, (newValue) => {
                 if (aguja.value) {
                     moverAguja(newValue);
@@ -202,10 +225,11 @@
             // Llamar a la API cuando el componente se monte
             onMounted(async () => {
                 await fetchInspection();
-                moverAguja(inspection.fuelLevel); // Asegurar que se mueva al cargar
+                moverAguja(inspection.fuelLevel); // Mueve la aguja después de cargar
             });
 
-            return { inspection, isLoading, aguja };
+            return { inspection, isLoading, pdfUrl, viewPdf, aguja };
         }
     };
 </script>
+
