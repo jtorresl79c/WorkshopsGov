@@ -11,11 +11,12 @@ using WorkshopsGov.Seeders;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using WorkshopsGov.Services; // Asegúrate de importar el namespace
 using Microsoft.Extensions.DependencyInjection;
+using WorkshopsGov.Controllers.Global;
 
 Env.Load(); // Carga las variables desde el archivo .env
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddViteManifest();
 
 // Add services to the container.
@@ -29,6 +30,8 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 // Permite usar vistas normales (MVC) y APIs con [ApiController]
 builder.Services.AddControllersWithViews(); // builder.Services.AddMvc();
 builder.Services.AddRazorPages();
+
+
 
 // Habilita Swagger para documentar y probar las APIs
 // Con esto, puedes usar https://localhost:5001/swagger para probar tus APIs y seguir desarrollando la interfaz con
@@ -114,7 +117,13 @@ builder.Services.AddCors(options =>
         });
 });
 
+
 var app = builder.Build();
+
+// Inicializar Utilidades con la configuración y el HttpContextAccessor
+var httpContextAccessor = app.Services.GetRequiredService<IHttpContextAccessor>();
+Utilidades.Initialize(builder.Configuration, httpContextAccessor);
+
 
 app.Use(async (context, next) =>
 {
