@@ -84,8 +84,6 @@
 
             <div class="col-md-4">
 
-
-
                 <div class="card text-center bg-secondary bg-lighten-1">
                     <div class="card-content text-white">
                         <div class="card-body">
@@ -97,21 +95,33 @@
                     </div>
                 </div>
 
-                <div class="alert alert-secondary">
-                    <h4 class="alert-heading">Formatos</h4>
-                    <p>N/A</p>
-                </div>
-
                 <div class="bg-white border p-4 mb-4">
                     <div class="d-flex flex-column align-items-end">
                         <i class="bi bi-file-earmark-pdf-fill text-danger" style="font-size: 5em"></i>
 
-                        <!-- 🔹 Botón para abrir PDF en nueva pestaña -->
-                        <button @click="viewPdf" class="btn btn-success mt-2">
-                            Ver PDF
-                        </button>
+                        <!-- 🔹 Mostrar el botón de ver archivo si ya existe -->
+                        <template v-if="inspection.fileDigitalizado">
+                            <a :href="inspection.fileDigitalizado.Path" target="_blank" class="btn btn-primary mt-2">
+                                Ver Archivo Digitalizado
+                            </a>
+                            <p class="mt-1 text-muted">Archivo subido el Archivo subido el {{ formatDate(inspection.fileDigitalizado.uploadedAt) }}</p>
 
-                        <p class="mt-1 text-muted">Formato de Inspección</p>
+                            <a :href="getFileUrl(inspection.id, fileTypeId)"
+                               target="_blank"
+                               class="btn btn-primary">
+                                Ver Archivo
+                            </a>
+                        </template>
+
+                        <!-- 🔹 Si no hay archivo, mostrar el formulario de subida -->
+                        <template v-else>
+                            <form @submit.prevent="UploadFile" enctype="multipart/form-data" class="d-flex flex-column align-items-end">
+                                <input type="file" @change="handleFileUpload" required class="form-control mb-2">
+                                <button type="submit" class="btn btn-outline-success">
+                                    {{ isUploading ? "Subiendo..." : "Subir Archivo" }}
+                                </button>
+                            </form>
+                        </template>
                     </div>
                 </div>
 
@@ -159,18 +169,35 @@
                 inspectionStatus: { id: 0, name: "" },
                 vehicle: { id: 0, description: "", licensePlate: "" },
                 towRequired: false,
-                fuelLevel: 0 // Nuevo campo
+                fuelLevel: 0,
+                fileDigitalizado: null
             });
 
             // Estados de carga y PDF
             const isLoading = ref(true);
-            const pdfUrl = ref(null);  // Guarda la URL del PDF generado
+            const pdfUrl = ref(null);
             const aguja = ref(null);
+            const isGenerating = ref(false);
+            const downloadForm = ref(null);
+            const selectedFile = ref(null);
+            const isUploading = ref(false);
+
+            // 🔹 Función para formatear fechas
+            const formatDate = (dateString) => {
+                if (!dateString) return "Fecha no disponible"; // Evitar errores con fechas nulas
+                return new Date(dateString).toLocaleString("es-ES", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
+            };
 
             // 🔹 Función para animar la aguja de gasolina
             const moverAguja = (valor) => {
                 valor = Math.max(0, Math.min(100, valor));
-                const nuevaRotacion = -60 + (120 * valor) / 100; // Rango de -60° a 60°
+                const nuevaRotacion = -60 + (120 * valor) / 100;
                 anime({
                     targets: aguja.value,
                     rotate: nuevaRotacion,
@@ -188,30 +215,67 @@
                     // Actualiza el modelo reactivo con los datos recibidos
                     Object.assign(inspection, response.data);
 
-                    // Verifica si existe un PDF previamente generado
-                    pdfUrl.value = `/Formats/Inspeccion_${inspectionId}.pdf`; // Ruta donde se guardará
+                    pdfUrl.value = `/Formats/Inspeccion_${inspectionId}.pdf`;
                 } catch (error) {
                     console.error("Error cargando la inspección:", error);
                 } finally {
                     isLoading.value = false;
                 }
             };
+            const getFileByType = (fileTypeId) => {
+                return inspection.files.find(file => file.FileTypeId === fileTypeId) || null;
+            };
 
+            const getFileUrl = (inspectionId, fileTypeId) => {
+                return `/Inspections/DownloadFile/${inspectionId}?fileTypeId=${fileTypeId}`;
+            };
             // 🔹 Función para generar el PDF y abrirlo en una nueva pestaña
-            const viewPdf = async () => {
-                try {
-                    const inspectionId = inspection.id;
-                    const response = await axios.post(`/api/inspections/${inspectionId}/generate-pdf`);
+            const DownloadFileOrGenerateFile = () => {
+                if (isGenerating.value) return;
+                isGenerating.value = true;
 
-                    if (response.data.fileName) {
-                        const newPdfUrl = `/Formats/${response.data.fileName}`;
-                        pdfUrl.value = newPdfUrl;
-
-                        // 🔹 Abrir el PDF en una nueva pestaña
-                        window.open(newPdfUrl, "_blank");
+                setTimeout(() => {
+                    if (downloadForm.value) {
+                        downloadForm.value.submit();
+                    } else {
+                        console.error("No se encontró el formulario para descargar el archivo.");
                     }
+                    isGenerating.value = false;
+                }, 100);
+            };
+
+            // 🔹 Función para manejar la selección del archivo
+            const handleFileUpload = (event) => {
+                selectedFile.value = event.target.files[0];
+            };
+
+            // 🔹 Función para subir el archivo digitalizado
+            const UploadFile = async () => {
+                if (!selectedFile.value) {
+                    alert("Por favor, selecciona un archivo antes de subirlo.");
+                    return;
+                }
+
+                isUploading.value = true;
+                const formData = new FormData();
+                formData.append("file", selectedFile.value);
+                formData.append("id", inspection.id);
+
+                try {
+                    await axios.post("/Inspections/UploadFile", formData, {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    });
+
+                    alert("Archivo subido exitosamente.");
+                    selectedFile.value = null; // Resetear el input
+                    await fetchInspection(); // Recargar datos para obtener el archivo actualizado
                 } catch (error) {
-                    console.error("Error generando el PDF:", error);
+                    console.error("Error subiendo el archivo:", error);
+                    alert("Error al subir el archivo.");
+                } finally {
+                    isUploading.value = false;
                 }
             };
 
@@ -225,10 +289,15 @@
             // Llamar a la API cuando el componente se monte
             onMounted(async () => {
                 await fetchInspection();
-                moverAguja(inspection.fuelLevel); // Mueve la aguja después de cargar
+                moverAguja(inspection.fuelLevel);
             });
 
-            return { inspection, isLoading, pdfUrl, viewPdf, aguja };
+            return {
+                inspection, isLoading, pdfUrl,
+                DownloadFileOrGenerateFile, aguja, downloadForm,
+                handleFileUpload, UploadFile, isUploading, selectedFile, isGenerating,
+                formatDate, getFileUrl // 🔹 Retornar la función para formatear fechas
+            };
         }
     };
 </script>
