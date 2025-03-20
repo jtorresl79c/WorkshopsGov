@@ -66,7 +66,9 @@ namespace WorkshopsGov.Controllers
             }
 
             var fileDigitalizado = inspection.Files
-            .FirstOrDefault(f => f.FileTypeId == Utilidades.DB_ARCHIVOTIPOS_ENTREGA_RECEPCION_DIGITALIZADA);
+              .FirstOrDefault(f => f.FileTypeId == Utilidades.DB_ARCHIVOTIPOS_ENTREGA_RECEPCION_DIGITALIZADA && f.Active);
+
+
 
             var inspectionDto = new
             {
@@ -186,7 +188,12 @@ namespace WorkshopsGov.Controllers
             string userId = Utilidades.GetUsername();
             var usuario = _context.Users.FirstOrDefault(u => u.Id == userId);
 
-            var inspection = _context.Inspections.Include(i => i.Files).FirstOrDefault(i => i.Id == id);
+            var inspection = _context.Inspections
+                .Include(i => i.Files)
+                .Include(i => i.Vehicle)
+                .ThenInclude(v => v.Brand)
+                .ThenInclude(v => v.VehicleModels) 
+                .FirstOrDefault(i => i.Id == id);
 
             if (inspection == null)
             {
@@ -456,6 +463,31 @@ namespace WorkshopsGov.Controllers
         }
 
         // GET: Inspections/Delete/5
+
+        [HttpDelete("Inspections/DeleteFile/{fileId}/{fileTypeId}")]
+        public IActionResult DeleteFile(int fileId, int fileTypeId)
+        {
+            var file = _context.Files
+                .FirstOrDefault(f => f.Id == fileId && f.FileTypeId == fileTypeId && f.Active);
+
+            if (file == null)
+            {
+                return NotFound("Archivo no encontrado o ya está inactivo.");
+            }
+
+            try
+            {
+                file.Active = false;
+                _context.Entry(file).State = EntityState.Modified;
+                _context.SaveChanges();
+
+                return Ok(new { message = "Archivo marcado como inactivo correctamente." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al marcar el archivo como inactivo.", error = ex.Message });
+            }
+        }
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
