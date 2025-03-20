@@ -28,6 +28,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Inspection> Inspections { get; set; }
     public DbSet<FileType> FileTypes { get; set; }
     public DbSet<File> Files { get; set; }
+    public DbSet<ApplicationUser> ApplicationUsers { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
