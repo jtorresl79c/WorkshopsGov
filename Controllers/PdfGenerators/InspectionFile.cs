@@ -8,11 +8,177 @@ using Microsoft.EntityFrameworkCore;
 using WorkshopsGov.Controllers.Global;
 using WorkshopsGov.Data;
 using IOFile = System.IO.File;
+using iText.IO.Image;
+using iText.Layout.Properties;
+using iText.IO.Font.Constants;
+using iText.Kernel.Font;
+using iText.Layout.Borders;
+using iText.Kernel.Pdf.Canvas.Draw;
+using iText.Kernel.Pdf.Canvas; // Necesario para trabajar con coordenadas
+using iText.Kernel.Colors;
 
 namespace WorkshopsGov.Controllers.PdfGenerators
 {
     public class InspectionFile
     {
+
+        private void AddVehicleCell(Table vehicleTable, string label, string value)
+        {
+            // 🔹 Celda de la etiqueta (alineada a la derecha)
+            vehicleTable.AddCell(new Cell()
+                .Add(new Paragraph()
+                    .Add(new Text(label).SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(11))
+                )
+                .SetBorder(Border.NO_BORDER)
+                .SetTextAlignment(TextAlignment.RIGHT)
+            );
+
+            // 🔹 Celda del valor
+            var valueCell = new Cell()
+                .SetBorder(Border.NO_BORDER)
+                .SetWidth(100); // 🔹 Limita el ancho de la celda para evitar que desplace las demás
+
+            // 🔹 Dividir el valor en partes de 10 caracteres
+            for (int i = 0; i < value.Length; i += 14)
+            {
+                string substring = value.Substring(i, Math.Min(14, value.Length - i));
+
+                // 🔹 Agregar cada parte como un nuevo párrafo
+                valueCell.Add(new Paragraph(substring)
+                    .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
+                    .SetFontSize(9) // 🔹 Texto más pequeño para que quepa más
+                    .SetTextAlignment(TextAlignment.LEFT)
+                    .SetMarginBottom(0)); // 🔹 Sin margen inferior para que esté pegado
+            }
+
+            // 🔹 Agregar la línea solo si el valor tiene 10 caracteres o menos
+            if (value.Length <= 14)
+            {
+                valueCell.Add(new Paragraph("_______________") // Línea separada
+                    .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
+                    .SetFontSize(9) // 🔹 Tamaño de la línea igual al texto
+                    .SetPaddingTop(-10)); // 🔹 Acerca la línea al texto para que no se vea desplazada
+            }
+
+            // 🔹 Añadir la celda a la tabla
+            vehicleTable.AddCell(valueCell);
+        }
+        private void AddFuelGauge(PdfDocument pdfDoc, Document document, float fuelLevel)
+        {
+            PdfPage page = pdfDoc.GetFirstPage();
+            PdfCanvas canvas = new PdfCanvas(page);
+
+            // 🔹 Mover el odómetro más arriba
+            ImageData odometerImage = ImageDataFactory.Create("wwwroot/images/odometro.png");
+            Image odometer = new Image(odometerImage)
+                .SetWidth(80)
+                .SetFixedPosition(200, 620); // 📌 Posición ajustada del odómetro
+
+            // 🔹 Agregar el odómetro al documento justo después de la tabla
+            document.Add(odometer);
+
+            // 📌 Posición base del odómetro
+            float odometerX = 200;
+            float odometerY = 620; // 📌 Se ajusta con la nueva posición Y
+
+            // 🔹 Ajustar la posición de la línea (MOVER LIGERAMENTE A LA DERECHA)
+            float minX = odometerX + 10;  // 📌 Movida ligeramente a la derecha
+            float maxX = odometerX + 72;  // 📌 Ajustado para que siga bien la escala
+            float lineX = minX + ((maxX - minX) * (fuelLevel / 100f));
+
+            float lineStartY = odometerY + 5;
+            float lineEndY = odometerY + 35; // 📌 Mantener la línea más corta
+
+            // 🔹 Dibujar la línea roja en la posición del FuelLevel
+            canvas.SetStrokeColor(new DeviceRgb(255, 0, 0))
+                  .SetLineWidth(2)
+                  .MoveTo(lineX, lineStartY)
+                  .LineTo(lineX, lineEndY)
+                  .Stroke();
+        }
+        private void AddInspectionDetails(PdfDocument pdfDoc, Document document)
+        {
+            document.Add(new Paragraph("INSPECCIÓN E INVENTARIO")
+                .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                .SetFontSize(10)
+                .SetTextAlignment(TextAlignment.CENTER)
+                .SetMarginBottom(10));
+
+            float[] mainColumnWidths = { 2, 1 };
+            Table mainTable = new Table(UnitValue.CreatePercentArray(mainColumnWidths)).UseAllAvailableWidth();
+
+            float[] columnWidths = { 4, 1, 1 };
+            Table inspectionTable = new Table(UnitValue.CreatePercentArray(columnWidths))
+                .SetWidth(300);
+
+            inspectionTable.AddCell(new Cell().Add(new Paragraph("CONCEPTO")
+                .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                .SetFontSize(11))
+                .SetTextAlignment(TextAlignment.CENTER)
+                .SetPaddingBottom(5));
+
+            inspectionTable.AddCell(new Cell().Add(new Paragraph("SÍ")
+                .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                .SetFontSize(11))
+                .SetTextAlignment(TextAlignment.CENTER)
+                .SetPaddingBottom(5));
+
+            inspectionTable.AddCell(new Cell().Add(new Paragraph("NO")
+                .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                .SetFontSize(11))
+                .SetTextAlignment(TextAlignment.CENTER)
+                .SetPaddingBottom(5));
+
+            string[] conceptos = {
+                "SE ENTREGA UNIDAD LAVADA",
+                "SE ENTREGAN REFACCIONES USADAS",
+                "SE ENTREGA CON CUBRETORRETAS Y LOGOS",
+                "SE RECIBE LA UNIDAD",
+                "LA UNIDAD SE ENCUENTRA LISTA PARA ENTREGARSE A SSPCM",
+                "INDICADORES DE TABLERO",
+                "CARROCERÍA Y PINTURA",
+                "TAPICERÍA",
+                "BATERÍA"
+            };
+
+            foreach (var concepto in conceptos)
+            {
+                inspectionTable.AddCell(new Cell().Add(new Paragraph(concepto)
+                    .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
+                    .SetFontSize(11))
+                    .SetTextAlignment(TextAlignment.LEFT)
+                    .SetPaddingBottom(3));
+
+                inspectionTable.AddCell(new Cell().SetBorder(new SolidBorder(0)).SetHeight(12));
+                inspectionTable.AddCell(new Cell().SetBorder(new SolidBorder(0)).SetHeight(12));
+            }
+
+            mainTable.AddCell(new Cell().Add(inspectionTable).SetBorder(Border.NO_BORDER));
+
+            Table imageTable = new Table(1).UseAllAvailableWidth();
+
+            string[] imagePaths = {
+                "wwwroot/images/lateral_frontal.png",
+                "wwwroot/images/lateral_izquierda.png",
+                "wwwroot/images/lateral_derecha.png",
+                "wwwroot/images/lateral_atras.png"
+            };
+
+            foreach (var path in imagePaths)
+            {
+                ImageData imageData = ImageDataFactory.Create(path);
+                Image referenceImage = new Image(imageData)
+                    .SetWidth(90)
+                    .SetAutoScale(true)
+                    .SetMarginBottom(5);
+
+                imageTable.AddCell(new Cell().Add(referenceImage).SetBorder(Border.NO_BORDER));
+            }
+
+            mainTable.AddCell(new Cell().Add(imageTable).SetBorder(Border.NO_BORDER));
+            document.Add(mainTable);
+        }
+
         public static dynamic GenerateFile(Inspection inspection, ApplicationDbContext db)
         {
             try
@@ -22,36 +188,235 @@ namespace WorkshopsGov.Controllers.PdfGenerators
                     throw new ArgumentNullException(nameof(inspection), "La inspección no puede ser nula.");
                 }
 
-                // ✅ Obtener la carpeta específica para la inspección
                 string inspectionPath = Utilidades.CreateOrGetDirectoryInsideInspectionDirectory(
                     Utilidades.GetFullPathInspection(inspection.Id),
                     "RECEPCION_ENTREGA"
                 );
 
-                // ✅ Definir la ruta del archivo PDF
                 string fileName = $"Inspeccion_{inspection.Id}.pdf";
-                string filePath = Path.Combine(inspectionPath, fileName);
+                string filePath = System.IO.Path.Combine(inspectionPath, fileName);
 
-                // ✅ Si el archivo ya existe, elimínalo
                 if (IOFile.Exists(filePath))
                 {
                     IOFile.Delete(filePath);
                 }
 
-                // ✅ Crear el archivo PDF con contenido de inspección
                 using (PdfWriter writer = new PdfWriter(filePath))
                 using (PdfDocument pdf = new PdfDocument(writer))
                 using (Document document = new Document(pdf))
                 {
-                    document.Add(new Paragraph($"Inspección ID: {inspection.Id}"));
-                    document.Add(new Paragraph($"Número de Memo: {inspection.MemoNumber}"));
-                    document.Add(new Paragraph($"Fecha de Inspección: {inspection.InspectionDate:dd/MM/yyyy}"));
-                    document.Add(new Paragraph($"Operador: {inspection.OperatorName}"));
-                    document.Add(new Paragraph($"Observaciones: {inspection.FailureReport}"));
-                    document.Add(new Paragraph("🚀 PDF generado con éxito."));
+                    Table headerTable = new Table(3).UseAllAvailableWidth().SetMarginTop(-20);
+
+                    Image leftLogo = new Image(ImageDataFactory.Create("wwwroot/images/logo_xxv.png"))
+                        .SetWidth(110)
+                        .SetHorizontalAlignment(HorizontalAlignment.LEFT);
+
+                    Paragraph title = new Paragraph("DIRECCIÓN DE SERVICIOS GENERALES\nTALLER MUNICIPAL OM SSPCM")
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                        .SetFontSize(12)
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetPaddingTop(10);
+
+                    Image rightLogo = new Image(ImageDataFactory.Create("wwwroot/images/logo_policia.jpeg"))
+                        .SetWidth(70)
+                        .SetHorizontalAlignment(HorizontalAlignment.RIGHT)
+                        .SetMarginTop(-10);
+
+                    headerTable.AddCell(
+                        new Cell()
+                            .Add(leftLogo)
+                            .SetBorder(Border.NO_BORDER)
+                            .SetVerticalAlignment(VerticalAlignment.BOTTOM)
+                            .SetPaddingLeft(-15) 
+                    );
+
+                    headerTable.AddCell(
+                        new Cell()
+                            .Add(title)
+                            .SetTextAlignment(TextAlignment.CENTER)
+                            .SetBorder(Border.NO_BORDER)
+                            .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+                    );
+
+                    headerTable.AddCell(
+                        new Cell()
+                            .Add(rightLogo)
+                            .SetBorder(Border.NO_BORDER)
+                            .SetVerticalAlignment(VerticalAlignment.BOTTOM)
+                    );
+
+                    // Añadir la tabla al documento
+                    headerTable.SetMarginBottom(10);
+                    document.Add(headerTable);
+
+
+                    LineSeparator line = new LineSeparator(new SolidLine());
+
+                    document.Add(line);
+                    document.Add(new Paragraph("ENTREGA-RECEPCIÓN VEHICULAR OFICIAL / INSPECCIÓN E INVENTARIO")
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                        .SetFontSize(11)
+                        .SetTextAlignment(TextAlignment.CENTER)
+                    );
+                    document.Add(line);
+
+                    Table inspectionTable = new Table(3).UseAllAvailableWidth();
+                    Cell rightCell = new Cell()
+                        .Add(new Paragraph("FOLIO: ")
+                            .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)) 
+                            .Add(new Text("_____________") 
+                                .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
+                            )
+                        )
+                        .Add(new Paragraph("FECHA INGRESO: ")
+                            .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)) 
+                            .Add(new Text("____/____/______") 
+                                .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
+                            )
+                        )
+                        .SetBorder(Border.NO_BORDER)
+                        .SetTextAlignment(TextAlignment.RIGHT);
+
+                    inspectionTable.AddCell(rightCell);
+                    document.Add(inspectionTable);
+
+
+                    Table vehicleTable = new Table(8).UseAllAvailableWidth();
+                    var inspectionFile = new InspectionFile();
+                    inspectionFile.AddVehicleCell(vehicleTable, "OFICIALÍA: ", $"{inspection.Vehicle.Oficialia}");
+                    inspectionFile.AddVehicleCell(vehicleTable, "PLACAS: ", $"{inspection.Vehicle.LicensePlate}");
+                    inspectionFile.AddVehicleCell(vehicleTable, "MARCA: ", $"{inspection.Vehicle.Brand.Name}");
+                    inspectionFile.AddVehicleCell(vehicleTable, "MODELO: ", $"{inspection.Vehicle.Model.Name}");
+
+                    document.Add(vehicleTable);
+
+                    inspectionFile.AddFuelGauge(pdf, document, inspection.FuelLevel);
+                    document.Add(new Paragraph("NIVEL DE COMBUSTIBLE:")
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                        .SetFontSize(12));
+                    document.Add(new Paragraph("\n"));
+
+                    inspectionFile.AddInspectionDetails(pdf, document);
+
+                    Table table = new Table(1).UseAllAvailableWidth();
+
+                    table.AddCell(new Cell()
+                            .Add(new Paragraph()
+                                .Add(new Text("TIPO DE REPARACIÓN REALIZADA: ") 
+                                    .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                                    .SetFontSize(10))
+                                .Add(new Text(new string('_', 60)) 
+                                    .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
+                                    .SetFontSize(10)))
+                            .Add(new Paragraph(new string('_', 92)) 
+                                .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
+                                .SetFontSize(10)
+                                .SetPaddingTop(5)) 
+                            .SetMarginBottom(15) 
+                            .SetBorder(Border.NO_BORDER)
+                        );
+
+                    table.AddCell(new Cell()
+                        .Add(new Paragraph()
+                            .Add(new Text("OBSERVACIONES: ")
+                                .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                                .SetFontSize(10))
+                            .Add(new Text(new string('_', 75))
+                                .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
+                                .SetFontSize(10)))
+                        .Add(new Paragraph(new string('_', 92))
+                            .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
+                            .SetFontSize(10)
+                            .SetPaddingTop(5))
+                        .SetMarginBottom(15)
+                        .SetBorder(Border.NO_BORDER)
+                    );
+
+                    document.Add(table);
+
+                    document.Add(new Paragraph("\n"));
+                    
+                    float[] signatureWidths = { 1, 1 }; 
+                    Table signatureTable = new Table(UnitValue.CreatePercentArray(signatureWidths)).UseAllAvailableWidth();
+
+                  
+                    signatureTable.AddCell(new Cell()
+                        .Add(new Paragraph("ENTREGÓ")
+                            .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                            .SetFontSize(10))
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetBorder(Border.NO_BORDER));
+
+                    signatureTable.AddCell(new Cell()
+                        .Add(new Paragraph("RECIBIÓ")
+                            .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                            .SetFontSize(10))
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetBorder(Border.NO_BORDER));
+
+                    signatureTable.AddCell(new Cell()
+                        .Add(new Paragraph("____________________________________"))
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetPaddingTop(10) 
+                        .SetBorder(Border.NO_BORDER));
+
+                    signatureTable.AddCell(new Cell()
+                        .Add(new Paragraph("____________________________________"))
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetPaddingTop(10) 
+                        .SetBorder(Border.NO_BORDER));
+
+                    // 🔹 Tercera fila: "Nombre y Firma"
+                    signatureTable.AddCell(new Cell()
+                        .Add(new Paragraph("NOMBRE Y FIRMA"))
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
+                        .SetFontSize(9)
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetBorder(Border.NO_BORDER));
+
+                    signatureTable.AddCell(new Cell()
+                        .Add(new Paragraph("NOMBRE Y FIRMA"))
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
+                        .SetFontSize(9)
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetBorder(Border.NO_BORDER));
+
+                    signatureTable.AddCell(new Cell()
+                        .Add(new Paragraph("____________________________________"))
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetPaddingTop(20) 
+                        .SetBorder(Border.NO_BORDER));
+
+                    signatureTable.AddCell(new Cell()
+                        .Add(new Paragraph("____________________________________"))
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetPaddingTop(20) 
+                        .SetBorder(Border.NO_BORDER));
+
+                    signatureTable.AddCell(new Cell()
+                        .Add(new Paragraph("NOMBRE DEL TALLER QUE ENTREGA"))
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
+                        .SetFontSize(9)
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetBorder(Border.NO_BORDER));
+
+                    signatureTable.AddCell(new Cell()
+                        .Add(new Paragraph("NOMBRE Y FIRMA\nENCARGADO DE PISO"))
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
+                        .SetFontSize(9)
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetBorder(Border.NO_BORDER));
+
+                    document.Add(signatureTable);
+
+                    //document.Add(new Paragraph($"Inspeccións ID: {inspection.Id}"));
+                    //document.Add(new Paragraph($"Número de Memo: {inspection.MemoNumber}"));
+                    //document.Add(new Paragraph($"Fecha de Inspección: {inspection.InspectionDate:dd/MM/yyyy}"));
+                    //document.Add(new Paragraph($"Operador: {inspection.OperatorName}"));
+                    //document.Add(new Paragraph($"Observaciones: {inspection.FailureReport}"));
+                    //document.Add(new Paragraph("🚀 PDF generado con éxito."));
                 }
 
-                // ✅ Confirmar que el archivo se ha generado correctamente
                 if (!IOFile.Exists(filePath))
                 {
                     throw new Exception("❌ Error: No se encontró el archivo generado.");

@@ -101,20 +101,31 @@
 
                         <!-- 🔹 Mostrar el botón de ver archivo si ya existe -->
                         <template v-if="inspection.fileDigitalizado">
-                            <a :href="inspection.fileDigitalizado.Path" target="_blank" class="btn btn-primary mt-2">
-                                Ver Archivo Digitalizado
-                            </a>
+
                             <p class="mt-1 text-muted">Archivo subido el Archivo subido el {{ formatDate(inspection.fileDigitalizado.uploadedAt) }}</p>
 
-                            <a :href="getFileUrl(inspection.id, fileTypeId)"
+                            <a :href="getFileUrl(inspection.id, inspection.fileDigitalizado.fileTypeId)"
                                target="_blank"
                                class="btn btn-primary">
                                 Ver Archivo
                             </a>
+
+                            <button @click="deleteFile(inspection.fileDigitalizado.id, inspection.fileDigitalizado.fileTypeId)"
+                                    class="btn btn-danger mt-2">
+                                Eliminar Archivo
+                            </button>
+
                         </template>
 
                         <!-- 🔹 Si no hay archivo, mostrar el formulario de subida -->
                         <template v-else>
+                            <!-- 🔹 Formulario oculto para generar el documento -->
+                            <form ref="downloadForm" :action="`/Inspections/DownloadFileOrGenerateFile/${inspection.id}`" method="POST" target="_blank">
+                            </form>
+                            <a href="#" @click.prevent="DownloadFileOrGenerateFile" class="text-primary mt-2" style="cursor: pointer;">
+                                {{ isGenerating ? "Generando..." : "Descargar Formato" }}
+                            </a>
+                            <p class="fs-4">Entrega y Recepci&oacute;n</p>
                             <form @submit.prevent="UploadFile" enctype="multipart/form-data" class="d-flex flex-column align-items-end">
                                 <input type="file" @change="handleFileUpload" required class="form-control mb-2">
                                 <button type="submit" class="btn btn-outline-success">
@@ -193,7 +204,6 @@
                     minute: "2-digit"
                 });
             };
-
             // 🔹 Función para animar la aguja de gasolina
             const moverAguja = (valor) => {
                 valor = Math.max(0, Math.min(100, valor));
@@ -205,7 +215,6 @@
                     easing: "easeInOutQuad",
                 });
             };
-
             // 🔹 Función para obtener los datos de inspección
             const fetchInspection = async () => {
                 try {
@@ -225,7 +234,6 @@
             const getFileByType = (fileTypeId) => {
                 return inspection.files.find(file => file.FileTypeId === fileTypeId) || null;
             };
-
             const getFileUrl = (inspectionId, fileTypeId) => {
                 return `/Inspections/DownloadFile/${inspectionId}?fileTypeId=${fileTypeId}`;
             };
@@ -238,17 +246,15 @@
                     if (downloadForm.value) {
                         downloadForm.value.submit();
                     } else {
-                        console.error("No se encontró el formulario para descargar el archivo.");
+                        console.error("No se encontro el formulario para descargar el archivo.");
                     }
                     isGenerating.value = false;
                 }, 100);
             };
-
             // 🔹 Función para manejar la selección del archivo
             const handleFileUpload = (event) => {
                 selectedFile.value = event.target.files[0];
             };
-
             // 🔹 Función para subir el archivo digitalizado
             const UploadFile = async () => {
                 if (!selectedFile.value) {
@@ -278,7 +284,25 @@
                     isUploading.value = false;
                 }
             };
+            const deleteFile = async (fileId, fileTypeId) => {
+                if (!confirm("¿Estás seguro de que deseas eliminar este archivo?")) {
+                    return;
+                }
 
+                try {
+                    const response = await axios.delete(`/Inspections/DeleteFile/${fileId}/${fileTypeId}`);
+
+                    if (response.status === 200) {
+                        alert("Archivo eliminado exitosamente.");
+                        inspection.fileDigitalizado = null; // Remover visualmente de la vista
+                    } else {
+                        alert("No se pudo eliminar el archivo.");
+                    }
+                } catch (error) {
+                    console.error("Error eliminando el archivo:", error);
+                    alert("Ocurrió un error al intentar eliminar el archivo.");
+                }
+            };
             // Observa cambios en fuelLevel para animar la aguja
             watch(() => inspection.fuelLevel, (newValue) => {
                 if (aguja.value) {
@@ -296,7 +320,7 @@
                 inspection, isLoading, pdfUrl,
                 DownloadFileOrGenerateFile, aguja, downloadForm,
                 handleFileUpload, UploadFile, isUploading, selectedFile, isGenerating,
-                formatDate, getFileUrl // 🔹 Retornar la función para formatear fechas
+                formatDate, getFileUrl, deleteFile
             };
         }
     };
