@@ -17,5 +17,7 @@ namespace WorkshopsGov.Models
         public bool Active { get; set; } = true;
         
         public ICollection<ExternalWorkshopBranch> ExternalWorkshopBranches { get; set; } = new List<ExternalWorkshopBranch>();
+        public ICollection<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
+
     }
 }

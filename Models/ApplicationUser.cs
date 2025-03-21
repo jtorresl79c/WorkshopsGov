@@ -23,4 +23,6 @@ public class ApplicationUser : IdentityUser
     public bool Active { get; set; } = true;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public ICollection<ExternalWorkshop> ExternalWorkshops { get; set; } = new List<ExternalWorkshop>();
+
 }
