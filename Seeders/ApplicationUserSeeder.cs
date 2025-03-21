@@ -12,7 +12,8 @@ namespace WorkshopsGov.Seeders
             var users = new List<(string Email, string FirstName, string PaternalLastName, int DepartmentId, string Role)>
             {
                 ("jdoe@example.com", "John", "Doe", 1, "Verifier"),
-                ("asmith@example.com", "Alice", "Smith", 2, "Administrator")
+                ("asmith@example.com", "Alice", "Smith", 2, "Administrator"),
+                 ("taller@example.com", "Externo", "taller", 3, "External_Workshop")
             };
 
             foreach (var (email, firstName, lastName, departmentId, role) in users)
@@ -32,7 +33,7 @@ namespace WorkshopsGov.Seeders
                     var result = await userManager.CreateAsync(user, "Password123!");
                     if (result.Succeeded)
                     {
-                        await userManager.AddToRoleAsync(user, role);
+                     await userManager.AddToRoleAsync(user, role);
                     }
                 }
             }

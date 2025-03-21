@@ -74,7 +74,24 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany(d => d.Users)
             .HasForeignKey(u => u.DepartmentId)
             .OnDelete(DeleteBehavior.Restrict); // O usa DeleteBehavior.Cascade si quieres que al eliminar un departamento se borren los usuarios asociados
-        
+
+        modelBuilder.Entity<ApplicationUser>()
+            .HasMany(u => u.ExternalWorkshops)
+            .WithMany(w => w.Users)
+            .UsingEntity<Dictionary<string, object>>(
+                "external_workshop_user",
+                j => j
+                    .HasOne<ExternalWorkshop>()
+                    .WithMany()
+                    .HasForeignKey("ExternalWorkshopId")
+                    .OnDelete(DeleteBehavior.Cascade),
+                j => j
+                    .HasOne<ApplicationUser>()
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+            );
+
         modelBuilder.Entity<Brand>()
             .Property(b => b.Active)
             .HasDefaultValue(true); // Valor por defecto a nivel de BD
