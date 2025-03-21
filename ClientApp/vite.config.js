@@ -39,7 +39,7 @@ export default defineConfig({
           format: "es",
           entryFileNames: 'assets/pages/[name]/[name].[hash].js',
           chunkFileNames: 'assets/chunks/[name].[hash].js',
-          assetFileNames: 'assets/[name].[hash].[ext]'
+          assetFileNames: 'assets/pages/[name].[hash].[ext]'
       }
     },
     emptyOutDir: true,
