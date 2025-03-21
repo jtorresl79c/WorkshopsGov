@@ -1,8 +1,9 @@
 @model WorkshopsGov.Models.ExternalWorkshop
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Agregar nuevo taller externo";
 }
+
 <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb mb-0">
         <li class="breadcrumb-item">
@@ -16,15 +17,34 @@
     <div class="col-sm-12 col-lg-12">
         <div class="card">
             <div class="card-body">
-                <form asp-action="Create">
+                <form asp-action="Create" method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <h4>Datos del Taller</h4>
                     <div class="form-group">
                         <label asp-for="Name" class="control-label">Nombre del taller</label>
                         <input asp-for="Name" class="form-control" />
                         <span asp-validation-for="Name" class="text-danger"></span>
                     </div>
+
+                    <hr />
+
+                    <h4>Datos del Usuario del Taller</h4>
                     <div class="form-group">
-                        <input type="submit" value="Guardar" class="btn btn-primary" />
+                        <label for="email">Correo electrónico</label>
+                        <input type="email" name="UserEmail" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Contraseña</label>
+                        <input type="password" name="UserPassword" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirmar contraseña</label>
+                        <input type="password" name="ConfirmPassword" class="form-control" required />
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <input type="submit" value="Guardar taller y registrar usuario" class="btn btn-primary" />
                     </div>
                 </form>
             </div>
@@ -32,3 +52,6 @@
     </div>
 </div>
 
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
