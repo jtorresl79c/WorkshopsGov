@@ -13,32 +13,55 @@
 
 <h1>Index</h1>
 
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    Abrir Modal
+</button>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Título del Modal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                Contenido del modal aquí...
+                <div id="user-permission-app"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary">Guardar cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <p>
     <a asp-action="Create">Create New</a>
 </p>
 <table class="table">
     <thead>
-        <tr>
-            <th>
-                Nombre
-            </th>
-            <th>
-                Apellidos
-            </th>
-            <th>
-                Departamento
-            </th>
-            <th>
-                Email
-            </th>
-            <th>
-                Activo
-            </th>
-            <th></th>
-        </tr>
+    <tr>
+        <th>
+            Nombre
+        </th>
+        <th>
+            Apellidos
+        </th>
+        <th>
+            Departamento
+        </th>
+        <th>
+            Email
+        </th>
+        <th>
+            Activo
+        </th>
+        <th></th>
+    </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+    @foreach (var item in Model) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.FirstName)
@@ -59,9 +82,22 @@
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> |
+                <span onclick="mostrarModal('@item.Id')">Permisos</span>
             </td>
         </tr>
-}
+    }
     </tbody>
 </table>
+
+@section Scripts {
+    <vite-script entry="user_permission" dev-server="http://localhost:5173"></vite-script>
+    <vite-style entry="user_permission"></vite-style>
+    
+    <script>
+        function mostrarModal(id) {
+            var myModal = new bootstrap.Modal(document.getElementById('exampleModal'))
+            myModal.show()
+        }
+    </script>
+}
