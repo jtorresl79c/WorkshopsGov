@@ -10,8 +10,8 @@ namespace WorkshopsGov.Seeders
             if (!context.ExternalWorkshops.Any())
             {
                 context.ExternalWorkshops.AddRange(
-                    new ExternalWorkshop { Name = "Orion EW", Active = true },
-                    new ExternalWorkshop { Name = "Cygnus EW", Active = true }
+                    new ExternalWorkshop { Name = "Taller Automotriz Alex", Active = true },
+                    new ExternalWorkshop { Name = "Taller automotriz Cars Ebrios Boys", Active = true }
                 );
                 context.SaveChanges();
             }
