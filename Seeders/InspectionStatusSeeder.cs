@@ -11,7 +11,8 @@ namespace WorkshopsGov.Seeders
             {
                 context.InspectionStatuses.AddRange(
                     new InspectionStatus { Name = "Motor destroyed DS", Active = true },
-                    new InspectionStatus { Name = "Need new Tires DS ", Active = true }
+                    new InspectionStatus { Name = "Need new Tires DS ", Active = true },
+                    new InspectionStatus { Name = "ELIMINADO ", Active = true }
                 );
                 context.SaveChanges();
             }

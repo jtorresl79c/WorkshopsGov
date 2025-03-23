@@ -160,6 +160,7 @@ if (app.Environment.IsDevelopment())
         DepartmentSeeder.Seed(context);
         await ApplicationUserSeeder.SeedAsync(userManager);
         ExternalWorkshopBranchSeeder.Seed(context);
+        await WorkshopRelationsSeeder.SeedAsync(userManager, context);
         VehicleSeeder.Seed(context);
         InspectionSeeder.Seed(context);
         InspectionVehicleFailureSeeder.Seed(context);
