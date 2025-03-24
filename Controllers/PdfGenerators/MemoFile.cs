@@ -19,7 +19,7 @@ using iText.Kernel.Colors;
 
 namespace WorkshopsGov.Controllers.PdfGenerators
 {
-    public class InspectionFile
+    public class MemoFile
     {
 
         private void AddVehicleCell(Table vehicleTable, string label, string value)
@@ -195,10 +195,10 @@ namespace WorkshopsGov.Controllers.PdfGenerators
 
                 string inspectionPath = Utilidades.CreateOrGetDirectoryInsideInspectionDirectory(
                     Utilidades.GetFullPathInspection(inspection.Id),
-                    "RECEPCION_ENTREGA"
+                    "MEMOS"
                 );
 
-                string fileName = $"Inspeccion_{inspection.Id}.pdf";
+                string fileName = $"Memo_{inspection.Id}.pdf";
                 string filePath = System.IO.Path.Combine(inspectionPath, fileName);
 
                 if (IOFile.Exists(filePath))
@@ -287,21 +287,21 @@ namespace WorkshopsGov.Controllers.PdfGenerators
 
 
                     Table vehicleTable = new Table(8).UseAllAvailableWidth();
-                    var inspectionFile = new InspectionFile();
-                    inspectionFile.AddVehicleCell(vehicleTable, "OFICIALÍA: ", $"{inspection.Vehicle.Oficialia}");
-                    inspectionFile.AddVehicleCell(vehicleTable, "PLACAS: ", $"{inspection.Vehicle.LicensePlate}");
-                    inspectionFile.AddVehicleCell(vehicleTable, "MARCA: ", $"{inspection.Vehicle.Brand.Name}");
-                    inspectionFile.AddVehicleCell(vehicleTable, "MODELO: ", $"{inspection.Vehicle.Model.Name}");
+                    var memoFile = new MemoFile();
+                    memoFile.AddVehicleCell(vehicleTable, "OFICIALÍA: ", $"{inspection.Vehicle.Oficialia}");
+                    memoFile.AddVehicleCell(vehicleTable, "PLACAS: ", $"{inspection.Vehicle.LicensePlate}");
+                    memoFile.AddVehicleCell(vehicleTable, "MARCA: ", $"{inspection.Vehicle.Brand.Name}");
+                    memoFile.AddVehicleCell(vehicleTable, "MODELO: ", $"{inspection.Vehicle.Model.Name}");
 
                     document.Add(vehicleTable);
 
-                    inspectionFile.AddFuelGauge(pdf, document, inspection.FuelLevel);
+                    memoFile.AddFuelGauge(pdf, document, inspection.FuelLevel);
                     document.Add(new Paragraph("NIVEL DE COMBUSTIBLE:")
                         .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
                         .SetFontSize(12));
                     document.Add(new Paragraph("\n"));
 
-                    inspectionFile.AddInspectionDetails(pdf, document);
+                    memoFile.AddInspectionDetails(pdf, document);
 
                     Table table = new Table(1).UseAllAvailableWidth();
 

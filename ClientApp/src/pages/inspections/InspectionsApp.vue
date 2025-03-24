@@ -124,39 +124,64 @@
                     </div>
                 </div>
 
+
+                <div class="bg-white border p-4 mb-4">
+                    <div class="d-flex flex-column align-items-end">
+                        <i class="bi bi-file-earmark-pdf-fill text-primary" style="font-size: 5em"></i>
+                        <template v-if="inspection.fileMemoDigitalizado">
+                            <p class="mt-1 text-muted">Archivo subido el {{ formatDate(inspection.fileMemoDigitalizado.uploadedAt) }}</p>
+                            <a :href="getFileUrl(inspection.id, inspection.fileMemoDigitalizado.fileTypeId)"
+                               target="_blank"
+                               class="btn btn-primary">
+                                Ver Memo
+                            </a>
+                            <button @click="deleteFile(inspection.fileMemoDigitalizado.id, inspection.fileMemoDigitalizado.fileTypeId)"
+                                    class="btn btn-danger mt-2">
+                                Eliminar Memo
+                            </button>
+                        </template>
+                        <template v-else>
+                            <form ref="memoDownloadForm"
+                                  :action="`/Inspections/DownloadFileOrGenerateFile/${inspection.id}?fileTypeId=6`"
+                                  method="POST"
+                                  target="_blank">
+                            </form>
+                            <a href="#" @click.prevent="DownloadMemo" class="text-primary mt-2" style="cursor: pointer;">
+                                {{ isGeneratingMemo ? "Generando..." : "Descargar Memo" }}
+                            </a>
+                            <p class="fs-4">Memo de Diagnóstico</p>
+                            <form @submit.prevent="UploadMemo" enctype="multipart/form-data" class="d-flex flex-column align-items-end">
+                                <input type="file" @change="handleMemoUpload" required class="form-control mb-2">
+                                <button type="submit" class="btn btn-outline-success">
+                                    {{ isUploadingMemo ? "Subiendo..." : "Subir Memo" }}
+                                </button>
+                            </form>
+                        </template>
+                    </div>
+                </div>
+
+
                 <div class="bg-white border p-4 mb-4">
                     <div class="d-flex flex-column align-items-end">
                         <i class="bi bi-file-earmark-pdf-fill text-danger" style="font-size: 5em"></i>
-
-                        <!-- 🔹 Mostrar el botón de ver archivo si ya existe -->
                         <template v-if="inspection.fileDigitalizado">
-
                             <p class="mt-1 text-muted">Archivo subido el Archivo subido el {{ formatDate(inspection.fileDigitalizado.uploadedAt) }}</p>
-
                             <a :href="getFileUrl(inspection.id, inspection.fileDigitalizado.fileTypeId)"
                                target="_blank"
                                class="btn btn-primary">
                                 Ver Archivo
                             </a>
-
                             <button @click="deleteFile(inspection.fileDigitalizado.id, inspection.fileDigitalizado.fileTypeId)"
                                     class="btn btn-danger mt-2">
                                 Eliminar Archivo
                             </button>
-
                         </template>
-
-                        <!-- 🔹 Si no hay archivo, mostrar el formulario de subida -->
                         <template v-else>
-                            <!-- 🔹 Formulario oculto para generar el documento -->
-                            <!--<form ref="downloadForm" :action="`/Inspections/DownloadFileOrGenerateFile/${inspection.id}`" method="POST" target="_blank"> </form>-->
                             <form ref="downloadForm"
                                   :action="`/Inspections/DownloadFileOrGenerateFile/${inspection.id}?fileTypeId=4`"
                                   method="POST"
                                   target="_blank">
                             </form>
-
-
                             <a href="#" @click.prevent="DownloadFileOrGenerateFile" class="text-primary mt-2" style="cursor: pointer;">
                                 {{ isGenerating ? "Generando..." : "Descargar Formato" }}
                             </a>
@@ -170,7 +195,7 @@
                         </template>
                     </div>
                 </div>
-                <!-- 🔹 Panel del nivel de combustible -->
+
                 <div class="card" id="nivelCombustible">
                     <div class="card-header">
                         <h4 class="card-title">Nivel de Combustible - {{ inspection.fuelLevel }}%</h4>
@@ -226,6 +251,11 @@
             const selectedFile = ref(null);
             const isUploading = ref(false);
             const selectedBranchId = ref("");
+
+            const memoDownloadForm = ref(null)
+            const isGeneratingMemo = ref(false)
+            const selectedMemoFile = ref(null)
+            const isUploadingMemo = ref(false)
 
             const assignBranch = async () => {
                 if (!selectedBranchId.value) return alert("Selecciona una sucursal primero");
@@ -316,6 +346,7 @@
                 const formData = new FormData();
                 formData.append("file", selectedFile.value);
                 formData.append("id", inspection.id);
+                formData.append("fileTypeId", 5); 
 
                 try {
                     await axios.post("/Inspections/UploadFile", formData, {
@@ -354,6 +385,54 @@
                 }
             };
             // Observa cambios en fuelLevel para animar la aguja
+
+            const DownloadMemo = () => {
+                if (isGeneratingMemo.value) return;
+                isGeneratingMemo.value = true;
+
+                setTimeout(() => {
+                    if (memoDownloadForm.value) {
+                        memoDownloadForm.value.submit();
+                    } else {
+                        console.error("Formulario de memo no encontrado.");
+                    }
+                    isGeneratingMemo.value = false;
+                }, 100);
+            };
+
+            const handleMemoUpload = (event) => {
+                selectedMemoFile.value = event.target.files[0];
+            };
+
+            const UploadMemo = async () => {
+                if (!selectedMemoFile.value) {
+                    alert("Selecciona un archivo primero.");
+                    return;
+                }
+
+                isUploadingMemo.value = true;
+
+                const formData = new FormData();
+                formData.append("file", selectedMemoFile.value);
+                formData.append("id", inspection.id);
+                formData.append("fileTypeId", 7); 
+
+                try {
+                    await axios.post("/Inspections/UploadFile", formData, {
+                        headers: { "Content-Type": "multipart/form-data" }
+                    });
+
+                    alert("Memo subido correctamente.");
+                    selectedMemoFile.value = null;
+                    await fetchInspection(); // Recargar los datos
+                } catch (err) {
+                    console.error("Error al subir memo:", err);
+                    alert("Hubo un problema al subir el memo.");
+                } finally {
+                    isUploadingMemo.value = false;
+                }
+            };
+
             watch(() => inspection.fuelLevel, (newValue) => {
                 if (aguja.value) {
                     moverAguja(newValue);
@@ -369,7 +448,7 @@
                 inspection, isLoading, pdfUrl,
                 DownloadFileOrGenerateFile, aguja, downloadForm,
                 handleFileUpload, UploadFile, isUploading, selectedFile, isGenerating,
-                formatDate, getFileUrl, deleteFile, selectedBranchId, assignBranch,
+                formatDate, getFileUrl, deleteFile, selectedBranchId, assignBranch, memoDownloadForm, isGeneratingMemo, selectedMemoFile, isUploadingMemo, DownloadMemo, UploadMemo, handleMemoUpload
             };
         }
     };
