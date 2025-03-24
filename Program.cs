@@ -16,6 +16,7 @@ using WorkshopsGov.Controllers.Global;
 Env.Load(); // Carga las variables desde el archivo .env
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddScoped<FileService>(); //servicio de documentos
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddViteManifest();
 

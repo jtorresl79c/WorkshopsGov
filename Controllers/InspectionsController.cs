@@ -10,6 +10,7 @@ using WorkshopsGov.Controllers.Global;
 using WorkshopsGov.Controllers.PdfGenerators;
 using WorkshopsGov.Data;
 using WorkshopsGov.Models;
+using WorkshopsGov.Services;
 using ModelFile = WorkshopsGov.Models.File;
 
 namespace WorkshopsGov.Controllers
@@ -17,10 +18,12 @@ namespace WorkshopsGov.Controllers
     public class InspectionsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly FileService _fileService;
 
-        public InspectionsController(ApplicationDbContext context)
+        public InspectionsController(ApplicationDbContext context, FileService fileService)
         {
             _context = context;
+            _fileService = fileService;
         }
 
         // GET: Inspections
@@ -141,46 +144,38 @@ namespace WorkshopsGov.Controllers
         }
 
         [HttpPost]
-        public IActionResult DownloadFileOrGenerateFile(int id) // id = IdInspeccion
+        public IActionResult DownloadFileOrGenerateFile(int id, int fileTypeId)
         {
             var inspection = _context.Inspections
                 .Include(i => i.Files)
                 .FirstOrDefault(i => i.Id == id);
 
             if (inspection == null)
-            {
                 return NotFound("Inspección no encontrada.");
-            }
 
-            // 🔹 Obtener el directorio de inspección en wwwroot/Formats/INSPECTIONS/_ID/RECEPCION_ENTREGA
-            string _path = Utilidades.CreateOrGetDirectoryInsideInspectionDirectory(Utilidades.GetFullPathInspection(id), "RECEPCION_ENTREGA");
+            string path = Utilidades.CreateOrGetDirectoryInsideInspectionDirectory(
+                Utilidades.GetFullPathInspection(id), "RECEPCION_ENTREGA");
 
-            // 🔹 Buscar archivo vinculado a la inspección
             var archivo = inspection.Files
-                .Where(f => f.FileTypeId == Utilidades.DB_ARCHIVOTIPOS_ENTREGA_RECEPCION && f.Active)
+                .Where(f => f.FileTypeId == fileTypeId && f.Active)
                 .OrderByDescending(f => f.Id)
                 .FirstOrDefault();
 
             string file;
-            byte[] fileBytes;
-
-            // 🔹 Si ya existe el archivo, usarlo o generar uno nuevo
             if (archivo != null)
             {
-                file = Path.Combine(_path, archivo.Name + archivo.Format);
+                file = Path.Combine(path, archivo.Name + archivo.Format);
                 if (System.IO.File.Exists(file))
                 {
                     System.IO.File.Delete(file);
                 }
             }
 
-            // 🔹 Generar el nuevo archivo si no existe
-            archivo = GenerateEntregaRecepcionFile(inspection.Id);
-            file = Path.Combine(_path, archivo.Name + archivo.Format);
+            // Puedes usar tu servicio aquí también (con switch por tipo si aplica)
+            archivo = _fileService.Generate(id, fileTypeId);
 
-            // 🔹 Leer el archivo y devolverlo como respuesta
-            string filename = archivo.Name + archivo.Format;
-            fileBytes = System.IO.File.ReadAllBytes(file);
+            file = Path.Combine(path, archivo.Name + archivo.Format);
+            var fileBytes = System.IO.File.ReadAllBytes(file);
 
             string type = archivo.Format switch
             {
@@ -188,173 +183,152 @@ namespace WorkshopsGov.Controllers
                 _ => "application/pdf"
             };
 
-            Response.Headers.Append("Content-Disposition", $"inline; filename=\"{filename}\"");
+            Response.Headers.Append("Content-Disposition", $"inline; filename=\"{archivo.Name}{archivo.Format}\"");
             return File(fileBytes, type);
         }
-        public ModelFile GenerateEntregaRecepcionFile(int id)
-        {
-            string userId = Utilidades.GetUsername();
-            var usuario = _context.Users.FirstOrDefault(u => u.Id == userId);
 
-            var inspection = _context.Inspections
-                .Include(i => i.Files)
-                .Include(i => i.Vehicle)
-                .ThenInclude(v => v.Brand)
-                .ThenInclude(v => v.VehicleModels) 
-                .FirstOrDefault(i => i.Id == id);
 
-            if (inspection == null)
-            {
-                throw new Exception("Inspección no encontrada.");
-            }
+        //[HttpPost]
+        //public IActionResult DownloadFileOrGenerateFile(int id) // id = IdInspeccion
+        //{
+        //    var inspection = _context.Inspections
+        //        .Include(i => i.Files)
+        //        .FirstOrDefault(i => i.Id == id);
 
-            if (usuario == null)
-            {
-                throw new Exception("Usuario no encontrado.");
-            }
+        //    if (inspection == null)
+        //    {
+        //        return NotFound("Inspección no encontrada.");
+        //    }
 
-            // 🔹 Generar el archivo PDF
-            dynamic GeneratedFileResponse = InspectionFile.GenerateFile(inspection, _context);
+        //    // 🔹 Obtener el directorio de inspección en wwwroot/Formats/INSPECTIONS/_ID/RECEPCION_ENTREGA
+        //    string _path = Utilidades.CreateOrGetDirectoryInsideInspectionDirectory(Utilidades.GetFullPathInspection(id), "RECEPCION_ENTREGA");
 
-            // 🔹 Crear el archivo en la base de datos
-            var archivo = new WorkshopsGov.Models.File
-            {
-                Name = Path.GetFileNameWithoutExtension(GeneratedFileResponse.Filename),
-                Format = GeneratedFileResponse.Formato,
-                Size = 0, // Opcional: Puedes calcular el tamaño real con FileInfo
-                Description = "Formato de Entrega-Recepción",
-                FileTypeId = Utilidades.DB_ARCHIVOTIPOS_ENTREGA_RECEPCION,
-                ApplicationUserId = usuario.Id,
-                Active = true,
-                Path = GeneratedFileResponse.Ruta,
-                CreatedAt = DateTime.UtcNow
-            };
+        //    // 🔹 Buscar archivo vinculado a la inspección
+        //    var archivo = inspection.Files
+        //        .Where(f => f.FileTypeId == Utilidades.DB_ARCHIVOTIPOS_ENTREGA_RECEPCION && f.Active)
+        //        .OrderByDescending(f => f.Id)
+        //        .FirstOrDefault();
 
-            _context.Files.Add(archivo);
-            _context.SaveChanges();
+        //    string file;
+        //    byte[] fileBytes;
 
-            // 🔹 Vincular el archivo con la inspección en la tabla intermedia `inspection_file`
-            inspection.Files.Add(archivo);
-            _context.SaveChanges();
+        //    // 🔹 Si ya existe el archivo, usarlo o generar uno nuevo
+        //    if (archivo != null)
+        //    {
+        //        file = Path.Combine(_path, archivo.Name + archivo.Format);
+        //        if (System.IO.File.Exists(file))
+        //        {
+        //            System.IO.File.Delete(file);
+        //        }
+        //    }
 
-            return archivo;
-        }
+        //    // 🔹 Generar el nuevo archivo si no existe
+        //    archivo = GenerateEntregaRecepcionFile(inspection.Id);
+        //    file = Path.Combine(_path, archivo.Name + archivo.Format);
+
+        //    // 🔹 Leer el archivo y devolverlo como respuesta
+        //    string filename = archivo.Name + archivo.Format;
+        //    fileBytes = System.IO.File.ReadAllBytes(file);
+
+        //    string type = archivo.Format switch
+        //    {
+        //        ".jpg" or ".png" or ".jpeg" => "image/png",
+        //        _ => "application/pdf"
+        //    };
+
+        //    Response.Headers.Append("Content-Disposition", $"inline; filename=\"{filename}\"");
+        //    return File(fileBytes, type);
+        //}
+        //public ModelFile GenerateEntregaRecepcionFile(int id)
+        //{
+        //    string userId = Utilidades.GetUsername();
+        //    var usuario = _context.Users.FirstOrDefault(u => u.Id == userId);
+
+        //    var inspection = _context.Inspections
+        //        .Include(i => i.Files)
+        //        .Include(i => i.Vehicle)
+        //        .ThenInclude(v => v.Brand)
+        //        .ThenInclude(v => v.VehicleModels) 
+        //        .FirstOrDefault(i => i.Id == id);
+
+        //    if (inspection == null)
+        //    {
+        //        throw new Exception("Inspección no encontrada.");
+        //    }
+
+        //    if (usuario == null)
+        //    {
+        //        throw new Exception("Usuario no encontrado.");
+        //    }
+
+        //    // 🔹 Generar el archivo PDF
+        //    dynamic GeneratedFileResponse = InspectionFile.GenerateFile(inspection, _context);
+
+        //    // 🔹 Crear el archivo en la base de datos
+        //    var archivo = new WorkshopsGov.Models.File
+        //    {
+        //        Name = Path.GetFileNameWithoutExtension(GeneratedFileResponse.Filename),
+        //        Format = GeneratedFileResponse.Formato,
+        //        Size = 0, // Opcional: Puedes calcular el tamaño real con FileInfo
+        //        Description = "Formato de Entrega-Recepción",
+        //        FileTypeId = Utilidades.DB_ARCHIVOTIPOS_ENTREGA_RECEPCION,
+        //        ApplicationUserId = usuario.Id,
+        //        Active = true,
+        //        Path = GeneratedFileResponse.Ruta,
+        //        CreatedAt = DateTime.UtcNow
+        //    };
+
+        //    _context.Files.Add(archivo);
+        //    _context.SaveChanges();
+
+        //    // 🔹 Vincular el archivo con la inspección en la tabla intermedia `inspection_file`
+        //    inspection.Files.Add(archivo);
+        //    _context.SaveChanges();
+
+        //    return archivo;
+        //}
 
         [HttpPost]
-        public IActionResult UploadFile(IFormFile file, int id)
+        public async Task<IActionResult> UploadFile(IFormFile file, int id)
         {
             if (file == null || file.Length == 0)
-            {
                 return BadRequest("Debe seleccionar un archivo para subir.");
-            }
 
-            // 🔹 Obtener el usuario actual
-            string userId = Utilidades.GetUsername();
-            var usuario = _context.Users.FirstOrDefault(u => u.Id == userId);
-            if (usuario == null)
+            try
             {
-                return Unauthorized("Usuario no encontrado.");
+                var uploadedFile = await _fileService.UploadFileAsync(
+                    file,
+                    id,
+                    Utilidades.DB_ARCHIVOTIPOS_ENTREGA_RECEPCION_DIGITALIZADA,
+                    "Entrega-Recepción Digitalizada"
+                );
+
+                return Ok(new { message = "Archivo subido exitosamente.", filePath = uploadedFile.Path });
             }
-
-            // 🔹 Buscar la inspección
-            var inspection = _context.Inspections.Include(i => i.Files).FirstOrDefault(i => i.Id == id);
-            if (inspection == null)
+            catch (Exception ex)
             {
-                return NotFound("Inspección no encontrada.");
+                return StatusCode(500, new { message = "Error al subir archivo", error = ex.Message });
             }
-
-            // 🔹 Generar el path donde se guardará el archivo
-            string filename = Path.GetFileNameWithoutExtension(file.FileName);
-            string fileExtension = Path.GetExtension(file.FileName).ToLower();
-            string directoryPath = Utilidades.CreateOrGetDirectoryInsideInspectionDirectory(Utilidades.GetFullPathInspection(id), "RECEPCION_ENTREGA");
-            string fullPath = Path.Combine(directoryPath, filename + fileExtension);
-
-            // 🔹 Guardar el archivo en el servidor
-            using (var stream = new FileStream(fullPath, FileMode.Create))
-            {
-                file.CopyTo(stream);
-            }
-
-            // 🔹 Crear el registro en la base de datos
-            var archivo = new WorkshopsGov.Models.File
-            {
-                Name = filename,
-                Format = fileExtension,
-                Size = file.Length / 1024f, // Convertir a KB
-                Description = "Entrega-Recepción Digitalizada",
-                FileTypeId = Utilidades.DB_ARCHIVOTIPOS_ENTREGA_RECEPCION_DIGITALIZADA, // 🔹 Tipo específico
-                ApplicationUserId = usuario.Id,
-                Active = true,
-                Path = fullPath,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _context.Files.Add(archivo);
-            _context.SaveChanges(); // 🔹 Guardar primero el archivo en `Files`
-
-            // 🔹 Ahora, agregarlo a la inspección para que EF lo relacione en `inspection_file`
-            inspection.Files.Add(archivo);
-            _context.SaveChanges(); // 🔹 Esto genera automáticamente la relación en `inspection_file`
-
-            return Ok(new { message = "Archivo subido exitosamente.", filePath = fullPath });
         }
 
         [HttpGet]
         public IActionResult DownloadFile(int id, int fileTypeId)
         {
-            // 🔹 Buscar la inspección y asegurarse de que existen archivos asociados
-            var inspection = _context.Inspections
-                .Include(i => i.Files)
-                .FirstOrDefault(i => i.Id == id);
-
-            if (inspection == null)
+            try
             {
-                return NotFound("Inspección no encontrada.");
+                var (fileBytes, contentType, fileName) = _fileService.DownloadFileInline(id, fileTypeId);
+                // 🔹 Mostrar directamente en el navegador (no descargar)
+                Response.Headers.Append("Content-Disposition", $"inline; filename=\"{fileName}\"");
+                return File(fileBytes, contentType);
             }
-
-            // 🔹 Buscar el archivo más reciente con el tipo de archivo especificado
-            var archivo = inspection.Files
-                .Where(f => f.FileTypeId == fileTypeId)
-                .OrderByDescending(f => f.Id)
-                .FirstOrDefault();
-
-            if (archivo == null)
+            catch (FileNotFoundException ex)
             {
-                return NotFound("No se encontró un archivo de este tipo para esta inspección.");
+                return NotFound(ex.Message);
             }
-
-            // 🔹 Obtener la ruta real del archivo
-            string filePath = archivo.Path;
-
-            if (!System.IO.File.Exists(filePath))
+            catch (Exception ex)
             {
-                return NotFound("El archivo no existe en el servidor.");
+                return StatusCode(500, new { message = "Error al mostrar el archivo.", error = ex.Message });
             }
-
-            // 🔹 Leer el archivo desde el disco
-            byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
-            string contentType = "application/octet-stream"; // Tipo de archivo por defecto
-
-            // 🔹 Determinar el tipo MIME basado en la extensión del archivo
-            switch (archivo.Format.ToLower())
-            {
-                case ".pdf":
-                    contentType = "application/pdf";
-                    break;
-                case ".jpg":
-                case ".jpeg":
-                case ".png":
-                    contentType = "image/png";
-                    break;
-                default:
-                    contentType = "application/octet-stream"; // Otros archivos
-                    break;
-            }
-
-            // 🔹 Configurar la cabecera para mostrar el archivo en el navegador
-            Response.Headers.Append("Content-Disposition", $"inline; filename=\"{archivo.Name}{archivo.Format}\"");
-
-            return File(fileBytes, contentType);
         }
 
         [HttpPost("api/inspections/{id}/assign-workshop")]
@@ -388,7 +362,6 @@ namespace WorkshopsGov.Controllers
                 return StatusCode(500, new { message = "Error al asignar la sucursal.", error = ex.Message });
             }
         }
-
         public class AssignWorkshopDto
         {
             public int BranchId { get; set; }
@@ -407,9 +380,6 @@ namespace WorkshopsGov.Controllers
             return View();
         }
 
-        // POST: Inspections/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MemoNumber,InspectionDate,CheckInTime,OperatorName,ApplicationUserId,InspectionServiceId,VehicleId,DepartmentId,DistanceUnit,DistanceValue,FuelLevel,FailureReport,VehicleFailureObservation,TowRequired,InspectionStatusId,Diagnostic,Active,CreatedAt,UpdatedAt")] Inspection inspection)
@@ -469,9 +439,6 @@ namespace WorkshopsGov.Controllers
             return View(inspection);
         }
 
-        // POST: Inspections/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,MemoNumber,InspectionDate,CheckInTime,OperatorName,ApplicationUserId,InspectionServiceId,VehicleId,DepartmentId,ExternalWorkshopBranchId,DistanceUnit,DistanceValue,FuelLevel,FailureReport,VehicleFailureObservation,TowRequired,InspectionStatusId,Diagnostic,Active,CreatedAt,UpdatedAt")] Inspection inspection)
@@ -511,23 +478,15 @@ namespace WorkshopsGov.Controllers
         }
 
         // GET: Inspections/Delete/5
-
         [HttpDelete("Inspections/DeleteFile/{fileId}/{fileTypeId}")]
         public IActionResult DeleteFile(int fileId, int fileTypeId)
         {
-            var file = _context.Files
-                .FirstOrDefault(f => f.Id == fileId && f.FileTypeId == fileTypeId && f.Active);
-
-            if (file == null)
-            {
-                return NotFound("Archivo no encontrado o ya está inactivo.");
-            }
-
             try
             {
-                file.Active = false;
-                _context.Entry(file).State = EntityState.Modified;
-                _context.SaveChanges();
+                bool deleted = _fileService.DeleteFile(fileId);
+
+                if (!deleted)
+                    return NotFound("Archivo no encontrado o ya está inactivo.");
 
                 return Ok(new { message = "Archivo marcado como inactivo correctamente." });
             }

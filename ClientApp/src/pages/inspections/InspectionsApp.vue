@@ -149,8 +149,14 @@
                         <!-- 🔹 Si no hay archivo, mostrar el formulario de subida -->
                         <template v-else>
                             <!-- 🔹 Formulario oculto para generar el documento -->
-                            <form ref="downloadForm" :action="`/Inspections/DownloadFileOrGenerateFile/${inspection.id}`" method="POST" target="_blank">
+                            <!--<form ref="downloadForm" :action="`/Inspections/DownloadFileOrGenerateFile/${inspection.id}`" method="POST" target="_blank"> </form>-->
+                            <form ref="downloadForm"
+                                  :action="`/Inspections/DownloadFileOrGenerateFile/${inspection.id}?fileTypeId=4`"
+                                  method="POST"
+                                  target="_blank">
                             </form>
+
+
                             <a href="#" @click.prevent="DownloadFileOrGenerateFile" class="text-primary mt-2" style="cursor: pointer;">
                                 {{ isGenerating ? "Generando..." : "Descargar Formato" }}
                             </a>
