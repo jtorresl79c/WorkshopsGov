@@ -68,34 +68,41 @@ namespace WorkshopsGov.Controllers.PdfGenerators
             PdfPage page = pdfDoc.GetFirstPage();
             PdfCanvas canvas = new PdfCanvas(page);
 
-            // 🔹 Mover el odómetro más arriba
             ImageData odometerImage = ImageDataFactory.Create("wwwroot/images/odometro.png");
             Image odometer = new Image(odometerImage)
                 .SetWidth(80)
-                .SetFixedPosition(200, 620); // 📌 Posición ajustada del odómetro
+                .SetFixedPosition(200, 620);
 
-            // 🔹 Agregar el odómetro al documento justo después de la tabla
             document.Add(odometer);
 
-            // 📌 Posición base del odómetro
             float odometerX = 200;
-            float odometerY = 620; // 📌 Se ajusta con la nueva posición Y
+            float odometerY = 620;
 
-            // 🔹 Ajustar la posición de la línea (MOVER LIGERAMENTE A LA DERECHA)
-            float minX = odometerX + 10;  // 📌 Movida ligeramente a la derecha
-            float maxX = odometerX + 72;  // 📌 Ajustado para que siga bien la escala
-            float lineX = minX + ((maxX - minX) * (fuelLevel / 100f));
+            float centerX = odometerX + 41;
+            float centerY = odometerY + 2;
 
-            float lineStartY = odometerY + 5;
-            float lineEndY = odometerY + 35; // 📌 Mantener la línea más corta
+            // 🧭 Ángulo de 150° (E) a 30° (F)
+            float angleDegrees = 150 - (fuelLevel / 100f) * 120;
+            float angleRadians = (float)(Math.PI / 180f * angleDegrees);
 
-            // 🔹 Dibujar la línea roja en la posición del FuelLevel
+            float needleLength = 30;
+            float endX = centerX + (float)(needleLength * Math.Cos(angleRadians));
+            float endY = centerY + (float)(needleLength * Math.Sin(angleRadians));
+
+            canvas.SaveState();
             canvas.SetStrokeColor(new DeviceRgb(255, 0, 0))
                   .SetLineWidth(2)
-                  .MoveTo(lineX, lineStartY)
-                  .LineTo(lineX, lineEndY)
+                  .MoveTo(centerX, centerY)
+                  .LineTo(endX, endY)
                   .Stroke();
+
+            canvas.Circle(centerX, centerY, 2)
+                  .SetFillColor(new DeviceRgb(255, 0, 0))
+                  .Fill();
+            canvas.RestoreState();
         }
+
+
         private void AddInspectionDetails(PdfDocument pdfDoc, Document document)
         {
             document.Add(new Paragraph("INSPECCIÓN E INVENTARIO")
