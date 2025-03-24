@@ -21,24 +21,22 @@ namespace WorkshopsGov.Controllers
         }
 
         // GET: ExternalWorkshops
-        // GET: ExternalWorkshops
         public async Task<IActionResult> Index()
         {
             var workshops = await _context.ExternalWorkshops
+                .Where(workshop => workshop.Id != 1) // 🔥 Excluir el ID 1
                 .Select(workshop => new
                 {
                     workshop.Id,
                     workshop.Name,
                     workshop.Active,
-                    BranchCount = _context.ExternalWorkshopBranches.Count(b => b.ExternalWorkshopId == workshop.Id) // 🔹 Contador de sucursales
+                    BranchCount = _context.ExternalWorkshopBranches.Count(b => b.ExternalWorkshopId == workshop.Id)
                 })
                 .ToListAsync();
 
             ViewBag.Workshops = workshops;
             return View();
         }
-
-
 
         // GET: ExternalWorkshops/Details/5
         public async Task<IActionResult> Details(int? id)

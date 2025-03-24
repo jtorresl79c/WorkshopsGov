@@ -78,18 +78,47 @@
                     </div>
                 </div>
                 <!--termina el col-->
+                <div class="bg-white mb-4">
+                    <div class="border p-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Asignar Taller Externo</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row align-items-end">
+                                <div class="col-md-8">
+                                    <label class="form-label">Seleccionar Sucursal</label>
+                                    <select v-model="selectedBranchId" class="form-select" :disabled="inspection.externalWorkshopBranch.id !== 1">
+                                        <option disabled value="">-- Selecciona una sucursal --</option>
+                                        <option v-for="branch in inspection.availableBranches"
+                                                :key="branch.id"
+                                                :value="branch.id">
+                                            {{ branch.name }} ({{ branch.workshopName }})
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-success w-100"
+                                            @click="assignBranch"
+                                            :disabled="!selectedBranchId || inspection.externalWorkshopBranch.id !== 1">
+                                        Asignar Taller
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--termina el col-->
             </div>
 
 
 
             <div class="col-md-4">
-
                 <div class="card text-center bg-secondary bg-lighten-1">
                     <div class="card-content text-white">
                         <div class="card-body">
                             <h4 class="alert-heading d-flex justify-content-between">Estado</h4>
                             <div class="list-group">
-                                {{inspection.inspectionStatus.name}}
+                                <h4 class="text-white">{{inspection.inspectionStatus.name}}</h4>
                             </div>
                         </div>
                     </div>
@@ -135,8 +164,6 @@
                         </template>
                     </div>
                 </div>
-
-
                 <!-- 🔹 Panel del nivel de combustible -->
                 <div class="card" id="nivelCombustible">
                     <div class="card-header">
@@ -192,7 +219,24 @@
             const downloadForm = ref(null);
             const selectedFile = ref(null);
             const isUploading = ref(false);
+            const selectedBranchId = ref("");
 
+            const assignBranch = async () => {
+                if (!selectedBranchId.value) return alert("Selecciona una sucursal primero");
+
+                try {
+                    const response = await axios.post(`/api/inspections/${inspection.id}/assign-workshop`, {
+                        branchId: selectedBranchId.value,
+                    });
+
+                    alert("Sucursal asignada correctamente.");
+
+                    await fetchInspection(); // refrescar los datos
+                } catch (error) {
+                    console.error("Error al asignar la sucursal:", error);
+                    alert("No se pudo asignar la sucursal.");
+                }
+            };
             // 🔹 Función para formatear fechas
             const formatDate = (dateString) => {
                 if (!dateString) return "Fecha no disponible"; // Evitar errores con fechas nulas
@@ -309,7 +353,6 @@
                     moverAguja(newValue);
                 }
             });
-
             // Llamar a la API cuando el componente se monte
             onMounted(async () => {
                 await fetchInspection();
@@ -320,7 +363,7 @@
                 inspection, isLoading, pdfUrl,
                 DownloadFileOrGenerateFile, aguja, downloadForm,
                 handleFileUpload, UploadFile, isUploading, selectedFile, isGenerating,
-                formatDate, getFileUrl, deleteFile
+                formatDate, getFileUrl, deleteFile, selectedBranchId, assignBranch,
             };
         }
     };

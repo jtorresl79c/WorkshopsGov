@@ -68,6 +68,16 @@ namespace WorkshopsGov.Controllers
             var fileDigitalizado = inspection.Files
               .FirstOrDefault(f => f.FileTypeId == Utilidades.DB_ARCHIVOTIPOS_ENTREGA_RECEPCION_DIGITALIZADA && f.Active);
 
+            var branches = await _context.ExternalWorkshopBranches
+            .Include(b => b.ExternalWorkshop)
+            .Where(b => b.ExternalWorkshop.Id != 1) // ⛔ Excluir taller con ID 1
+            .Select(b => new
+            {
+                Id = b.Id,
+                Name = b.Name,
+                WorkshopName = b.ExternalWorkshop.Name
+            })
+            .ToListAsync();
 
 
             var inspectionDto = new
@@ -123,13 +133,12 @@ namespace WorkshopsGov.Controllers
                     Path = fileDigitalizado.Path,
                     UploadedAt = fileDigitalizado.CreatedAt,
                     FileTypeId = fileDigitalizado.FileTypeId,
-                } : null
+                } : null,
+                AvailableBranches = branches
             };
 
             return Ok(inspectionDto);
         }
-
-
 
         [HttpPost]
         public IActionResult DownloadFileOrGenerateFile(int id) // id = IdInspeccion
@@ -182,7 +191,6 @@ namespace WorkshopsGov.Controllers
             Response.Headers.Append("Content-Disposition", $"inline; filename=\"{filename}\"");
             return File(fileBytes, type);
         }
-
         public ModelFile GenerateEntregaRecepcionFile(int id)
         {
             string userId = Utilidades.GetUsername();
@@ -349,6 +357,42 @@ namespace WorkshopsGov.Controllers
             return File(fileBytes, contentType);
         }
 
+        [HttpPost("api/inspections/{id}/assign-workshop")]
+        public async Task<IActionResult> AssignWorkshop(int id, [FromBody] AssignWorkshopDto dto)
+        {
+            if (dto.BranchId <= 0)
+            {
+                return BadRequest(new { message = "Sucursal inválida." });
+            }
+
+            var inspection = await _context.Inspections.FindAsync(id);
+
+            if (inspection == null)
+            {
+                return NotFound(new { message = "Inspección no encontrada." });
+            }
+
+            // Asignar la sucursal y actualizar estatus
+            inspection.ExternalWorkshopBranchId = dto.BranchId;
+            inspection.InspectionStatusId = 2; // Estado: Por aprobar cotización
+            inspection.UpdatedAt = DateTime.UtcNow;
+
+            try
+            {
+                _context.Update(inspection);
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Sucursal asignada correctamente." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al asignar la sucursal.", error = ex.Message });
+            }
+        }
+
+        public class AssignWorkshopDto
+        {
+            public int BranchId { get; set; }
+        }
 
         // GET: Inspections/Create
         public IActionResult Create()
@@ -368,9 +412,11 @@ namespace WorkshopsGov.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,MemoNumber,InspectionDate,CheckInTime,OperatorName,ApplicationUserId,InspectionServiceId,VehicleId,DepartmentId,ExternalWorkshopBranchId,DistanceUnit,DistanceValue,FuelLevel,FailureReport,VehicleFailureObservation,TowRequired,InspectionStatusId,Diagnostic,Active,CreatedAt,UpdatedAt")] Inspection inspection)
-        {
+        public async Task<IActionResult> Create([Bind("MemoNumber,InspectionDate,CheckInTime,OperatorName,ApplicationUserId,InspectionServiceId,VehicleId,DepartmentId,DistanceUnit,DistanceValue,FuelLevel,FailureReport,VehicleFailureObservation,TowRequired,InspectionStatusId,Diagnostic,Active,CreatedAt,UpdatedAt")] Inspection inspection)
 
+        //public async Task<IActionResult> Create([Bind("Id,MemoNumber,InspectionDate,CheckInTime,OperatorName,ApplicationUserId,InspectionServiceId,VehicleId,DepartmentId,DistanceUnit,DistanceValue,FuelLevel,FailureReport,VehicleFailureObservation,TowRequired,InspectionStatusId,Diagnostic,Active,CreatedAt,UpdatedAt")] Inspection inspection)
+        //public async Task<IActionResult> Create([Bind("Id,MemoNumber,InspectionDate,CheckInTime,OperatorName,ApplicationUserId,InspectionServiceId,VehicleId,DepartmentId,ExternalWorkshopBranchId,DistanceUnit,DistanceValue,FuelLevel,FailureReport,VehicleFailureObservation,TowRequired,InspectionStatusId,Diagnostic,Active,CreatedAt,UpdatedAt")] Inspection inspection)
+        {
             ModelState.Remove("Vehicle");
             ModelState.Remove("Department");
             ModelState.Remove("ApplicationUser");
@@ -378,10 +424,12 @@ namespace WorkshopsGov.Controllers
             ModelState.Remove("InspectionService");
             ModelState.Remove("ExternalWorkshopBranch");
 
+
             inspection.InspectionStatusId = 1;  // ID por defecto
             inspection.InspectionDate = DateTime.SpecifyKind(inspection.InspectionDate, DateTimeKind.Utc);
             inspection.CreatedAt = DateTime.UtcNow;
             inspection.UpdatedAt = DateTime.UtcNow;
+            inspection.ExternalWorkshopBranchId = 1; 
 
             if (ModelState.IsValid)
             {

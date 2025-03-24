@@ -17,7 +17,7 @@ namespace WorkshopsGov.Seeders
 
             var taller = await dbContext.ExternalWorkshops
                 .Include(w => w.Users)
-                .FirstOrDefaultAsync(w => w.Id == 1);
+                .FirstOrDefaultAsync(w => w.Id == 2);
 
             if (taller == null) return;
 

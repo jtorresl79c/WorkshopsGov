@@ -10,7 +10,7 @@ namespace WorkshopsGov.Seeders
             if (!context.ExternalWorkshops.Any())
             {
                 context.ExternalWorkshops.AddRange(
-                    new ExternalWorkshop { Name = "Taller Automotriz Alex", Active = true },
+                    new ExternalWorkshop { Name = "Taller sspcm", Active = false },
                     new ExternalWorkshop { Name = "Taller automotriz Cars Ebrios Boys", Active = true }
                 );
                 context.SaveChanges();

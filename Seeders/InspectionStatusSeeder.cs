@@ -10,8 +10,8 @@ namespace WorkshopsGov.Seeders
             if (!context.InspectionStatuses.Any())
             {
                 context.InspectionStatuses.AddRange(
-                    new InspectionStatus { Name = "Motor destroyed DS", Active = true },
-                    new InspectionStatus { Name = "Need new Tires DS ", Active = true },
+                    new InspectionStatus { Name = "Capturada", Active = true },
+                    new InspectionStatus { Name = "Taller Asignado", Active = true },
                     new InspectionStatus { Name = "ELIMINADO ", Active = true }
                 );
                 context.SaveChanges();

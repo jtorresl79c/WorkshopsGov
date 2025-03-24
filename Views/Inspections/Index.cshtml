@@ -51,9 +51,19 @@
                             <td>
                                 @Html.DisplayFor(modelItem => item.ExternalWorkshopBranch.Name)
                             </td>
-                           
                             <td>
-                                <span class="badge text-bg-secondary">@Html.DisplayFor(modelItem => item.InspectionStatus.Name)</span>
+                                @{
+                                    var statusId = item.InspectionStatusId;
+                                    var statusClass = "badge text-bg-secondary"; // Default gray
+                                    var fontSize = "fw-bold fs-6";
+
+                                    if (statusId == 2)
+                                    {
+                                        statusClass = "badge text-bg-success"; // Puedes elegir otro color si quieres
+                                        fontSize = "fw-bold fs-6"; // Letra más grande y negrita
+                                    }
+                                }
+                                <span class="@statusClass @fontSize">@item.InspectionStatus.Name</span>
                             </td>
                             <td>
                                 <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info">
