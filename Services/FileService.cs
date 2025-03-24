@@ -40,10 +40,18 @@ namespace WorkshopsGov.Services
 
             var filename = Path.GetFileNameWithoutExtension(file.FileName);
             var extension = Path.GetExtension(file.FileName);
+
+
+            var folderName = Utilidades.GetFolderNameByFileTypeId(fileTypeId);
+
             var pathFolder = Utilidades.CreateOrGetDirectoryInsideInspectionDirectory(
                 Utilidades.GetFullPathInspection(inspectionId),
-                "RECEPCION_ENTREGA"
+                folderName
             );
+            //var pathFolder = Utilidades.CreateOrGetDirectoryInsideInspectionDirectory(
+            //    Utilidades.GetFullPathInspection(inspectionId),
+            //    "RECEPCION_ENTREGA"
+            //);
             var fullPath = Path.Combine(pathFolder, filename + extension);
 
             using (var stream = new FileStream(fullPath, FileMode.Create))
@@ -129,9 +137,9 @@ namespace WorkshopsGov.Services
                 var id when id == Utilidades.DB_ARCHIVOTIPOS_ENTREGA_RECEPCION
                     => InspectionFile.GenerateFile(inspection, _context),
 
-                // Ejemplo de otro formato (a futuro)
-                // var id when id == Utilidades.DB_ARCHIVOTIPOS_VERIFICACION_FINAL
-                //     => VerificacionFinalFile.Generate(inspection, _context),
+                //Ejemplo de otro formato
+                var id when id == Utilidades.DB_ARCHIVOTIPOS_MEMO_GENERADA
+                     => MemoFile.GenerateFile(inspection, _context),
 
                 _ => throw new Exception("Generador no implementado para este tipo de archivo.")
             };
@@ -142,8 +150,8 @@ namespace WorkshopsGov.Services
                 var id when id == Utilidades.DB_ARCHIVOTIPOS_ENTREGA_RECEPCION
                     => "Formato de Entrega-Recepción",
                 //  Ejemplo de otro tipo
-                //  var id when id == Utilidades.DB_ARCHIVOTIPOS_VERIFICACION_FINAL
-                //     => "Formato de Verificación Final",
+                var id when id == Utilidades.DB_ARCHIVOTIPOS_MEMO_GENERADA
+                   => "Formato de Memo",
                 _ => "Formato generado automáticamente"
             };
 

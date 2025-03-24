@@ -22,11 +22,17 @@ namespace WorkshopsGov.Controllers.Global
         public static int DB_ARCHIVOTIPOS_ENTREGA_RECEPCION => int.TryParse(_configuration["DB_Archivotypes:ENTREGA_RECEPCION_GENERADA"], out int value) ? value : 0;
         public static int ELIMINADO => int.TryParse(_configuration["DB_ESTADOS:ACTIVO"], out int value) ? value : 0;
         public static int DB_ARCHIVOTIPOS_ENTREGA_RECEPCION_DIGITALIZADA => int.TryParse(_configuration["DB_Archivotypes:ENTREGA_RECEPCION"], out int value) ? value : 0;
+        public static int DB_ARCHIVOTIPOS_MEMO_GENERADA => int.TryParse(_configuration["DB_Archivotypes:MEMO_GENERADA"], out int value) ? value : 0;
+        public static int DB_ARCHIVOTIPOS_MEMO_DIGITALIZADO => int.TryParse(_configuration["DB_Archivotypes:MEMO_DIGITALIZADO"], out int value) ? value : 0;
         public static char SEPARATOR = Path.DirectorySeparatorChar;
 
         public static string GetFullPathMaster()
         {
             return PATH_MASTER;
+        }
+        public static string GetFolderNameByFileTypeId(int fileTypeId)
+        {
+            return _configuration[$"FileStorage:TypeFolders:{fileTypeId}"] ?? "OTROS";
         }
         public static string GetUsername()
         {
@@ -41,6 +47,17 @@ namespace WorkshopsGov.Controllers.Global
         public static string CreateOrGetDirectoryInsideInspectionDirectory(string InspectionPath, string DirectoryName)
         {
             return Directory.CreateDirectory(Path.Combine(InspectionPath, DirectoryName)).FullName + Path.DirectorySeparatorChar;
+        }
+
+        public static string GetFileTypeDescription(int fileTypeId)
+        {
+            if (fileTypeId == DB_ARCHIVOTIPOS_ENTREGA_RECEPCION_DIGITALIZADA)
+                return "Entrega-Recepción Digitalizada";
+
+            if (fileTypeId == DB_ARCHIVOTIPOS_MEMO_DIGITALIZADO)
+                return "Memo Digitalizado";
+
+            return "Archivo";
         }
 
     }

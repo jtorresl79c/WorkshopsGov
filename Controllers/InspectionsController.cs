@@ -71,6 +71,9 @@ namespace WorkshopsGov.Controllers
             var fileDigitalizado = inspection.Files
               .FirstOrDefault(f => f.FileTypeId == Utilidades.DB_ARCHIVOTIPOS_ENTREGA_RECEPCION_DIGITALIZADA && f.Active);
 
+            var fileMemoDigitalizado = inspection.Files
+                .FirstOrDefault(f => f.FileTypeId == Utilidades.DB_ARCHIVOTIPOS_MEMO_DIGITALIZADO && f.Active);
+
             var branches = await _context.ExternalWorkshopBranches
             .Include(b => b.ExternalWorkshop)
             .Where(b => b.ExternalWorkshop.Id != 1) // ⛔ Excluir taller con ID 1
@@ -137,6 +140,14 @@ namespace WorkshopsGov.Controllers
                     UploadedAt = fileDigitalizado.CreatedAt,
                     FileTypeId = fileDigitalizado.FileTypeId,
                 } : null,
+                FileMemoDigitalizado = fileMemoDigitalizado != null ? new
+                {
+                    Id = fileMemoDigitalizado.Id,
+                    Name = fileMemoDigitalizado.Name,
+                    Path = fileMemoDigitalizado.Path,
+                    UploadedAt = fileMemoDigitalizado.CreatedAt,
+                    FileTypeId = fileMemoDigitalizado.FileTypeId,
+                } : null,
                 AvailableBranches = branches
             };
 
@@ -153,8 +164,12 @@ namespace WorkshopsGov.Controllers
             if (inspection == null)
                 return NotFound("Inspección no encontrada.");
 
+            //string path = Utilidades.CreateOrGetDirectoryInsideInspectionDirectory(
+            //    Utilidades.GetFullPathInspection(id), "RECEPCION_ENTREGA");
+            string folderName = Utilidades.GetFolderNameByFileTypeId(fileTypeId);
+
             string path = Utilidades.CreateOrGetDirectoryInsideInspectionDirectory(
-                Utilidades.GetFullPathInspection(id), "RECEPCION_ENTREGA");
+                Utilidades.GetFullPathInspection(id), folderName);
 
             var archivo = inspection.Files
                 .Where(f => f.FileTypeId == fileTypeId && f.Active)
@@ -188,119 +203,21 @@ namespace WorkshopsGov.Controllers
         }
 
 
-        //[HttpPost]
-        //public IActionResult DownloadFileOrGenerateFile(int id) // id = IdInspeccion
-        //{
-        //    var inspection = _context.Inspections
-        //        .Include(i => i.Files)
-        //        .FirstOrDefault(i => i.Id == id);
-
-        //    if (inspection == null)
-        //    {
-        //        return NotFound("Inspección no encontrada.");
-        //    }
-
-        //    // 🔹 Obtener el directorio de inspección en wwwroot/Formats/INSPECTIONS/_ID/RECEPCION_ENTREGA
-        //    string _path = Utilidades.CreateOrGetDirectoryInsideInspectionDirectory(Utilidades.GetFullPathInspection(id), "RECEPCION_ENTREGA");
-
-        //    // 🔹 Buscar archivo vinculado a la inspección
-        //    var archivo = inspection.Files
-        //        .Where(f => f.FileTypeId == Utilidades.DB_ARCHIVOTIPOS_ENTREGA_RECEPCION && f.Active)
-        //        .OrderByDescending(f => f.Id)
-        //        .FirstOrDefault();
-
-        //    string file;
-        //    byte[] fileBytes;
-
-        //    // 🔹 Si ya existe el archivo, usarlo o generar uno nuevo
-        //    if (archivo != null)
-        //    {
-        //        file = Path.Combine(_path, archivo.Name + archivo.Format);
-        //        if (System.IO.File.Exists(file))
-        //        {
-        //            System.IO.File.Delete(file);
-        //        }
-        //    }
-
-        //    // 🔹 Generar el nuevo archivo si no existe
-        //    archivo = GenerateEntregaRecepcionFile(inspection.Id);
-        //    file = Path.Combine(_path, archivo.Name + archivo.Format);
-
-        //    // 🔹 Leer el archivo y devolverlo como respuesta
-        //    string filename = archivo.Name + archivo.Format;
-        //    fileBytes = System.IO.File.ReadAllBytes(file);
-
-        //    string type = archivo.Format switch
-        //    {
-        //        ".jpg" or ".png" or ".jpeg" => "image/png",
-        //        _ => "application/pdf"
-        //    };
-
-        //    Response.Headers.Append("Content-Disposition", $"inline; filename=\"{filename}\"");
-        //    return File(fileBytes, type);
-        //}
-        //public ModelFile GenerateEntregaRecepcionFile(int id)
-        //{
-        //    string userId = Utilidades.GetUsername();
-        //    var usuario = _context.Users.FirstOrDefault(u => u.Id == userId);
-
-        //    var inspection = _context.Inspections
-        //        .Include(i => i.Files)
-        //        .Include(i => i.Vehicle)
-        //        .ThenInclude(v => v.Brand)
-        //        .ThenInclude(v => v.VehicleModels) 
-        //        .FirstOrDefault(i => i.Id == id);
-
-        //    if (inspection == null)
-        //    {
-        //        throw new Exception("Inspección no encontrada.");
-        //    }
-
-        //    if (usuario == null)
-        //    {
-        //        throw new Exception("Usuario no encontrado.");
-        //    }
-
-        //    // 🔹 Generar el archivo PDF
-        //    dynamic GeneratedFileResponse = InspectionFile.GenerateFile(inspection, _context);
-
-        //    // 🔹 Crear el archivo en la base de datos
-        //    var archivo = new WorkshopsGov.Models.File
-        //    {
-        //        Name = Path.GetFileNameWithoutExtension(GeneratedFileResponse.Filename),
-        //        Format = GeneratedFileResponse.Formato,
-        //        Size = 0, // Opcional: Puedes calcular el tamaño real con FileInfo
-        //        Description = "Formato de Entrega-Recepción",
-        //        FileTypeId = Utilidades.DB_ARCHIVOTIPOS_ENTREGA_RECEPCION,
-        //        ApplicationUserId = usuario.Id,
-        //        Active = true,
-        //        Path = GeneratedFileResponse.Ruta,
-        //        CreatedAt = DateTime.UtcNow
-        //    };
-
-        //    _context.Files.Add(archivo);
-        //    _context.SaveChanges();
-
-        //    // 🔹 Vincular el archivo con la inspección en la tabla intermedia `inspection_file`
-        //    inspection.Files.Add(archivo);
-        //    _context.SaveChanges();
-
-        //    return archivo;
-        //}
-
         [HttpPost]
-        public async Task<IActionResult> UploadFile(IFormFile file, int id)
+        public async Task<IActionResult> UploadFile(IFormFile file, int id, int fileTypeId)
         {
             if (file == null || file.Length == 0)
                 return BadRequest("Debe seleccionar un archivo para subir.");
 
             try
             {
+                var description = Utilidades.GetFileTypeDescription(fileTypeId);
+
                 var uploadedFile = await _fileService.UploadFileAsync(
                     file,
                     id,
-                    Utilidades.DB_ARCHIVOTIPOS_ENTREGA_RECEPCION_DIGITALIZADA,
-                    "Entrega-Recepción Digitalizada"
+                    fileTypeId,
+                    description
                 );
 
                 return Ok(new { message = "Archivo subido exitosamente.", filePath = uploadedFile.Path });
@@ -310,6 +227,7 @@ namespace WorkshopsGov.Controllers
                 return StatusCode(500, new { message = "Error al subir archivo", error = ex.Message });
             }
         }
+
 
         [HttpGet]
         public IActionResult DownloadFile(int id, int fileTypeId)
