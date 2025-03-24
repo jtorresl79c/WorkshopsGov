@@ -1,9 +1,3 @@
-// import { createApp } from 'vue'
-// import UserPermissionApp from './UserPermission.vue'
-// import '../../common/styles/base.css'
-//
-// createApp(UserPermissionApp).mount('#user-permission-app')
-
 import { createApp } from 'vue'
 import UserPermissionApp from './UserPermission.vue'
 import '../../common/styles/base.css'

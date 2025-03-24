@@ -12,12 +12,10 @@ namespace WorkshopsGov.Controllers.Api
     public class ApplicationUsersApiController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-
         public ApplicationUsersApiController(ApplicationDbContext context)
         {
             _context = context;
         }
-        
         
         // GET: api/<ApplicationUsersApiController>
         [HttpGet]

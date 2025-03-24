@@ -48,7 +48,6 @@
 
     <ItemGroup>
       <Folder Include="ClientApp\src\common\assets\" />
-      <Folder Include="Controllers\Api\" />
     </ItemGroup>
 
 </Project>

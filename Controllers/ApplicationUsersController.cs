@@ -105,7 +105,6 @@ namespace WorkshopsGov.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        // public async Task<IActionResult> Create([Bind("FirstName,SecondName,PaternalLastName,MaternalLastName,DepartmentId,Active,CreatedAt,UpdatedAt,Id,UserName,NormalizedUserName,Email,NormalizedEmail,EmailConfirmed,PasswordHash,SecurityStamp,ConcurrencyStamp,PhoneNumber,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEnd,LockoutEnabled,AccessFailedCount")] ApplicationUser applicationUser)
         public async Task<IActionResult> Create(ApplicationUserDto applicationUserDto)
         {
             if (string.IsNullOrWhiteSpace(applicationUserDto.Password))
@@ -151,31 +150,11 @@ namespace WorkshopsGov.Controllers
             }
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", applicationUserDto.DepartmentId);
             return View(applicationUserDto);
-            // if (ModelState.IsValid)
-            // {
-            //     _context.Add(applicationUser);
-            //     await _context.SaveChangesAsync();
-            //     return RedirectToAction(nameof(Index));
-            // }
-            // ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", applicationUser.DepartmentId);
-            // return View(applicationUser);
         }
 
         // GET: ApplicationUsers/Edit/5
         public async Task<IActionResult> Edit(string id)
-        {
-            // if (id == null)
-            // {
-            //     return NotFound();
-            // }
-            //
-            // var applicationUser = await _context.Users.FindAsync(id);
-            // if (applicationUser == null)
-            // {
-            //     return NotFound();
-            // }
-            // ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", applicationUser.DepartmentId);
-            
+        {            
             if (id == null)
             {
                 return NotFound();
@@ -304,8 +283,22 @@ namespace WorkshopsGov.Controllers
             {
                 return NotFound();
             }
+            
+            var userDto = new ApplicationUserDto();
+            userDto.Id = applicationUser.Id;
+            userDto.FirstName = applicationUser.FirstName;
+            userDto.SecondName = applicationUser.SecondName;
+            userDto.PaternalLastName = applicationUser.PaternalLastName;
+            userDto.MaternalLastName = applicationUser.MaternalLastName;
+            userDto.Department = applicationUser.Department.Name;
+            userDto.UserName = applicationUser.UserName;
+            userDto.Email = applicationUser.Email;
+            userDto.PhoneNumber = applicationUser.PhoneNumber;
+            userDto.CreatedAt = applicationUser.CreatedAt;
+            userDto.UpdatedAt = applicationUser.UpdatedAt;
+            userDto.Active = applicationUser.Active;
 
-            return View(applicationUser);
+            return View(userDto);
         }
 
         // POST: ApplicationUsers/Delete/5
