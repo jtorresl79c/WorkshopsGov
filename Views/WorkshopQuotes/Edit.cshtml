@@ -1,0 +1,85 @@
+﻿@model WorkshopsGov.Models.WorkshopQuote
+@{
+    ViewData["Title"] = "Editar Cotización";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+            <a href="/ReviewCenter">Centro de Revisión</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="/Inspections/Details/@ViewBag.InspectionId">Detalles de Inspección #@ViewBag.InspectionId</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Editar Cotización</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-sm-12 col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <form asp-action="Edit">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="InspectionId" value="@ViewBag.InspectionId" />
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="form-group">
+                        <label class="control-label">
+                            Taller asignado:
+                            <span class="text-muted">(@ViewBag.WorkshopInfo.WorkshopName)</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="WorkshopBranchId" class="control-label">Sucursal</label>
+                        <select asp-for="WorkshopBranchId" class="form-control" asp-items="ViewBag.WorkshopBranchId"></select>
+                        <span asp-validation-for="WorkshopBranchId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="QuoteNumber" class="control-label">No. Folio</label>
+                        <input asp-for="QuoteNumber" class="form-control" />
+                        <span asp-validation-for="QuoteNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="QuoteDate" class="control-label">Fecha de Cotización</label>
+                        <input asp-for="QuoteDate" class="form-control" type="date" />
+                        <span asp-validation-for="QuoteDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="TotalCost" class="control-label">Total</label>
+                        <input asp-for="TotalCost" class="form-control" />
+                        <span asp-validation-for="TotalCost" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="EstimatedCompletionDate" class="control-label">Fecha estimada de finalización</label>
+                        <input asp-for="EstimatedCompletionDate" class="form-control" type="date" />
+                        <span asp-validation-for="EstimatedCompletionDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="QuoteDetails" class="control-label">Detalles</label>
+                        <textarea asp-for="QuoteDetails" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="QuoteDetails" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="submit" value="Guardar cambios" class="btn btn-primary" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

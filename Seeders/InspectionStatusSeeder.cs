@@ -10,9 +10,9 @@ namespace WorkshopsGov.Seeders
             if (!context.InspectionStatuses.Any())
             {
                 context.InspectionStatuses.AddRange(
-                    new InspectionStatus { Name = "Capturada", Active = true },
-                    new InspectionStatus { Name = "Taller Asignado", Active = true },
-                    new InspectionStatus { Name = "ELIMINADO ", Active = true }
+                    new InspectionStatus { Id = 1, Name = "Capturada", Active = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new InspectionStatus { Id = 2, Name = "Taller Asignado", Active = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new InspectionStatus { Id = 3, Name = "ELIMINADO ", Active = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
                 );
                 context.SaveChanges();
             }
