@@ -32,5 +32,7 @@ public class File : AuditableEntityBase
     public bool Active { get; set; } = true;
     // Relación muchos a muchos con Inspection
     public ICollection<Inspection> Inspections { get; set; } = new List<Inspection>();
+    public ICollection<WorkshopQuote> WorkshopQuotes { get; set; } = new List<WorkshopQuote>();
+
 }
 

@@ -2,12 +2,13 @@
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item">
-                <a href="/inspections">Inspecciones</a>
+                <a :href="breadcrumbBaseUrl">{{ breadcrumbBaseLabel }}</a>
             </li>
-            <li class="breadcrumb-item active" aria-current="page">Detalles de Inspeccion</li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Detalles de Inspección #{{ inspection.id }}
+            </li>
         </ol>
     </nav>
-
 
     <div v-if="isLoading" class="text-center p-5">
         <h2>Cargando detalles de inspección...</h2>
@@ -81,13 +82,17 @@
                 <div class="bg-white mb-4">
                     <div class="border p-4">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Asignar Taller Externo</h5>
+                            <h5 class="mb-0">
+                                {{ currentUserRole === 'External_Workshop' ? 'Sucursal Asignada' : 'Asignar Taller Externo' }}
+                            </h5>
                         </div>
                         <div class="card-body">
                             <div class="row align-items-end">
                                 <div class="col-md-8">
-                                    <label class="form-label">Seleccionar Sucursal</label>
-                                    <select v-model="selectedBranchId" class="form-select" :disabled="inspection.externalWorkshopBranch.id !== 1">
+                                    <label class="form-label">Sucursal</label>
+                                    <select v-model="selectedBranchId"
+                                            class="form-select"
+                                            :disabled="currentUserRole === 'External_Workshop' || inspection.externalWorkshopBranch.id !== 1">
                                         <option disabled value="">-- Selecciona una sucursal --</option>
                                         <option v-for="branch in inspection.availableBranches"
                                                 :key="branch.id"
@@ -96,7 +101,9 @@
                                         </option>
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+
+                                <!-- 🔹 Mostrar botón solo si NO es taller externo -->
+                                <div v-if="currentUserRole !== 'External_Workshop'" class="col-md-4">
                                     <button class="btn btn-success w-100"
                                             @click="assignBranch"
                                             :disabled="!selectedBranchId || inspection.externalWorkshopBranch.id !== 1">
@@ -107,6 +114,59 @@
                         </div>
                     </div>
                 </div>
+
+
+                <div class="bg-white border p-4 mb-4 mt-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="mb-0">Cotizaciones</h4>
+
+                        <!-- Solo los talleres externos pueden generar cotización -->
+                        <button v-if="currentUserRole === 'External_Workshop'"
+                                class="btn btn-outline-primary"
+                                @click="goToQuoteForm">
+                            Generar Cotización
+                        </button>
+                    </div>
+
+                    <div v-if="isLoadingQuotes" class="text-center py-3">
+                        <span class="spinner-border spinner-border-sm text-primary me-2"></span> Cargando cotizaciones...
+                    </div>
+
+                    <div v-else>
+                        <table v-if="quotes.length > 0" class="table table-bordered table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Número</th>
+                                    <th>Fecha</th>
+                                    <th>Costo Total</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="quote in quotes" :key="quote.id">
+                                    <td>{{ quote.id }}</td>
+                                    <td>{{ quote.quoteNumber }}</td>
+                                    <td>{{ formatDate(quote.quoteDate) }}</td>
+                                    <td>$ {{ quote.totalCost.toFixed(2) }}</td>
+                                    <td>{{ quote.quoteStatus }}</td>
+                                    <td>
+                                        <a :href="`/WorkshopQuotes/Details/${quote.id}`" class="btn btn-sm btn-outline-secondary">
+                                            Ver
+                                        </a>
+                                        <a v-if="currentUserRole === 'External_Workshop'" :href="`/WorkshopQuotes/Edit/${quote.id}?inspectionId=${inspection.id}`" class="btn btn-sm btn-outline-success mx-1">
+                                            Editar
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p v-else class="text-muted text-center">No hay cotizaciones registradas para esta inspección.</p>
+                    </div>
+                </div>
+
+
                 <!--termina el col-->
             </div>
 
@@ -242,6 +302,11 @@
                 fileDigitalizado: null
             });
 
+
+            //titulo
+            const breadcrumbBaseUrl = ref("/inspections");
+            const breadcrumbBaseLabel = ref("Inspecciones");
+
             // Estados de carga y PDF
             const isLoading = ref(true);
             const pdfUrl = ref(null);
@@ -256,6 +321,11 @@
             const isGeneratingMemo = ref(false)
             const selectedMemoFile = ref(null)
             const isUploadingMemo = ref(false)
+            const currentUserRole = ref('');
+
+            //cotizaciones
+            const quotes = ref([]);
+            const isLoadingQuotes = ref(false);
 
             const assignBranch = async () => {
                 if (!selectedBranchId.value) return alert("Selecciona una sucursal primero");
@@ -303,6 +373,12 @@
 
                     // Actualiza el modelo reactivo con los datos recibidos
                     Object.assign(inspection, response.data);
+
+                    currentUserRole.value = response.data.currentUserRole;
+
+                    if (inspection.externalWorkshopBranch?.id) {
+                        selectedBranchId.value = inspection.externalWorkshopBranch.id;
+                    }
 
                     pdfUrl.value = `/Formats/Inspeccion_${inspectionId}.pdf`;
                 } catch (error) {
@@ -385,7 +461,6 @@
                 }
             };
             // Observa cambios en fuelLevel para animar la aguja
-
             const DownloadMemo = () => {
                 if (isGeneratingMemo.value) return;
                 isGeneratingMemo.value = true;
@@ -399,11 +474,9 @@
                     isGeneratingMemo.value = false;
                 }, 100);
             };
-
             const handleMemoUpload = (event) => {
                 selectedMemoFile.value = event.target.files[0];
             };
-
             const UploadMemo = async () => {
                 if (!selectedMemoFile.value) {
                     alert("Selecciona un archivo primero.");
@@ -433,6 +506,23 @@
                 }
             };
 
+            const fetchQuotes = async () => {
+                isLoadingQuotes.value = true;
+                try {
+                    const { data } = await axios.get(`/api/WorkshopQuotesApi/by-inspection/${inspection.id}`);
+                    quotes.value = data;
+                } catch (err) {
+                    console.error("Error cargando cotizaciones:", err);
+                } finally {
+                    isLoadingQuotes.value = false;
+                }
+            };
+
+            const goToQuoteForm = () => {
+                window.location.href = `/WorkshopQuotes/Create?inspectionId=${inspection.id}`;
+            };
+
+
             watch(() => inspection.fuelLevel, (newValue) => {
                 if (aguja.value) {
                     moverAguja(newValue);
@@ -441,14 +531,21 @@
             // Llamar a la API cuando el componente se monte
             onMounted(async () => {
                 await fetchInspection();
+                await fetchQuotes();
                 moverAguja(inspection.fuelLevel);
+                if (inspection.currentUserRole === "External_Workshop") {
+                    breadcrumbBaseUrl.value = "/ReviewCenter";
+                    breadcrumbBaseLabel.value = "Centro de Revisión";
+                }
             });
 
             return {
                 inspection, isLoading, pdfUrl,
                 DownloadFileOrGenerateFile, aguja, downloadForm,
                 handleFileUpload, UploadFile, isUploading, selectedFile, isGenerating,
-                formatDate, getFileUrl, deleteFile, selectedBranchId, assignBranch, memoDownloadForm, isGeneratingMemo, selectedMemoFile, isUploadingMemo, DownloadMemo, UploadMemo, handleMemoUpload
+                formatDate, getFileUrl, deleteFile, selectedBranchId, assignBranch, memoDownloadForm,
+                isGeneratingMemo, selectedMemoFile, isUploadingMemo, DownloadMemo, UploadMemo, handleMemoUpload,
+                currentUserRole, quotes, isLoadingQuotes, goToQuoteForm, breadcrumbBaseUrl, breadcrumbBaseLabel
             };
         }
     };

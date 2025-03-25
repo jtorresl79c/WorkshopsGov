@@ -63,6 +63,9 @@ namespace WorkshopsGov.Controllers
                 .Include(i => i.Files)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
+            var userRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+
             if (inspection == null)
             {
                 return NotFound(new { message = "Inspección no encontrada" });
@@ -148,7 +151,8 @@ namespace WorkshopsGov.Controllers
                     UploadedAt = fileMemoDigitalizado.CreatedAt,
                     FileTypeId = fileMemoDigitalizado.FileTypeId,
                 } : null,
-                AvailableBranches = branches
+                AvailableBranches = branches,
+                CurrentUserRole = userRole
             };
 
             return Ok(inspectionDto);

@@ -1,0 +1,13 @@
+﻿@{
+    ViewData["Title"] = "Ingex";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="container-fluid" id="externalReview-app"></div>
+
+@section Scripts {
+    <vite-script entry="external_review" dev-server="http://localhost:5173"></vite-script>
+    <vite-style entry="external_review"></vite-style>
+}
+

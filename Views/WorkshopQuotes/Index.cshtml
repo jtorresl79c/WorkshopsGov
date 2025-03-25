@@ -1,0 +1,78 @@
+﻿@model IEnumerable<WorkshopsGov.Models.WorkshopQuote>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Inspection)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkshopBranch)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.QuoteNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.QuoteDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalCost)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EstimatedCompletionDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.QuoteStatusId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.QuoteDetails)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Inspection.ApplicationUserId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.WorkshopBranch.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.QuoteNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.QuoteDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalCost)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EstimatedCompletionDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.QuoteStatusId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.QuoteDetails)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

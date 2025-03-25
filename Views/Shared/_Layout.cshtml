@@ -1,4 +1,7 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@{
     string currentPath = Context.Request.Path;
 }
 <!DOCTYPE html>
@@ -73,6 +76,18 @@
                             <span class="item-name">Dashboard</span>
                         </a>
                     </li>
+                    @if (User.IsInRole("External_Workshop"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="ReviewCenter" asp-action="AssignedToWorkshop">
+                                <i class="bi bi-eye-fill me-2"></i>
+                                <span class="item-name">Centro de Revisión</span>
+                            </a>
+                        </li>
+                    }
+
+                    @if (User.IsInRole("Administrator"))
+                    {
                     <li class="nav-item">
                         <a class="nav-link text-primary bg-light rounded" asp-controller="ReviewCenter" asp-action="Index">
                             <i class="bi bi-eye-fill me-2"></i>
@@ -185,6 +200,8 @@
                             </li>
                         </ul>
                     </li>
+
+                 
                     <li class="nav-item">
                         <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-diagnostic" role="button" aria-expanded="false" aria-controls="sidebar-diagnostic">
                             <i class="bi bi-ui-checks"></i>
@@ -237,6 +254,7 @@
                             </li>
                         </ul>
                     </li>
+
                     <li><hr class="hr-horizontal"></li>
                     <li class="nav-item static-item">
                         <a class="nav-link static-item disabled" href="#" tabindex="-1">
@@ -256,6 +274,8 @@
                             <span class="item-name">Inspecciones</span>
                         </a>
                     </li>
+                    }
+
                  
                 </ul>
                 <!-- Sidebar Menu End -->

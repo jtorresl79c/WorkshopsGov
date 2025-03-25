@@ -29,7 +29,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<FileType> FileTypes { get; set; }
     public DbSet<File> Files { get; set; }
     public DbSet<ApplicationUser> ApplicationUsers { get; set; }
-    
+    public DbSet<WorkshopQuote> WorkshopQuote { get; set; }
+    public DbSet<WorkshopQuoteStatus> WorkshopQuoteStatus { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -372,8 +374,24 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                     .HasForeignKey("InspectionId")
                     .OnDelete(DeleteBehavior.Cascade)
             );
+
+        modelBuilder.Entity<WorkshopQuote>()
+            .HasMany(wq => wq.Files)
+            .WithMany(f => f.WorkshopQuotes)
+            .UsingEntity<Dictionary<string, object>>(
+                "workshop_quote_file",
+                j => j.HasOne<File>()
+                      .WithMany()
+                      .HasForeignKey("FileId")
+                      .OnDelete(DeleteBehavior.Cascade),
+                j => j.HasOne<WorkshopQuote>()
+                      .WithMany()
+                      .HasForeignKey("QuoteId")
+                      .OnDelete(DeleteBehavior.Cascade)
+            );
+
     }
-    
+
     public override int SaveChanges()
     {
         SetAuditFields();
@@ -422,4 +440,5 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         return string.Concat(name.Select((x, i) =>
             i > 0 && char.IsUpper(x) ? "_" + x : x.ToString())).ToLower();
     }
+
 }

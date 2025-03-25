@@ -22,6 +22,13 @@ namespace WorkshopsGov.Controllers
             return View(); // Renderiza la vista Razor vacía donde Vue montará
         }
 
+        [HttpGet("ReviewCenter/AssignedToWorkshop")]
+        [Authorize(Roles = "External_Workshop")]
+        public IActionResult AssignedToWorkshop()
+        {
+            return View();
+        }
+
         // Endpoint de prueba para Vue (solo para testear conexión)
         [HttpGet("api/reviewcenter/test")]
         public IActionResult Test()
