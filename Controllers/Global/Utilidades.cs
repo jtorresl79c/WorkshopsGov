@@ -24,6 +24,8 @@ namespace WorkshopsGov.Controllers.Global
         public static int DB_ARCHIVOTIPOS_ENTREGA_RECEPCION_DIGITALIZADA => int.TryParse(_configuration["DB_Archivotypes:ENTREGA_RECEPCION"], out int value) ? value : 0;
         public static int DB_ARCHIVOTIPOS_MEMO_GENERADA => int.TryParse(_configuration["DB_Archivotypes:MEMO_GENERADA"], out int value) ? value : 0;
         public static int DB_ARCHIVOTIPOS_MEMO_DIGITALIZADO => int.TryParse(_configuration["DB_Archivotypes:MEMO_DIGITALIZADO"], out int value) ? value : 0;
+        public static int DB_ARCHIVOTIPOS_COTIZACION_DIGITALIZADA => int.TryParse(_configuration["DB_Archivotypes:COTIZACION_DIGITALIZADA"], out int value) ? value : 0;
+        
         public static char SEPARATOR = Path.DirectorySeparatorChar;
 
         public static string GetFullPathMaster()
@@ -56,6 +58,9 @@ namespace WorkshopsGov.Controllers.Global
 
             if (fileTypeId == DB_ARCHIVOTIPOS_MEMO_DIGITALIZADO)
                 return "Memo Digitalizado";
+
+            if (fileTypeId == DB_ARCHIVOTIPOS_COTIZACION_DIGITALIZADA)
+                return "Cotizacion Digitalizado";
 
             return "Archivo";
         }
