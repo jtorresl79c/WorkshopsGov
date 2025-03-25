@@ -1,7 +1,7 @@
 @model IEnumerable<WorkshopsGov.Models.DTOs.ApplicationUserDto>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Usuarios";
 }
 
 @if (TempData["SuccessMessage"] != null)
@@ -11,7 +11,84 @@
     </div>
 }
 
-<h1>Index</h1>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center p-4">
+        <div class="header-title">
+            <h4 class="card-title m-0 p-0">Usuarios</h4>
+        </div>
+        <a asp-action="Create" class="btn btn-primary">Agregar</a>
+    </div>
+</div>
+
+<div class="table-responsive bg-white p-3">
+    <table class="table mb-0 dataTable no-footer" id="datatable" data-toggle="data-table" aria-describedby="datatable_info">
+        <thead>
+        <tr class="bg-white">
+            <th scope="col" class="sorting sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Profiles: activate to sort column descending">
+                @Html.DisplayNameFor(model => model.FirstName)
+            </th>
+            <th scope="col" class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Contact: activate to sort column ascending">
+                Apellidos
+            </th>
+            <th scope="col" class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Email ID: activate to sort column ascending">
+                @Html.DisplayNameFor(model => model.Department)
+            </th>
+            <th scope="col" class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Country: activate to sort column ascending">
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th scope="col" class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Purchases: activate to sort column ascending">
+                @Html.DisplayNameFor(model => model.Active)
+            </th>
+            <th scope="col" class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending">
+                Acción
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+
+        @* @foreach (var (nombre, index) in nombres.Select((nombre, index) => (nombre, index))) *@
+        @foreach(var item in Model)
+        {
+            <tr class="odd">
+                <td class="sorting_1">
+                    @Html.DisplayFor(modelItem => item.FirstName)
+                </td>
+                <td class="text-dark">
+                    @Html.DisplayFor(modelItem => item.PaternalLastName)
+                    @Html.DisplayFor(modelItem => item.MaternalLastName)
+                </td>
+                <td class="text-dark">
+                    @Html.DisplayFor(modelItem => item.Department)
+                </td>
+                <td class="text-dark">
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td class="text-dark">
+                    @Html.DisplayFor(modelItem => item.Active)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">
+                        <i class="bi bi-pencil-square"></i>
+                        <span>Editar</span>
+                    </a>
+                    <a asp-action="Details" asp-route-id="@item.Id">
+                        <i class="bi bi-info-circle"></i>
+                        <span>Detalles</span>
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@item.Id">
+                        <i class="bi bi-trash-fill"></i>
+                        <span>Eliminar</span>
+                    </a>
+                    <span class="link-primary" style="cursor: pointer" onclick="mostrarModal('@item.Id')">
+                        <i class="bi bi-lock-fill"></i>
+                        <span>Permisos</span>
+                    </span>
+                </td>
+            </tr>   
+        }
+        </tbody>
+    </table>
+</div>
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -30,60 +107,6 @@
         </div>
     </div>
 </div>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-    <tr>
-        <th>
-            Nombre
-        </th>
-        <th>
-            Apellidos
-        </th>
-        <th>
-            Departamento
-        </th>
-        <th>
-            Email
-        </th>
-        <th>
-            Activo
-        </th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.FirstName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PaternalLastName)
-                @Html.DisplayFor(modelItem => item.MaternalLastName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Department)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Active)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> |
-                <span class="link-primary" style="cursor: pointer" onclick="mostrarModal('@item.Id')">Permisos</span>
-            </td>
-        </tr>
-    }
-    </tbody>
-</table>
 
 @section Scripts {
     <vite-script entry="user_permission" dev-server="http://localhost:5173"></vite-script>

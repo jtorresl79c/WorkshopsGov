@@ -1,83 +1,99 @@
-@* @model WorkshopsGov.Models.ApplicationUser *@
 @model WorkshopsGov.Models.DTOs.ApplicationUserDto
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar usuario";
     Layout = "~/Views/Shared/_Layout.cshtml";
-
 }
 
-<h1>Edit11</h1>
-
-<h4>ApplicationUser</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label for="FirstName">Nombre</label>
-                <input asp-for="FirstName" class="form-control" />
-                <span asp-validation-for="FirstName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label for="SecondName">Segundo nombre</label>
-                <input asp-for="SecondName" class="form-control" />
-                <span asp-validation-for="SecondName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label for="PaternalLastName">Apellido paterno</label>
-                <input asp-for="PaternalLastName" class="form-control" />
-                <span asp-validation-for="PaternalLastName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label for="MaternalLastName">Apellido materno</label>
-                <input asp-for="MaternalLastName" class="form-control" />
-                <span asp-validation-for="MaternalLastName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label for="DepartmentId">Departamento</label>
-                <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.DepartmentId"></select>
-                <span asp-validation-for="DepartmentId" class="text-danger"></span>
-            </div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <div>
-                    <label asp-for="Password" class="control-label"></label>
-                    <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="Dejar en blanco si no se quiere cambiar"></i>
-                </div>
-                <input asp-for="Password" class="form-control"/>
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ConfirmPassword" class="control-label"></label>
-                <input asp-for="ConfirmPassword" class="form-control"/>
-                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label for="PhoneNumber">Número de teléfono</label>
-                <input asp-for="PhoneNumber" class="form-control" />
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Active" /> Activo
-                </label>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+<div class="card">
+    <div class="card-header p-4">
+        <h1>Usuario</h1>
+        <h4>Editar usuario</h4>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+<div class="container-fluid mt-4">
+    <div class="bg-white p-4">
+        <div class="row">
+            <div class="col">
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="form-group">
+                        <label for="FirstName">Nombre</label>
+                        <input asp-for="FirstName" class="form-control w-100" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="SecondName">Segundo nombre</label>
+                        <input asp-for="SecondName" class="form-control" />
+                        <span asp-validation-for="SecondName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="PaternalLastName">Apellido paterno</label>
+                        <input asp-for="PaternalLastName" class="form-control" />
+                        <span asp-validation-for="PaternalLastName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="MaternalLastName">Apellido materno</label>
+                        <input asp-for="MaternalLastName" class="form-control" />
+                        <span asp-validation-for="MaternalLastName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="DepartmentId">Departamento</label>
+                        <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.DepartmentId"></select>
+                        <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                    </div>
+
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="form-group">
+                        <label asp-for="Email" class="control-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <div>
+                            <label asp-for="Password" class="control-label"></label>
+                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="Dejar en blanco si no se quiere cambiar"></i>
+                        </div>
+                        <input asp-for="Password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="ConfirmPassword" class="control-label"></label>
+                        <input asp-for="ConfirmPassword" class="form-control" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="PhoneNumber">Número de teléfono</label>
+                        <input asp-for="PhoneNumber" class="form-control" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="Active" /> Activo
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="submit" value="Guardar" class="btn btn-primary" />
+                        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    
 </div>
 
 @section Scripts {

@@ -1,69 +1,49 @@
 @model WorkshopsGov.Models.DTOs.ApplicationUserDto
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Eliminar usuario";
 }
 
-<h1>Delete</h1>
+<div class="container-fluid mt-4">
+    <div class="card border-danger">
+        <div class="card-header bg-danger text-white text-center p-4">
+            <h3 class="text-white">¿Está seguro de querer eliminar este usuario?</h3>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title text-danger">Detalles</h5>
+            <hr />
+            <dl class="row">
+                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.FirstName)</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.FirstName)</dd>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>ApplicationUser</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FirstName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FirstName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SecondName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SecondName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PaternalLastName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PaternalLastName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MaternalLastName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MaternalLastName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Department)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Department)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Active)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Active)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PhoneNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PhoneNumber)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.SecondName)</dt>
+                <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.SecondName) ? "No registrado" : Model.SecondName)</dd>
+
+                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.PaternalLastName)</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.PaternalLastName)</dd>
+
+                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.MaternalLastName)</dt>
+                <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.MaternalLastName) ? "No registrado" : Model.MaternalLastName)</dd>
+
+                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Department)</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.Department)</dd>
+
+                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Active)</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.Active)</dd>
+
+                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Email)</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.Email)</dd>
+
+                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.PhoneNumber)</dt>
+                <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.PhoneNumber) ? "No registrado" : Model.PhoneNumber)</dd>
+            </dl>
+        </div>
+        <div class="card-footer text-center">
+            <form asp-action="Delete" class="d-inline">
+                <input type="hidden" asp-for="Id" />
+                <button type="submit" class="btn btn-danger">Eliminar</button>
+            </form>
+            <a asp-action="Index" class="btn btn-secondary ms-2">Cancelar</a>
+        </div>
+    </div>
 </div>
