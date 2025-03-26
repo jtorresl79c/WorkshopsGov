@@ -50,6 +50,12 @@ namespace WorkshopsGov.Controllers.Global
         {
             return Directory.CreateDirectory(Path.Combine(InspectionPath, DirectoryName)).FullName + Path.DirectorySeparatorChar;
         }
+        public static string CreateOrGetSubDirectory(string basePath, string subDirectoryName)
+        {
+            var fullPath = Path.Combine(basePath, subDirectoryName);
+            return Directory.CreateDirectory(fullPath).FullName + Path.DirectorySeparatorChar;
+        }
+
 
         public static string GetFileTypeDescription(int fileTypeId)
         {

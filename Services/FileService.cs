@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using Microsoft.DotNet.Scaffolding.Shared.CodeModifier.CodeChange;
 using Microsoft.EntityFrameworkCore;
 using WorkshopsGov.Controllers.Global;
@@ -79,7 +80,14 @@ namespace WorkshopsGov.Services
 
 
 
-        public async Task<DbFile> UploadFileAsync(IFormFile file, int inspectionId, int fileTypeId, string description)
+        //public async Task<DbFile> UploadFileAsync(IFormFile file,
+        //int inspectionId, int fileTypeId, string description)
+        public async Task<DbFile> UploadFileAsync(
+         IFormFile file,
+         string folderPath,
+         int fileTypeId,
+         string description,
+         string? relativeEntityId = null)
         {
             if (file == null || file.Length == 0)
                 throw new ArgumentException("Archivo inválido");
@@ -88,23 +96,10 @@ namespace WorkshopsGov.Services
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId)
                         ?? throw new Exception("Usuario no encontrado");
 
-            var inspection = await _context.Inspections
-                .Include(i => i.Files)
-                .FirstOrDefaultAsync(i => i.Id == inspectionId)
-                ?? throw new Exception("Inspección no encontrada");
-
             var filename = Path.GetFileNameWithoutExtension(file.FileName);
             var extension = Path.GetExtension(file.FileName);
 
-
-            var folderName = Utilidades.GetFolderNameByFileTypeId(fileTypeId);
-
-            var pathFolder = Utilidades.CreateOrGetDirectoryInsideInspectionDirectory(
-                Utilidades.GetFullPathInspection(inspectionId),
-                folderName
-            );
-         
-            var fullPath = Path.Combine(pathFolder, filename + extension);
+            var fullPath = Path.Combine(folderPath, filename + extension);
 
             using (var stream = new FileStream(fullPath, FileMode.Create))
             {
@@ -125,7 +120,6 @@ namespace WorkshopsGov.Services
             };
 
             _context.Files.Add(archivo);
-            inspection.Files.Add(archivo);
             await _context.SaveChangesAsync();
 
             return archivo;
