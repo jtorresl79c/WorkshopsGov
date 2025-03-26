@@ -86,7 +86,7 @@ namespace WorkshopsGov.Services
          IFormFile file,
          string folderPath,
          int fileTypeId,
-         string description,
+         string description
         )
         {
             if (file == null || file.Length == 0)
