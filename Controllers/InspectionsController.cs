@@ -227,14 +227,12 @@ namespace WorkshopsGov.Controllers
                     Utilidades.GetFullPathInspection(id), folderName
                 );
 
-
                 var archivo = await _fileService.UploadFileAsync(
                     file, 
                     pathFolder, 
                     fileTypeId, 
                     description
                     );
-
                 // genera la relación entre el archivo subido y la inspección
                 inspection.Files.Add(archivo);
                 await _context.SaveChangesAsync();
@@ -421,7 +419,6 @@ namespace WorkshopsGov.Controllers
             try
             {
                 bool deleted = _fileService.DeleteFile(fileId);
-
                 if (!deleted)
                     return NotFound("Archivo no encontrado o ya está inactivo.");
 

@@ -153,6 +153,27 @@ namespace WorkshopsGov.Services
 
             return (fileBytes, contentType, fileName);
         }
+
+        public (byte[] fileBytes, string contentType, string fileName) GetFileData(DbFile archivo)
+        {
+            if (!System.IO.File.Exists(archivo.Path))
+                throw new FileNotFoundException("El archivo no existe en el servidor.");
+
+            var fileBytes = System.IO.File.ReadAllBytes(archivo.Path);
+
+            var contentType = archivo.Format.ToLower() switch
+            {
+                ".pdf" => "application/pdf",
+                ".jpg" or ".jpeg" or ".png" => "image/png",
+                _ => "application/octet-stream"
+            };
+
+            var fileName = archivo.Name + archivo.Format;
+
+            return (fileBytes, contentType, fileName);
+        }
+
+
         public bool DeleteFile(int fileId)
         {
             var file = _context.Files.FirstOrDefault(f => f.Id == fileId && f.Active);

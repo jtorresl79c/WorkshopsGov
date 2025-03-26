@@ -17,13 +17,15 @@
         <div class="kanban-scroll-wrapper overflow-auto mb-3">
             <div class="d-flex flex-nowrap" style="gap: 12px;">
                 <!-- Asignadas -->
-                <div class="bg-light rounded p-3 shadow-sm text-center" style="min-width: 250px;">
-                    <h6 class="text-secondary fw-semibold mb-0">Asignadas</h6>
+                <div class="bg-light rounded p-3 shadow-sm text-center" style="min-width: 250px; cursor: pointer;"
+                     @click="filterStatus(2)">
+                    <h6 class="text-secondary fw-semibold mb-0">Asignadas ({{ countByStatus(2) }})</h6>
                 </div>
 
                 <!-- Por aprobar cotización -->
-                <div class="bg-warning bg-opacity-25 rounded p-3 shadow-sm text-center" style="min-width: 250px;">
-                    <h6 class="text-warning fw-semibold mb-0">Por aprobar cotización</h6>
+                <div class="bg-warning bg-opacity-25 rounded p-3 shadow-sm text-center" style="min-width: 250px; cursor: pointer;"
+                     @click="filterStatus(4)">
+                    <h6 class="text-warning fw-semibold mb-0">Por aprobar cotización ({{ countByStatus(4) }})</h6>
                 </div>
 
                 <!-- En reparación -->
@@ -58,10 +60,10 @@
                             <tr v-if="isLoading">
                                 <td colspan="5" class="text-center">Cargando...</td>
                             </tr>
-                            <tr v-else-if="assignedInspections.length === 0">
+                            <tr v-else-if="filteredInspections.length === 0">
                                 <td colspan="5" class="text-center">No hay inspecciones asignadas.</td>
                             </tr>
-                            <tr v-else v-for="insp in assignedInspections" :key="insp.id">
+                            <tr v-else v-for="insp in filteredInspections" :key="insp.id">
                                 <td>{{ insp.memoNumber }}</td>
                                 <td>{{ insp.vehiculo }}</td>
                                 <td>
@@ -90,12 +92,24 @@
     import axios from 'axios'
 
     const assignedInspections = ref([])
+    const filteredInspections = ref([])
+    const selectedStatus = ref(2)
     const isLoading = ref(true)
+
+    const countByStatus = (statusId) => {
+        return assignedInspections.value.filter(i => i.estatusId === statusId).length
+    }
+
+    const filterStatus = (statusId) => {
+        selectedStatus.value = statusId
+        filteredInspections.value = assignedInspections.value.filter(i => i.estatusId === statusId)
+    }
 
     onMounted(async () => {
         try {
             const { data } = await axios.get('/api/reviewcenter/assigned')
             assignedInspections.value = data
+            filteredInspections.value = data.filter(i => i.estatusId === selectedStatus.value)
         } catch (error) {
             console.error('Error al cargar inspecciones asignadas:', error)
         } finally {

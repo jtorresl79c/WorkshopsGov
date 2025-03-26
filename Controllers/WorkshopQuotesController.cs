@@ -10,6 +10,7 @@ using WorkshopsGov.Controllers.Global;
 using WorkshopsGov.Data;
 using WorkshopsGov.Models;
 using WorkshopsGov.Services;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace WorkshopsGov.Controllers
 {
@@ -134,20 +135,30 @@ namespace WorkshopsGov.Controllers
                 _context.Add(workshopQuote);
                 await _context.SaveChangesAsync(); // Necesario para obtener el ID generado
 
-                // 🔹 Subir cotización digitalizada
                 if (DigitalQuoteFile != null && DigitalQuoteFile.Length > 0)
                 {
-                    var description = "Cotización Digitalizada";
-
-
-                    var uploadedFile = await _fileService.UploadQuoteFileAsync(
+                    var description = Utilidades.GetFileTypeDescription(Utilidades.DB_ARCHIVOTIPOS_COTIZACION_DIGITALIZADA);
+                    
+                    var folderName = Utilidades.GetFolderNameByFileTypeId(Utilidades.DB_ARCHIVOTIPOS_COTIZACION_DIGITALIZADA);
+                    var pathFolder = Utilidades.CreateOrGetDirectoryInsideInspectionDirectory(
+                        Utilidades.GetFullPathInspection(workshopQuote.InspectionId), folderName
+                    );
+                    var uploadedFile
+                        = await _fileService.UploadFileAsync(
                         DigitalQuoteFile,
-                        workshopQuote.Id,
+                        pathFolder,
                         Utilidades.DB_ARCHIVOTIPOS_COTIZACION_DIGITALIZADA,
                         description
                     );
-                }
 
+                    var quote = await _context.WorkshopQuote
+                        .Include(q => q.Files)
+                        .FirstOrDefaultAsync(q => q.Id == workshopQuote.Id)
+                        ?? throw new Exception("Cotización no encontrada");
+
+                    quote.Files.Add(uploadedFile);
+                    await _context.SaveChangesAsync(); 
+                }
                 return RedirectToAction("Details", "Inspections", new { id = workshopQuote.InspectionId });
             }
 

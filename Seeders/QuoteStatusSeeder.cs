@@ -12,7 +12,8 @@ namespace WorkshopsGov.Seeders
                 context.WorkshopQuoteStatus.AddRange(
                     new WorkshopQuoteStatus { Name = "Capturada", Active = true },
                     new WorkshopQuoteStatus { Name = "En revision", Active = true },
-                    new WorkshopQuoteStatus { Name = "Rechazado ", Active = true }
+                    new WorkshopQuoteStatus { Name = "Rechazado ", Active = true },
+                    new WorkshopQuoteStatus { Name = "Aprobado ", Active = true }
                 );
                 context.SaveChanges();
             }

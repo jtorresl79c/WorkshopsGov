@@ -20,7 +20,8 @@ namespace WorkshopsGov.Controllers.Global
         // Acceder al valor de "PATH_MASTER" en appsettings.json
         public static string PATH_MASTER => _configuration["PATH_MASTER"] ?? "wwwroot/Formats/";
         public static int DB_ARCHIVOTIPOS_ENTREGA_RECEPCION => int.TryParse(_configuration["DB_Archivotypes:ENTREGA_RECEPCION_GENERADA"], out int value) ? value : 0;
-        public static int ELIMINADO => int.TryParse(_configuration["DB_ESTADOS:ACTIVO"], out int value) ? value : 0;
+        public static int PENDIENTE_REVISION_COTIZACION => int.TryParse(_configuration["DB_ESTADOS:PENDIENTE_REVISION_COTIZACION"], out int value) ? value : 0;
+        public static int ELIMINADO => int.TryParse(_configuration["DB_ESTADOS:ELIMINADO"], out int value) ? value : 0;
         public static int DB_ARCHIVOTIPOS_ENTREGA_RECEPCION_DIGITALIZADA => int.TryParse(_configuration["DB_Archivotypes:ENTREGA_RECEPCION"], out int value) ? value : 0;
         public static int DB_ARCHIVOTIPOS_MEMO_GENERADA => int.TryParse(_configuration["DB_Archivotypes:MEMO_GENERADA"], out int value) ? value : 0;
         public static int DB_ARCHIVOTIPOS_MEMO_DIGITALIZADO => int.TryParse(_configuration["DB_Archivotypes:MEMO_DIGITALIZADO"], out int value) ? value : 0;

@@ -37,9 +37,9 @@ namespace WorkshopsGov.Models
         public int QuoteStatusId { get; set; }
         public WorkshopQuoteStatus QuoteStatus { get; set; } = null!;
 
-
         public string QuoteDetails { get; set; } = string.Empty;
 
+        public bool Active { get; set; } = true;
         public ICollection<File> Files { get; set; } = new List<File>();
 
     }
