@@ -87,7 +87,7 @@ namespace WorkshopsGov.Services
          string folderPath,
          int fileTypeId,
          string description,
-         string? relativeEntityId = null)
+        )
         {
             if (file == null || file.Length == 0)
                 throw new ArgumentException("Archivo inválido");
