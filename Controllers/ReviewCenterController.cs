@@ -45,7 +45,7 @@ namespace WorkshopsGov.Controllers
                 .Include(i => i.Vehicle)
                 .Include(i => i.ExternalWorkshopBranch)
                 .Include(i => i.InspectionStatus)
-                .Where(i => i.InspectionStatusId == 2) // ✅ ID 2 = Asignada
+                .Where(i => new[] { 2, 4, 5, 6 }.Contains(i.InspectionStatusId)) // Todos los que aparecerán en el kanban
                 .Select(i => new
                 {
                     i.Id,

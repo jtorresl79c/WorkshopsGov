@@ -133,36 +133,123 @@
                     </div>
 
                     <div v-else>
-                        <table v-if="quotes.length > 0" class="table table-bordered table-striped table-hover">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>#</th>
-                                    <th>Número</th>
-                                    <th>Fecha</th>
-                                    <th>Costo Total</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="quote in quotes" :key="quote.id">
-                                    <td>{{ quote.id }}</td>
-                                    <td>{{ quote.quoteNumber }}</td>
-                                    <td>{{ formatDate(quote.quoteDate) }}</td>
-                                    <td>$ {{ quote.totalCost.toFixed(2) }}</td>
-                                    <td>{{ quote.quoteStatus }}</td>
-                                    <td>
-                                        <a :href="`/WorkshopQuotes/Details/${quote.id}`" class="btn btn-sm btn-outline-secondary">
-                                            Ver
-                                        </a>
-                                        <a v-if="currentUserRole === 'External_Workshop'" :href="`/WorkshopQuotes/Edit/${quote.id}?inspectionId=${inspection.id}`" class="btn btn-sm btn-outline-success mx-1">
-                                            Editar
-                                        </a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <p v-else class="text-muted text-center">No hay cotizaciones registradas para esta inspección.</p>
+                      
+
+                        <div v-if="quotes.length > 0">
+                            <div class="mb-2 text-primary fw-bold">
+                                Selecciona las cotizaciones que deseas enviar a revisión
+                            </div>
+                            <table class="table table-bordered table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>
+                                            <input type="checkbox" @change="toggleSelectAllQuotes" v-model="selectAllQuotes">
+                                        </th>
+                                        <th>#</th>
+                                        <th>Número</th>
+                                        <th>Fecha</th>
+                                        <th>Costo Total</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="quote in quotes" :key="quote.id">
+                                        <td>
+                                            <input type="checkbox" v-model="selectedCheckQuotes" :value="quote.id" />
+                                        </td>
+                                        <td>
+                                            <span v-if="quote.hasFile">
+                                                <a :href="getQuoteFileUrl(quote.id)" target="_blank">
+                                                    {{ quote.id }}
+                                                </a>
+                                            </span>
+                                            <span v-else>
+                                                {{ quote.id }}
+                                            </span>
+                                        </td>
+                                        <td>{{ quote.quoteNumber }}</td>
+                                        <td>{{ formatDate(quote.quoteDate) }}</td>
+                                        <td>$ {{ quote.totalCost.toFixed(2) }}</td>
+                                        <td>{{ quote.quoteStatus }}</td>
+                                        <td>
+                                            <button @click="loadQuoteDetails(quote.id)" class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </button>
+                                            <a v-if="currentUserRole === 'External_Workshop'" :href="`/WorkshopQuotes/Edit/${quote.id}?inspectionId=${inspection.id}`" class="btn btn-sm btn-outline-success mx-1">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </a>
+                                            <button v-if="currentUserRole === 'External_Workshop'"
+                                                    @click="deleteQuote(quote.id)"
+                                                    class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash3-fill"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div v-if="currentUserRole === 'External_Workshop'" class="d-flex gap-2 mt-3">
+                                <button class="btn btn-success mt-3" :disabled="selectedCheckQuotes.length === 0" @click="sendQuotesToReview">
+                                    Enviar a Revisión
+                                </button>
+                            </div>
+                            <div v-if="currentUserRole === 'Administrator'" class="d-flex gap-2 mt-3">
+                                <button class="btn btn-danger"
+                                        :disabled="selectedCheckQuotes.length === 0"
+                                        @click="updateQuoteStatus(3)">
+                                    Rechazar Cotización
+                                </button>
+                                <button class="btn btn-success"
+                                        :disabled="selectedCheckQuotes.length === 0"
+                                        @click="updateQuoteStatus(4)">
+                                    Aprobar Cotización
+                                </button>
+                            </div>
+
+                        </div>
+                        <div v-else>
+                            <p class="text-muted text-center">No hay cotizaciones registradas para esta inspección.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal -->
+                <div v-if="showModal">
+                    <!-- Backdrop -->
+                    <div class="modal-backdrop fade show"></div>
+
+                    <!-- Modal content -->
+                    <div class="modal fade show d-block" tabindex="-1" @click.self="closeModal">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Detalles de Cotización</h5>
+                                    <button type="button" class="btn-close" @click="closeModal"></button>
+                                </div>
+                                <div class="modal-body" v-if="selectedQuote">
+                                    <p><strong>Número:</strong> {{ selectedQuote.quoteNumber }}</p>
+                                    <p><strong>Fecha:</strong> {{ formatDate(selectedQuote.quoteDate) }}</p>
+                                    <p><strong>Estado:</strong> {{ selectedQuote.quoteStatus }}</p>
+                                    <p><strong>Taller:</strong> {{ selectedQuote.workshopName }}</p>
+                                    <p><strong>Sucursal:</strong> {{ selectedQuote.workshopBranch }}</p>
+                                    <p><strong>Costo Total:</strong> ${{ selectedQuote.totalCost.toFixed(2) }}</p>
+                                    <p><strong>Fecha Estimada:</strong> {{ formatDate(selectedQuote.estimatedCompletionDate) }}</p>
+                                    <p><strong>Detalles:</strong> {{ selectedQuote.quoteDetails }}</p>
+                                    <hr />
+                                    <div>
+                                        <strong>Documento:</strong>
+                                        <span v-if="selectedQuote.hasFile">
+                                            <a :href="getQuoteFileUrl(selectedQuote.id)" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                                <i class="bi bi-file-earmark-pdf"></i> Ver archivo
+                                            </a>
+                                        </span>
+                                        <span v-else class="text-muted ms-2">
+                                            Sin documento adjunto
+                                        </span>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -195,7 +282,7 @@
                                class="btn btn-primary">
                                 Ver Memo
                             </a>
-                            <button @click="deleteFile(inspection.fileMemoDigitalizado.id, inspection.fileMemoDigitalizado.fileTypeId)"
+                            <button @click="deleteFile(inspection.fileMemoDigitalizado.id, inspection.fileMemoDigitalizado.fileTypeId,'fileMemoDigitalizado')"
                                     class="btn btn-danger mt-2">
                                 Eliminar Memo
                             </button>
@@ -231,7 +318,7 @@
                                class="btn btn-primary">
                                 Ver Archivo
                             </a>
-                            <button @click="deleteFile(inspection.fileDigitalizado.id, inspection.fileDigitalizado.fileTypeId)"
+                            <button @click="deleteFile(inspection.fileDigitalizado.id, inspection.fileDigitalizado.fileTypeId, 'fileDigitalizado')"
                                     class="btn btn-danger mt-2">
                                 Eliminar Archivo
                             </button>
@@ -326,6 +413,13 @@
             //cotizaciones
             const quotes = ref([]);
             const isLoadingQuotes = ref(false);
+            //seleccion
+            const selectedCheckQuotes = ref([]);
+            const selectAllQuotes = ref(false);
+
+            //modal
+            const selectedQuote = ref(null);
+            const showModal = ref(false);
 
             const assignBranch = async () => {
                 if (!selectedBranchId.value) return alert("Selecciona una sucursal primero");
@@ -441,7 +535,7 @@
                     isUploading.value = false;
                 }
             };
-            const deleteFile = async (fileId, fileTypeId) => {
+            const deleteFile = async (fileId, fileTypeId, propName) => {
                 if (!confirm("¿Estás seguro de que deseas eliminar este archivo?")) {
                     return;
                 }
@@ -451,7 +545,8 @@
 
                     if (response.status === 200) {
                         alert("Archivo eliminado exitosamente.");
-                        inspection.fileDigitalizado = null; // Remover visualmente de la vista
+                        //inspection.fileDigitalizado = null; // Remover visualmente de la vista
+                        inspection[propName] = null;
                     } else {
                         alert("No se pudo eliminar el archivo.");
                     }
@@ -517,11 +612,112 @@
                     isLoadingQuotes.value = false;
                 }
             };
-
             const goToQuoteForm = () => {
                 window.location.href = `/WorkshopQuotes/Create?inspectionId=${inspection.id}`;
             };
+            const deleteQuote = async (quoteId) => {
+                if (!confirm("¿Estás seguro de que deseas eliminar esta cotización?")) {
+                    return;
+                }
 
+                try {
+                    const response = await axios.delete(`/api/WorkshopQuotesApi/${quoteId}`);
+
+                    if (response.status === 200) {
+                        alert("Cotización eliminada correctamente.");
+
+                        // Quitar la cotización del array sin recargar
+                        quotes.value = quotes.value.filter(q => q.id !== quoteId);
+                    } else {
+                        alert("No se pudo eliminar la cotización.");
+                    }
+                } catch (error) {
+                    console.error("Error eliminando cotización:", error);
+                    alert("Ocurrió un error al intentar eliminar la cotización.");
+                }
+            };
+            const loadQuoteDetails = async (id) => {
+                try {
+                    const response = await axios.get(`/api/WorkshopQuotesApi/${id}`);
+                    selectedQuote.value = response.data;
+                    showModal.value = true;
+                } catch (error) {
+                    console.error("Error al cargar cotización", error);
+                    alert("No se pudo cargar la cotización.");
+                }
+            };
+            const getQuoteFileUrl = (quoteId) => {
+                return `/api/WorkshopQuotesApi/DownloadQuoteFile/${quoteId}`;
+            };
+            const closeModal = () => {
+                showModal.value = false;
+                selectedQuote.value = null;
+            }
+
+            const toggleSelectAllQuotes = () => {
+                if (selectAllQuotes.value) {
+                    selectedCheckQuotes.value = quotes.value.map(q => q.id);
+                } else {
+                    selectedCheckQuotes.value = [];
+                }
+            };
+
+            const sendQuotesToReview = async () => {
+                if (selectedCheckQuotes.value.length === 0) {
+                    alert("Selecciona al menos una cotización.");
+                    return;
+                }
+
+                if (!confirm("¿Deseas enviar las cotizaciones seleccionadas a revisión?")) return;
+
+                try {
+                    const response = await axios.post(`/api/WorkshopQuotesApi/send-to-review`, {
+                        quoteIds: selectedCheckQuotes.value,
+                        inspectionId: inspection.id
+                    });
+
+                    alert("Cotizaciones enviadas a revisión correctamente.");
+                    await fetchQuotes();
+                    await fetchInspection();
+                    selectedCheckQuotes.value = [];
+                    selectAllQuotes.value = false;
+                } catch (err) {
+                    console.error("Error al enviar a revisión:", err);
+                    alert("Error al procesar la solicitud.");
+                }
+            };
+
+            const updateQuoteStatus = async (status) => {
+                if (selectedCheckQuotes.value.length === 0) {
+                    alert("Selecciona al menos una cotización.");
+                    return;
+                }
+
+                const confirmMessage = status === 3
+                    ? "¿Deseas rechazar las cotizaciones seleccionadas?"
+                    : "¿Deseas aprobar las cotizaciones seleccionadas?";
+
+                if (!confirm(confirmMessage)) return;
+
+                try {
+                    await axios.post(`/api/WorkshopQuotesApi/update-status`, {
+                        quoteIds: selectedCheckQuotes.value,
+                        newStatus: status,
+                        inspectionId: inspection.id
+                    });
+
+                    alert(status === 3 ? "Cotizaciones rechazadas." : "Cotizaciones aprobadas.");
+
+                    // Refrescar todo
+                    await fetchQuotes();
+                    await fetchInspection();
+                    selectedCheckQuotes.value = [];
+                    selectAllQuotes.value = false;
+                } catch (err) {
+                    console.error("Error al actualizar estatus:", err);
+                    alert("Error al procesar la solicitud.");
+                }
+            };
 
             watch(() => inspection.fuelLevel, (newValue) => {
                 if (aguja.value) {
@@ -545,7 +741,9 @@
                 handleFileUpload, UploadFile, isUploading, selectedFile, isGenerating,
                 formatDate, getFileUrl, deleteFile, selectedBranchId, assignBranch, memoDownloadForm,
                 isGeneratingMemo, selectedMemoFile, isUploadingMemo, DownloadMemo, UploadMemo, handleMemoUpload,
-                currentUserRole, quotes, isLoadingQuotes, goToQuoteForm, breadcrumbBaseUrl, breadcrumbBaseLabel
+                currentUserRole, quotes, isLoadingQuotes, goToQuoteForm, breadcrumbBaseUrl, breadcrumbBaseLabel,
+                deleteQuote, loadQuoteDetails, showModal, selectedQuote, closeModal, getQuoteFileUrl, selectedCheckQuotes,
+                selectAllQuotes, toggleSelectAllQuotes, sendQuotesToReview, updateQuoteStatus
             };
         }
     };

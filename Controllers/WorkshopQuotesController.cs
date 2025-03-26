@@ -6,18 +6,23 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using WorkshopsGov.Controllers.Global;
 using WorkshopsGov.Data;
 using WorkshopsGov.Models;
+using WorkshopsGov.Services;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace WorkshopsGov.Controllers
 {
     public class WorkshopQuotesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly FileService _fileService;
 
-        public WorkshopQuotesController(ApplicationDbContext context)
+        public WorkshopQuotesController(ApplicationDbContext context, FileService fileService)
         {
             _context = context;
+            _fileService = fileService;
         }
 
         // GET: WorkshopQuotes
@@ -115,7 +120,7 @@ namespace WorkshopsGov.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,InspectionId,WorkshopBranchId,QuoteNumber,QuoteDate,TotalCost,EstimatedCompletionDate,QuoteDetails")] WorkshopQuote workshopQuote)
+        public async Task<IActionResult> Create([Bind("Id,InspectionId,WorkshopBranchId,QuoteNumber,QuoteDate,TotalCost,EstimatedCompletionDate,QuoteDetails")] WorkshopQuote workshopQuote, IFormFile DigitalQuoteFile)
         {
             ModelState.Remove("Inspection");
             ModelState.Remove("WorkshopBranch");
@@ -126,16 +131,41 @@ namespace WorkshopsGov.Controllers
                 workshopQuote.QuoteStatusId = 1; // Capturada por defecto
                 workshopQuote.QuoteDate = DateTime.SpecifyKind(workshopQuote.QuoteDate, DateTimeKind.Utc);
                 workshopQuote.EstimatedCompletionDate = DateTime.SpecifyKind(workshopQuote.EstimatedCompletionDate, DateTimeKind.Utc);
+
                 _context.Add(workshopQuote);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(); // Necesario para obtener el ID generado
+
+                if (DigitalQuoteFile != null && DigitalQuoteFile.Length > 0)
+                {
+                    var description = Utilidades.GetFileTypeDescription(Utilidades.DB_ARCHIVOTIPOS_COTIZACION_DIGITALIZADA);
+                    
+                    var folderName = Utilidades.GetFolderNameByFileTypeId(Utilidades.DB_ARCHIVOTIPOS_COTIZACION_DIGITALIZADA);
+                    var pathFolder = Utilidades.CreateOrGetDirectoryInsideInspectionDirectory(
+                        Utilidades.GetFullPathInspection(workshopQuote.InspectionId), folderName
+                    );
+                    var uploadedFile
+                        = await _fileService.UploadFileAsync(
+                        DigitalQuoteFile,
+                        pathFolder,
+                        Utilidades.DB_ARCHIVOTIPOS_COTIZACION_DIGITALIZADA,
+                        description
+                    );
+
+                    var quote = await _context.WorkshopQuote
+                        .Include(q => q.Files)
+                        .FirstOrDefaultAsync(q => q.Id == workshopQuote.Id)
+                        ?? throw new Exception("Cotización no encontrada");
+
+                    quote.Files.Add(uploadedFile);
+                    await _context.SaveChangesAsync(); 
+                }
                 return RedirectToAction("Details", "Inspections", new { id = workshopQuote.InspectionId });
-                //return RedirectToAction(nameof(Index));
             }
 
-
-            ViewData["WorkshopBranchId"] = new SelectList(_context.ExternalWorkshopBranches, "Id", "Name");
+            ViewData["WorkshopBranchId"] = new SelectList(_context.ExternalWorkshopBranches, "Id", "Name", workshopQuote.WorkshopBranchId);
             return View(workshopQuote);
         }
+
 
 
         // GET: WorkshopQuotes/Edit/5

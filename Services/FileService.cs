@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using Microsoft.DotNet.Scaffolding.Shared.CodeModifier.CodeChange;
 using Microsoft.EntityFrameworkCore;
 using WorkshopsGov.Controllers.Global;
@@ -23,8 +24,7 @@ namespace WorkshopsGov.Services
         {
             _context = context;
         }
-
-        public async Task<DbFile> UploadFileAsync(IFormFile file, int inspectionId, int fileTypeId, string description)
+        public async Task<DbFile> UploadQuoteFileAsync(IFormFile file, int quoteId, int fileTypeId, string description)
         {
             if (file == null || file.Length == 0)
                 throw new ArgumentException("Archivo inválido");
@@ -33,25 +33,23 @@ namespace WorkshopsGov.Services
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId)
                         ?? throw new Exception("Usuario no encontrado");
 
-            var inspection = await _context.Inspections
-                .Include(i => i.Files)
-                .FirstOrDefaultAsync(i => i.Id == inspectionId)
-                ?? throw new Exception("Inspección no encontrada");
+            var quote = await _context.WorkshopQuote
+                .Include(q => q.Files)
+                .FirstOrDefaultAsync(q => q.Id == quoteId)
+                ?? throw new Exception("Cotización no encontrada");
 
             var filename = Path.GetFileNameWithoutExtension(file.FileName);
             var extension = Path.GetExtension(file.FileName);
 
-
-            var folderName = Utilidades.GetFolderNameByFileTypeId(fileTypeId);
+            // 📁 Ruta: Cotizaciones dentro de la inspección correspondiente
+            var inspectionId = quote.InspectionId;
+            var folderName = "COTIZACIONES";
 
             var pathFolder = Utilidades.CreateOrGetDirectoryInsideInspectionDirectory(
                 Utilidades.GetFullPathInspection(inspectionId),
                 folderName
             );
-            //var pathFolder = Utilidades.CreateOrGetDirectoryInsideInspectionDirectory(
-            //    Utilidades.GetFullPathInspection(inspectionId),
-            //    "RECEPCION_ENTREGA"
-            //);
+
             var fullPath = Path.Combine(pathFolder, filename + extension);
 
             using (var stream = new FileStream(fullPath, FileMode.Create))
@@ -73,7 +71,55 @@ namespace WorkshopsGov.Services
             };
 
             _context.Files.Add(archivo);
-            inspection.Files.Add(archivo);
+            quote.Files ??= new List<DbFile>();
+            quote.Files.Add(archivo);
+
+            await _context.SaveChangesAsync();
+            return archivo;
+        }
+
+
+
+        //public async Task<DbFile> UploadFileAsync(IFormFile file,
+        //int inspectionId, int fileTypeId, string description)
+        public async Task<DbFile> UploadFileAsync(
+         IFormFile file,
+         string folderPath,
+         int fileTypeId,
+         string description
+        )
+        {
+            if (file == null || file.Length == 0)
+                throw new ArgumentException("Archivo inválido");
+
+            var userId = Utilidades.GetUsername();
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId)
+                        ?? throw new Exception("Usuario no encontrado");
+
+            var filename = Path.GetFileNameWithoutExtension(file.FileName);
+            var extension = Path.GetExtension(file.FileName);
+
+            var fullPath = Path.Combine(folderPath, filename + extension);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var archivo = new DbFile
+            {
+                Name = filename,
+                Format = extension,
+                Size = file.Length / 1024f,
+                Description = description,
+                FileTypeId = fileTypeId,
+                ApplicationUserId = user.Id,
+                Active = true,
+                Path = fullPath,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Files.Add(archivo);
             await _context.SaveChangesAsync();
 
             return archivo;
@@ -107,6 +153,27 @@ namespace WorkshopsGov.Services
 
             return (fileBytes, contentType, fileName);
         }
+
+        public (byte[] fileBytes, string contentType, string fileName) GetFileData(DbFile archivo)
+        {
+            if (!System.IO.File.Exists(archivo.Path))
+                throw new FileNotFoundException("El archivo no existe en el servidor.");
+
+            var fileBytes = System.IO.File.ReadAllBytes(archivo.Path);
+
+            var contentType = archivo.Format.ToLower() switch
+            {
+                ".pdf" => "application/pdf",
+                ".jpg" or ".jpeg" or ".png" => "image/png",
+                _ => "application/octet-stream"
+            };
+
+            var fileName = archivo.Name + archivo.Format;
+
+            return (fileBytes, contentType, fileName);
+        }
+
+
         public bool DeleteFile(int fileId)
         {
             var file = _context.Files.FirstOrDefault(f => f.Id == fileId && f.Active);
@@ -152,6 +219,7 @@ namespace WorkshopsGov.Services
                 //  Ejemplo de otro tipo
                 var id when id == Utilidades.DB_ARCHIVOTIPOS_MEMO_GENERADA
                    => "Formato de Memo",
+
                 _ => "Formato generado automáticamente"
             };
 

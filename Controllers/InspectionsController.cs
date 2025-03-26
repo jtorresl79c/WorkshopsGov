@@ -217,14 +217,27 @@ namespace WorkshopsGov.Controllers
             {
                 var description = Utilidades.GetFileTypeDescription(fileTypeId);
 
-                var uploadedFile = await _fileService.UploadFileAsync(
-                    file,
-                    id,
-                    fileTypeId,
-                    description
+                var inspection = await _context.Inspections
+                .Include(i => i.Files)
+                .FirstOrDefaultAsync(i => i.Id == id)
+                ?? throw new Exception("Inspección no encontrada");
+
+                var folderName = Utilidades.GetFolderNameByFileTypeId(fileTypeId);
+                var pathFolder = Utilidades.CreateOrGetDirectoryInsideInspectionDirectory(
+                    Utilidades.GetFullPathInspection(id), folderName
                 );
 
-                return Ok(new { message = "Archivo subido exitosamente.", filePath = uploadedFile.Path });
+                var archivo = await _fileService.UploadFileAsync(
+                    file, 
+                    pathFolder, 
+                    fileTypeId, 
+                    description
+                    );
+                // genera la relación entre el archivo subido y la inspección
+                inspection.Files.Add(archivo);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Archivo subido exitosamente.", filePath = archivo.Path });
             }
             catch (Exception ex)
             {
@@ -406,7 +419,6 @@ namespace WorkshopsGov.Controllers
             try
             {
                 bool deleted = _fileService.DeleteFile(fileId);
-
                 if (!deleted)
                     return NotFound("Archivo no encontrado o ya está inactivo.");
 
