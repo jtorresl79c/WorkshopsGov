@@ -22,30 +22,47 @@ namespace WorkshopsGov.Controllers.Api
         [HttpGet("by-inspection/{inspectionId}")]
         public async Task<IActionResult> GetQuotesByInspection(int inspectionId)
         {
-            var quotes = await _context.WorkshopQuote
-                .Where(q => q.InspectionId == inspectionId && q.Active) // 🔹 Filtra solo activas
+            // Obtener la inspección actual para verificar su estatus
+            var inspection = await _context.Inspections
+                .Where(i => i.Id == inspectionId)
+                .Select(i => new { i.InspectionStatusId })
+                .FirstOrDefaultAsync();
+
+            if (inspection == null)
+                return NotFound("Inspección no encontrada.");
+
+            var query = _context.WorkshopQuote
+                .Where(q => q.InspectionId == inspectionId && q.Active)
                 .Include(q => q.WorkshopBranch)
                     .ThenInclude(b => b.ExternalWorkshop)
                 .Include(q => q.QuoteStatus)
-                .OrderByDescending(q => q.QuoteDate)
-                .Select(q => new
-                {
-                    q.Id,
-                    q.QuoteNumber,
-                    q.QuoteDate,
-                    q.TotalCost,
-                    q.EstimatedCompletionDate,
-                    q.QuoteDetails,
-                    QuoteStatus = q.QuoteStatus.Name,
-                    WorkshopBranch = q.WorkshopBranch.Name,
-                    WorkshopName = q.WorkshopBranch.ExternalWorkshop.Name,
-                    HasFile = q.Files.Any(f => f.FileTypeId == Utilidades.DB_ARCHIVOTIPOS_COTIZACION_DIGITALIZADA && f.Active)
-                })
-                .ToListAsync();
+                .OrderByDescending(q => q.QuoteDate);
 
-            return Ok(quotes);
+            // Materializar la consulta en una lista
+            var quotes = await query.ToListAsync();
+
+            // Si la inspección está en estatus Pendiente de Cotización (4), solo mostrar las enviadas a revisión (QuoteStatusId == 2)
+            if (User.IsInRole("Administrator"))
+            {
+                quotes = quotes.Where(q => q.QuoteStatusId != 1).ToList();
+            }
+
+            var result = quotes.Select(q => new
+            {
+                q.Id,
+                q.QuoteNumber,
+                q.QuoteDate,
+                q.TotalCost,
+                q.EstimatedCompletionDate,
+                q.QuoteDetails,
+                QuoteStatus = q.QuoteStatus.Name,
+                WorkshopBranch = q.WorkshopBranch.Name,
+                WorkshopName = q.WorkshopBranch.ExternalWorkshop.Name,
+                HasFile = q.Files.Any(f => f.FileTypeId == Utilidades.DB_ARCHIVOTIPOS_COTIZACION_DIGITALIZADA && f.Active)
+            });
+
+            return Ok(result);
         }
-
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
@@ -180,13 +197,14 @@ namespace WorkshopsGov.Controllers.Api
         }
 
 
+
+
         public class QuoteStatusUpdateDto
         {
             public List<int> QuoteIds { get; set; } = new();
             public int NewStatus { get; set; }
             public int InspectionId { get; set; }
         }
-
 
 
         public class QuoteReviewRequest

@@ -6,6 +6,8 @@ using WorkshopsGov.Data;
 
 namespace WorkshopsGov.Controllers.Api
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class WorkshopInspectionsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -59,6 +61,25 @@ namespace WorkshopsGov.Controllers.Api
                 .ToListAsync();
 
             return Ok(inspecciones);
+        }
+
+        [HttpPost("update-status")]
+        public async Task<IActionResult> UpdateInspectionStatus([FromBody] InspectionActionDto dto)
+        {
+            var inspection = await _context.Inspections.FindAsync(dto.InspectionId);
+            if (inspection == null)
+                return NotFound("Inspección no encontrada.");
+
+            inspection.InspectionStatusId = dto.StatusId;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Estado de la inspección actualizado correctamente." });
+        }
+
+        public class InspectionActionDto
+        {
+            public int InspectionId { get; set; }
+            public int StatusId { get; set; }
         }
 
     }
