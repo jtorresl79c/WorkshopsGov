@@ -216,7 +216,7 @@ namespace WorkshopsGov.Controllers.PdfGenerators
                         .SetWidth(110)
                         .SetHorizontalAlignment(HorizontalAlignment.LEFT);
 
-                    Paragraph title = new Paragraph("DIRECCIÓN DE SERVICIOS GENERALES\nTALLER MUNICIPAL OM SSPCM")
+                    Paragraph title = new Paragraph("DIRECCIÓN DE SERVICIOS GENERALES\nTALLERES MUNICIPALES")
                         .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
                         .SetFontSize(12)
                         .SetTextAlignment(TextAlignment.CENTER)
@@ -258,7 +258,7 @@ namespace WorkshopsGov.Controllers.PdfGenerators
                     LineSeparator line = new LineSeparator(new SolidLine());
 
                     document.Add(line);
-                    document.Add(new Paragraph("ENTREGA-RECEPCIÓN VEHICULAR OFICIAL / INSPECCIÓN E INVENTARIO")
+                    document.Add(new Paragraph("ENTREGAS-RECEPCIÓN VEHICULAR OFICIAL / INSPECCIÓN E INVENTARIO")
                         .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
                         .SetFontSize(11)
                         .SetTextAlignment(TextAlignment.CENTER)
