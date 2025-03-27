@@ -216,7 +216,7 @@ namespace WorkshopsGov.Controllers.PdfGenerators
                         .SetWidth(110)
                         .SetHorizontalAlignment(HorizontalAlignment.LEFT);
 
-                    Paragraph title = new Paragraph("DIRECCIÓN DE SERVICIOS GENERALES\nTALLER MUNICIPAL OM SSPCM")
+                    Paragraph title = new Paragraph("DIRECCIÓN DE SERVICIOS GENERALES\nTALLERES MUNICIPALES")
                         .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
                         .SetFontSize(12)
                         .SetTextAlignment(TextAlignment.CENTER)
