@@ -29,7 +29,7 @@
                             <p class="m-0 fs-5 text-secondary">Operador: {{inspection.operatorName}}</p>
                             <p class="m-0 fs-5 text-secondary">Economico: {{inspection.vehicle.licensePlate}}</p>
                         </div>
-                        <div>
+                        <div v-if="!(currentUserRole === 'External_Workshop')">
                             <a :href="`/Inspections/edit/${inspection.id}`" class="btn btn-primary">
                                 Editar
                             </a>
@@ -121,7 +121,7 @@
                         <h4 class="mb-0">Cotizaciones</h4>
 
                         <!-- Solo los talleres externos pueden generar cotización -->
-                        <button v-if="currentUserRole === 'External_Workshop'"
+                        <button v-if="currentUserRole === 'External_Workshop' && inspection.inspectionStatus.id == 2"
                                 class="btn btn-outline-primary"
                                 @click="goToQuoteForm">
                             Generar Cotización
@@ -133,8 +133,6 @@
                     </div>
 
                     <div v-else>
-                      
-
                         <div v-if="quotes.length > 0">
                             <div class="mb-2 text-primary fw-bold">
                                 Selecciona las cotizaciones que deseas enviar a revisión
@@ -142,7 +140,7 @@
                             <table class="table table-bordered table-striped table-hover">
                                 <thead class="table-dark">
                                     <tr>
-                                        <th>
+                                        <th v-if="!(currentUserRole === 'External_Workshop' && inspection.inspectionStatus.id != 2)">
                                             <input type="checkbox" @change="toggleSelectAllQuotes" v-model="selectAllQuotes">
                                         </th>
                                         <th>#</th>
@@ -155,7 +153,7 @@
                                 </thead>
                                 <tbody>
                                     <tr v-for="quote in quotes" :key="quote.id">
-                                        <td>
+                                        <td v-if="!(currentUserRole === 'External_Workshop' && inspection.inspectionStatus.id !=2 )">
                                             <input type="checkbox" v-model="selectedCheckQuotes" :value="quote.id" />
                                         </td>
                                         <td>
@@ -176,10 +174,12 @@
                                             <button @click="loadQuoteDetails(quote.id)" class="btn btn-sm btn-outline-secondary">
                                                 <i class="bi bi-eye-fill"></i>
                                             </button>
-                                            <a v-if="currentUserRole === 'External_Workshop'" :href="`/WorkshopQuotes/Edit/${quote.id}?inspectionId=${inspection.id}`" class="btn btn-sm btn-outline-success mx-1">
+                                            <a v-if="currentUserRole === 'External_Workshop' && inspection.inspectionStatus.id == 2"
+                                               :href="`/WorkshopQuotes/Edit/${quote.id}?inspectionId=${inspection.id}`"
+                                               class="btn btn-sm btn-outline-success mx-1">
                                                 <i class="bi bi-pencil-square"></i>
                                             </a>
-                                            <button v-if="currentUserRole === 'External_Workshop'"
+                                            <button v-if="currentUserRole === 'External_Workshop' && inspection.inspectionStatus.id == 2"
                                                     @click="deleteQuote(quote.id)"
                                                     class="btn btn-sm btn-outline-danger">
                                                 <i class="bi bi-trash3-fill"></i>
@@ -188,12 +188,14 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <div v-if="currentUserRole === 'External_Workshop'" class="d-flex gap-2 mt-3">
+                            <div v-if="currentUserRole === 'External_Workshop' && inspection.inspectionStatus.id == 2" class="d-flex gap-2 mt-3">
                                 <button class="btn btn-success mt-3" :disabled="selectedCheckQuotes.length === 0" @click="sendQuotesToReview">
                                     Enviar a Revisión
                                 </button>
                             </div>
-                            <div v-if="currentUserRole === 'Administrator'" class="d-flex gap-2 mt-3">
+
+
+                            <div v-if="currentUserRole === 'Administrator' && quotes.some(q => q.quoteStatus === 'En revision')" class="d-flex gap-2 mt-3">
                                 <button class="btn btn-danger"
                                         :disabled="selectedCheckQuotes.length === 0"
                                         @click="updateQuoteStatus(3)">
@@ -203,6 +205,17 @@
                                         :disabled="selectedCheckQuotes.length === 0"
                                         @click="updateQuoteStatus(4)">
                                     Aprobar Cotización
+                                </button>
+                            </div>
+
+                            <div v-if="currentUserRole === 'Administrator' && inspection.inspectionStatus.id==4  && !quotes.some(q=> q.quoteStatus === 'En Revision')" class="d-flex gap-2 mt-3">
+                                <button class="btn btn-warning"
+                                        @click="updateInspectionStatus(2, '¿Estás seguro de regresar la inspección al taller externo?', 'Inspección regresada a Taller Externo.')">
+                                    Regresar a Taller Externo
+                                </button>
+                                <button class="btn btn-primary"
+                                        @click="updateInspectionStatus(5, '¿Estás seguro de aprobar la inspección a reparación?', 'Inspección aprobada y enviada a reparación.')">
+                                    Aprobar a Reparación
                                 </button>
                             </div>
 
@@ -216,7 +229,6 @@
                 <div v-if="showModal">
                     <!-- Backdrop -->
                     <div class="modal-backdrop fade show"></div>
-
                     <!-- Modal content -->
                     <div class="modal fade show d-block" tabindex="-1" @click.self="closeModal">
                         <div class="modal-dialog modal-lg">
@@ -282,10 +294,12 @@
                                class="btn btn-primary">
                                 Ver Memo
                             </a>
-                            <button @click="deleteFile(inspection.fileMemoDigitalizado.id, inspection.fileMemoDigitalizado.fileTypeId,'fileMemoDigitalizado')"
-                                    class="btn btn-danger mt-2">
-                                Eliminar Memo
-                            </button>
+                            <div v-if="currentUserRole === 'Administrator'" class="d-flex gap-2 mt-3">
+                                <button @click="deleteFile(inspection.fileMemoDigitalizado.id, inspection.fileMemoDigitalizado.fileTypeId,'fileMemoDigitalizado')"
+                                        class="btn btn-danger mt-2">
+                                    Eliminar Memo
+                                </button>
+                            </div>
                         </template>
                         <template v-else>
                             <form ref="memoDownloadForm"
@@ -307,7 +321,6 @@
                     </div>
                 </div>
 
-
                 <div class="bg-white border p-4 mb-4">
                     <div class="d-flex flex-column align-items-end">
                         <i class="bi bi-file-earmark-pdf-fill text-danger" style="font-size: 5em"></i>
@@ -318,10 +331,12 @@
                                class="btn btn-primary">
                                 Ver Archivo
                             </a>
-                            <button @click="deleteFile(inspection.fileDigitalizado.id, inspection.fileDigitalizado.fileTypeId, 'fileDigitalizado')"
-                                    class="btn btn-danger mt-2">
-                                Eliminar Archivo
-                            </button>
+                            <div v-if="currentUserRole === 'Administrator'" class="d-flex gap-2 mt-3">
+                                <button @click="deleteFile(inspection.fileDigitalizado.id, inspection.fileDigitalizado.fileTypeId, 'fileDigitalizado')"
+                                        class="btn btn-danger mt-2">
+                                    Eliminar Archivo
+                                </button>
+                            </div>
                         </template>
                         <template v-else>
                             <form ref="downloadForm"
@@ -653,7 +668,6 @@
                 showModal.value = false;
                 selectedQuote.value = null;
             }
-
             const toggleSelectAllQuotes = () => {
                 if (selectAllQuotes.value) {
                     selectedCheckQuotes.value = quotes.value.map(q => q.id);
@@ -661,7 +675,6 @@
                     selectedCheckQuotes.value = [];
                 }
             };
-
             const sendQuotesToReview = async () => {
                 if (selectedCheckQuotes.value.length === 0) {
                     alert("Selecciona al menos una cotización.");
@@ -686,7 +699,6 @@
                     alert("Error al procesar la solicitud.");
                 }
             };
-
             const updateQuoteStatus = async (status) => {
                 if (selectedCheckQuotes.value.length === 0) {
                     alert("Selecciona al menos una cotización.");
@@ -719,6 +731,25 @@
                 }
             };
 
+
+            const updateInspectionStatus = async (statusId, confirmationMessage, successMessage) => {
+                if (!confirm(confirmationMessage)) return;
+
+                try {
+                    const response = await axios.post(`/api/WorkshopInspections/update-status`, {
+                        inspectionId: inspection.id,
+                        statusId
+                    });
+
+                    alert(successMessage);
+                    await fetchInspection(); // Refrescar inspección
+                } catch (error) {
+                    console.error("Error al actualizar el estado de la inspección:", error);
+                    alert("Error al procesar la solicitud.");
+                }
+            };
+
+
             watch(() => inspection.fuelLevel, (newValue) => {
                 if (aguja.value) {
                     moverAguja(newValue);
@@ -743,7 +774,7 @@
                 isGeneratingMemo, selectedMemoFile, isUploadingMemo, DownloadMemo, UploadMemo, handleMemoUpload,
                 currentUserRole, quotes, isLoadingQuotes, goToQuoteForm, breadcrumbBaseUrl, breadcrumbBaseLabel,
                 deleteQuote, loadQuoteDetails, showModal, selectedQuote, closeModal, getQuoteFileUrl, selectedCheckQuotes,
-                selectAllQuotes, toggleSelectAllQuotes, sendQuotesToReview, updateQuoteStatus
+                selectAllQuotes, toggleSelectAllQuotes, sendQuotesToReview, updateQuoteStatus, updateInspectionStatus
             };
         }
     };
