@@ -24,45 +24,70 @@ namespace WorkshopsGov.Controllers.PdfGenerators
 
         private void AddVehicleCell(Table vehicleTable, string label, string value)
         {
-            // 🔹 Celda de la etiqueta (alineada a la derecha)
+            // Celda de la etiqueta (alineada a la derecha)
             vehicleTable.AddCell(new Cell()
                 .Add(new Paragraph()
-                    .Add(new Text(label).SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetFontSize(11))
+                    .Add(new Text(label)
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                        .SetFontSize(9))
                 )
                 .SetBorder(Border.NO_BORDER)
                 .SetTextAlignment(TextAlignment.RIGHT)
             );
 
-            // 🔹 Celda del valor
+            // Celda del valor
             var valueCell = new Cell()
                 .SetBorder(Border.NO_BORDER)
-                .SetWidth(100); // 🔹 Limita el ancho de la celda para evitar que desplace las demás
+                .SetWidth(150);
 
-            // 🔹 Dividir el valor en partes de 10 caracteres
-            for (int i = 0; i < value.Length; i += 14)
+            // Verificar si es "GASOLINA:"
+            if (label == "GASOLINA: ")
             {
-                string substring = value.Substring(i, Math.Min(14, value.Length - i));
-
-                // 🔹 Agregar cada parte como un nuevo párrafo
-                valueCell.Add(new Paragraph(substring)
+                Paragraph fuelMarkers = new Paragraph("\u00A0\u00A0\u00A0E         1/2         F")
+                 .SetFont(PdfFontFactory.CreateFont(StandardFonts.COURIER))
+                 .SetFontSize(9)
+                 .SetTextAlignment(TextAlignment.LEFT)
+                 .SetMarginBottom(-12); 
+                Paragraph fuelLine = new Paragraph("________|______________|_________")
                     .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
-                    .SetFontSize(9) // 🔹 Texto más pequeño para que quepa más
-                    .SetTextAlignment(TextAlignment.LEFT)
-                    .SetMarginBottom(0)); // 🔹 Sin margen inferior para que esté pegado
+                    .SetFontSize(9)
+                    .SetTextAlignment(TextAlignment.LEFT);
+
+                // Agregar ambos párrafos a la celda
+                valueCell.Add(fuelMarkers);
+                valueCell.Add(fuelLine);
+
+
+            }
+            else
+            {
+                // Para otros campos, dividir el valor en partes de 14 caracteres
+                for (int i = 0; i < value.Length; i += 14)
+                {
+                    string substring = value.Substring(i, Math.Min(14, value.Length - i));
+
+                    // Agregar cada parte como un nuevo párrafo
+                    valueCell.Add(new Paragraph(substring)
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
+                        .SetFontSize(9)
+                        .SetTextAlignment(TextAlignment.LEFT)
+                        .SetMarginBottom(0));
+                }
+
+                // Agregar la línea solo si el valor tiene 14 caracteres o menos
+                if (value.Length <= 14)
+                {
+                    valueCell.Add(new Paragraph("________________________")
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
+                        .SetFontSize(9)
+                        .SetPaddingTop(-10));
+                }
             }
 
-            // 🔹 Agregar la línea solo si el valor tiene 10 caracteres o menos
-            if (value.Length <= 14)
-            {
-                valueCell.Add(new Paragraph("_______________") // Línea separada
-                    .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
-                    .SetFontSize(9) // 🔹 Tamaño de la línea igual al texto
-                    .SetPaddingTop(-10)); // 🔹 Acerca la línea al texto para que no se vea desplazada
-            }
-
-            // 🔹 Añadir la celda a la tabla
+            // Agregar la celda a la tabla
             vehicleTable.AddCell(valueCell);
         }
+
         private void AddFuelGauge(PdfDocument pdfDoc, Document document, float fuelLevel)
         {
             PdfPage page = pdfDoc.GetFirstPage();
@@ -70,13 +95,13 @@ namespace WorkshopsGov.Controllers.PdfGenerators
 
             ImageData odometerImage = ImageDataFactory.Create("wwwroot/images/odometro.png");
             Image odometer = new Image(odometerImage)
-                .SetWidth(80)
-                .SetFixedPosition(200, 620);
+                .SetWidth(60)
+                .SetFixedPosition(253, 590);
 
             document.Add(odometer);
 
-            float odometerX = 200;
-            float odometerY = 620;
+            float odometerX = 253;
+            float odometerY = 590;
 
             float centerX = odometerX + 41;
             float centerY = odometerY + 2;
@@ -210,34 +235,68 @@ namespace WorkshopsGov.Controllers.PdfGenerators
                 using (PdfDocument pdf = new PdfDocument(writer))
                 using (Document document = new Document(pdf))
                 {
+
+
+
                     Table headerTable = new Table(3).UseAllAvailableWidth().SetMarginTop(-20);
 
-                    Image leftLogo = new Image(ImageDataFactory.Create("wwwroot/images/logo_xxv.png"))
-                        .SetWidth(110)
+                    Image leftLogo = new Image(ImageDataFactory.Create("wwwroot/images/escudoBlack.png"))
+                        .SetWidth(75)
                         .SetHorizontalAlignment(HorizontalAlignment.LEFT);
 
                     Paragraph title = new Paragraph("DIRECCIÓN DE SERVICIOS GENERALES\nTALLERES MUNICIPALES")
                         .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
                         .SetFontSize(12)
                         .SetTextAlignment(TextAlignment.CENTER)
-                        .SetPaddingTop(10);
+                        .SetPaddingTop(10)
+                        .SetMarginBottom(0);
 
-                    Image rightLogo = new Image(ImageDataFactory.Create("wwwroot/images/logo_policia.jpeg"))
-                        .SetWidth(70)
-                        .SetHorizontalAlignment(HorizontalAlignment.RIGHT)
-                        .SetMarginTop(-10);
+                    Paragraph subtitle = new Paragraph("DIAGNÓSTICO DE REVISIÓN MECÁNICA")
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                        .SetFontSize(9)
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetMarginTop(-5); 
+
+                    Div textContainer = new Div()
+                        .Add(title)
+                        .Add(subtitle);
+
+                    Table folioTable = new Table(1).UseAllAvailableWidth();
+                    folioTable.SetBorder(new SolidBorder(1));
+
+                    Paragraph folioTitle = new Paragraph("FOLIO")
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                        .SetFontSize(10)
+                        .SetTextAlignment(TextAlignment.CENTER);
+
+                    Cell folioTitleCell = new Cell()
+                        .Add(folioTitle)
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetBorder(new SolidBorder(1));
+
+                    Paragraph folioEmpty = new Paragraph(" ")
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
+                        .SetFontSize(10);
+
+                    Cell folioEmptyCell = new Cell()
+                        .Add(folioEmpty)
+                        .SetHeight(15)
+                        .SetBorder(new SolidBorder(1));
+
+                    folioTable.AddCell(folioTitleCell);
+                    folioTable.AddCell(folioEmptyCell);
 
                     headerTable.AddCell(
                         new Cell()
                             .Add(leftLogo)
                             .SetBorder(Border.NO_BORDER)
                             .SetVerticalAlignment(VerticalAlignment.BOTTOM)
-                            .SetPaddingLeft(-15) 
+                            .SetPaddingLeft(-15)
                     );
 
                     headerTable.AddCell(
                         new Cell()
-                            .Add(title)
+                            .Add(textContainer)
                             .SetTextAlignment(TextAlignment.CENTER)
                             .SetBorder(Border.NO_BORDER)
                             .SetVerticalAlignment(VerticalAlignment.MIDDLE)
@@ -245,63 +304,94 @@ namespace WorkshopsGov.Controllers.PdfGenerators
 
                     headerTable.AddCell(
                         new Cell()
-                            .Add(rightLogo)
+                            .Add(folioTable)
                             .SetBorder(Border.NO_BORDER)
-                            .SetVerticalAlignment(VerticalAlignment.BOTTOM)
+                            .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+                            .SetTextAlignment(TextAlignment.CENTER)
                     );
 
-                    // Añadir la tabla al documento
                     headerTable.SetMarginBottom(10);
                     document.Add(headerTable);
 
+                    // Agregar la fecha en el formato solicitado, centrado y sin espacio extra
+                    int currentYear = DateTime.Now.Year;
+                    Paragraph dateParagraph = new Paragraph($"TIJUANA, B.C. A _____ DE _________________________ DE {currentYear}")
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                        .SetFontSize(10)
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetMarginTop(-5); 
+
+                    document.Add(dateParagraph);
 
                     LineSeparator line = new LineSeparator(new SolidLine());
-
-                    document.Add(line);
-                    document.Add(new Paragraph("ENTREGAS-RECEPCIÓN VEHICULAR OFICIAL / INSPECCIÓN E INVENTARIO")
+                    Paragraph solicitudParagraph = new Paragraph("SOLICITUD DE DIAGNÓSTICO\r\n")
                         .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
-                        .SetFontSize(11)
+                        .SetFontSize(9)
                         .SetTextAlignment(TextAlignment.CENTER)
-                    );
+                        .SetMargin(0)
+                        .SetPadding(0);
+
+                    Cell solicitudCell = new Cell()
+                        .Add(solicitudParagraph)
+                        .SetBackgroundColor(new DeviceRgb(165, 165, 165)) 
+                        .SetBorder(new SolidBorder(1))
+                        .SetPadding(2) 
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetMargin(0);
+
+                    Table solicitudTable = new Table(1).UseAllAvailableWidth();
+                    solicitudTable.AddCell(solicitudCell);
+                    document.Add(line);
+                    document.Add(solicitudTable);
                     document.Add(line);
 
-                    Table inspectionTable = new Table(3).UseAllAvailableWidth();
-                    Cell rightCell = new Cell()
-                        .Add(new Paragraph("FOLIO: ")
-                            .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)) 
-                            .Add(new Text("_____________") 
-                                .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
-                            )
-                        )
-                        .Add(new Paragraph("FECHA INGRESO: ")
-                            .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)) 
-                            .Add(new Text("____/____/______") 
-                                .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
-                            )
-                        )
-                        .SetBorder(Border.NO_BORDER)
-                        .SetTextAlignment(TextAlignment.RIGHT);
-
-                    inspectionTable.AddCell(rightCell);
-                    document.Add(inspectionTable);
 
 
-                    Table vehicleTable = new Table(8).UseAllAvailableWidth();
+
+                    // Tabla de Datos Generales
+                    Table mainTable = new Table(1).UseAllAvailableWidth().SetHeight(150);
+                    mainTable.SetBorder(new SolidBorder(1));
+                    mainTable.SetMarginTop(5);
+                    
+                    Table leftTable = new Table(2).UseAllAvailableWidth();
+                    Table rightTable = new Table(2).UseAllAvailableWidth();
+
                     var memoFile = new MemoFile();
-                    memoFile.AddVehicleCell(vehicleTable, "OFICIALÍA: ", $"{inspection.Vehicle.Oficialia}");
-                    memoFile.AddVehicleCell(vehicleTable, "PLACAS: ", $"{inspection.Vehicle.LicensePlate}");
-                    memoFile.AddVehicleCell(vehicleTable, "MARCA: ", $"{inspection.Vehicle.Brand.Name}");
-                    memoFile.AddVehicleCell(vehicleTable, "MODELO: ", $"{inspection.Vehicle.Model.Name}");
+                    memoFile.AddVehicleCell(leftTable, "OFICIALÍA: ", $"{inspection.Vehicle.Oficialia}");
+                    memoFile.AddVehicleCell(leftTable, "PLACAS: ", $"{inspection.Vehicle.LicensePlate}");
+                    memoFile.AddVehicleCell(leftTable, "DISTRITO: ", $"{inspection.Vehicle.LicensePlate}");
+                    memoFile.AddVehicleCell(leftTable, "NO. DE MEMO: ", $"{inspection.Vehicle.LicensePlate}");
 
-                    document.Add(vehicleTable);
+                    memoFile.AddVehicleCell(rightTable, "LINEA: ", $"{inspection.Vehicle.LicensePlate}");
+                    memoFile.AddVehicleCell(rightTable, "MODELO: ", $"{inspection.Vehicle.Model.Name}");
+                    memoFile.AddVehicleCell(rightTable, "MARCA: ", $"{inspection.Vehicle.Brand.Name}");
+                    memoFile.AddVehicleCell(rightTable, "KILOMETRAJE: ", $"{inspection.Vehicle.LicensePlate}");
+
+                    memoFile.AddVehicleCell(rightTable, "GASOLINA: ", " "); // Deja un espacio vacío para alinear
+
+                    //Cell fuelLevelCell = new Cell(1, 2) // Una celda que ocupa dos columnas
+                    //.Add(new Paragraph("GASOLINA:")
+                    //    .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                    //    .SetFontSize(12)
+                    //    .SetTextAlignment(TextAlignment.LEFT))
+                    //.SetBorder(Border.NO_BORDER);
+
+                    // Agregar la celda a la tabla derecha
+                    //rightTable.AddCell(fuelLevelCell);
+
+                    Table contentTable = new Table(2).UseAllAvailableWidth();
+                    contentTable.AddCell(new Cell().Add(leftTable).SetBorder(Border.NO_BORDER));
+                    contentTable.AddCell(new Cell().Add(rightTable).SetBorder(Border.NO_BORDER));
+                    mainTable.AddCell(new Cell().Add(contentTable).SetBorder(Border.NO_BORDER));
+                    document.Add(mainTable);
+
 
                     memoFile.AddFuelGauge(pdf, document, inspection.FuelLevel);
-                    document.Add(new Paragraph("NIVEL DE COMBUSTIBLE:")
-                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
-                        .SetFontSize(12));
-                    document.Add(new Paragraph("\n"));
+                    //document.Add(new Paragraph("NIVEL DE COMBUSTIBLE:")
+                    //    .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                    //    .SetFontSize(12));
 
-                    memoFile.AddInspectionDetails(pdf, document);
+                    //memoFile.AddInspectionDetails(pdf, document);
 
                     Table table = new Table(1).UseAllAvailableWidth();
 
