@@ -16,6 +16,7 @@ using iText.Layout.Borders;
 using iText.Kernel.Pdf.Canvas.Draw;
 using iText.Kernel.Pdf.Canvas; // Necesario para trabajar con coordenadas
 using iText.Kernel.Colors;
+using iText.IO.Font;
 
 namespace WorkshopsGov.Controllers.PdfGenerators
 {
@@ -100,7 +101,7 @@ namespace WorkshopsGov.Controllers.PdfGenerators
 
             document.Add(odometer);
 
-            float odometerX = 253;
+            float odometerX = 243;
             float odometerY = 590;
 
             float centerX = odometerX + 41;
@@ -347,10 +348,9 @@ namespace WorkshopsGov.Controllers.PdfGenerators
 
 
 
-
-                    // Tabla de Datos Generales
-                    Table mainTable = new Table(1).UseAllAvailableWidth().SetHeight(150);
-                    mainTable.SetBorder(new SolidBorder(1));
+                    // Tabla de Solicitud de diagnostico
+                    Table mainTable = new Table(1).UseAllAvailableWidth().SetHeight(120);
+                    mainTable.SetBorder(new SolidBorder(0));
                     mainTable.SetMarginTop(5);
                     
                     Table leftTable = new Table(2).UseAllAvailableWidth();
@@ -367,85 +367,324 @@ namespace WorkshopsGov.Controllers.PdfGenerators
                     memoFile.AddVehicleCell(rightTable, "MARCA: ", $"{inspection.Vehicle.Brand.Name}");
                     memoFile.AddVehicleCell(rightTable, "KILOMETRAJE: ", $"{inspection.Vehicle.LicensePlate}");
 
-                    memoFile.AddVehicleCell(rightTable, "GASOLINA: ", " "); // Deja un espacio vacío para alinear
-
-                    //Cell fuelLevelCell = new Cell(1, 2) // Una celda que ocupa dos columnas
-                    //.Add(new Paragraph("GASOLINA:")
-                    //    .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
-                    //    .SetFontSize(12)
-                    //    .SetTextAlignment(TextAlignment.LEFT))
-                    //.SetBorder(Border.NO_BORDER);
-
-                    // Agregar la celda a la tabla derecha
-                    //rightTable.AddCell(fuelLevelCell);
+                    memoFile.AddVehicleCell(rightTable, "GASOLINA: ", " ");
 
                     Table contentTable = new Table(2).UseAllAvailableWidth();
                     contentTable.AddCell(new Cell().Add(leftTable).SetBorder(Border.NO_BORDER));
                     contentTable.AddCell(new Cell().Add(rightTable).SetBorder(Border.NO_BORDER));
                     mainTable.AddCell(new Cell().Add(contentTable).SetBorder(Border.NO_BORDER));
                     document.Add(mainTable);
-
-
-                    memoFile.AddFuelGauge(pdf, document, inspection.FuelLevel);
-                    //document.Add(new Paragraph("NIVEL DE COMBUSTIBLE:")
-                    //    .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
-                    //    .SetFontSize(12));
-
-                    //memoFile.AddInspectionDetails(pdf, document);
-
-                    Table table = new Table(1).UseAllAvailableWidth();
-
-                    table.AddCell(new Cell()
-                            .Add(new Paragraph()
-                                .Add(new Text("TIPO DE REPARACIÓN REALIZADA: ") 
-                                    .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
-                                    .SetFontSize(10))
-                                .Add(new Text(new string('_', 60)) 
-                                    .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
-                                    .SetFontSize(10)))
-                            .Add(new Paragraph(new string('_', 92)) 
-                                .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
-                                .SetFontSize(10)
-                                .SetPaddingTop(5)) 
-                            .SetMarginBottom(15) 
-                            .SetBorder(Border.NO_BORDER)
-                        );
-
-                    table.AddCell(new Cell()
-                        .Add(new Paragraph()
-                            .Add(new Text("OBSERVACIONES: ")
-                                .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
-                                .SetFontSize(10))
-                            .Add(new Text(new string('_', 75))
-                                .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
-                                .SetFontSize(10)))
-                        .Add(new Paragraph(new string('_', 92))
-                            .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
-                            .SetFontSize(10)
-                            .SetPaddingTop(5))
-                        .SetMarginBottom(15)
-                        .SetBorder(Border.NO_BORDER)
-                    );
-
-                    document.Add(table);
-
-                    document.Add(new Paragraph("\n"));
                     
-                    float[] signatureWidths = { 1, 1 }; 
+                    //Gasolina odometro
+                    memoFile.AddFuelGauge(pdf, document, inspection.FuelLevel);
+
+
+
+                    // Párrafo centrado para el título
+                    Paragraph inspectionParagraph = new Paragraph("INSPECCIÓN")
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                        .SetFontSize(9)
+                        .SetTextAlignment(TextAlignment.CENTER);
+                    
+                    Cell inspectionCell = new Cell()
+                    .Add(inspectionParagraph)
+                    .SetBackgroundColor(new DeviceRgb(165, 165, 165))
+                    .SetBorder(new SolidBorder(2))
+                    .SetPadding(2)
+                    .SetTextAlignment(TextAlignment.CENTER);
+
+                    Table inspectionTable = new Table(1).UseAllAvailableWidth()
+                        .SetMarginTop(5);
+                    inspectionTable.AddCell(inspectionCell);
+                    document.Add(inspectionTable);
+
+
+
+
+                    Table diagnosticTable = new Table(1).UseAllAvailableWidth().SetHeight(130);
+                    diagnosticTable.SetBorder(new SolidBorder(1));
+                    diagnosticTable.SetBorderTop(Border.NO_BORDER);
+
+                    Paragraph diagnosticTitle = new Paragraph("DIAGNÓSTICO EMITIDO POR EL MECÁNICO DEL TALLER MUNICIPAL")
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                        .SetFontSize(9)
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetMarginBottom(0);
+
+                    diagnosticTable.AddCell(new Cell()
+                        .Add(diagnosticTitle)
+                        .SetBorder(Border.NO_BORDER));
+
+                    for (int i = 0; i < 6; i++)
+                    {
+                        Paragraph lineParagraph = new Paragraph("________________________________________________________________________________________")
+                            .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                            .SetFontSize(10)
+                            .SetTextAlignment(TextAlignment.CENTER)
+                            .SetMarginTop(-4)
+                            .SetMarginBottom(-4);
+
+                        diagnosticTable.AddCell(new Cell()
+                            .Add(lineParagraph)
+                            .SetBorder(Border.NO_BORDER));
+                    }
+                    document.Add(diagnosticTable);
+
+
+
+
+                    Table revisionTable = new Table(1).UseAllAvailableWidth().SetHeight(110);
+                    revisionTable.SetBorder(new SolidBorder(1));
+                    revisionTable.SetBorderTop(Border.NO_BORDER);
+
+                    Paragraph revisionTitle = new Paragraph("TIPO DE REVISIÓN SOLICITADA")
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                        .SetFontSize(9)
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetMarginBottom(0);
+
+                    revisionTable.AddCell(new Cell()
+                        .Add(revisionTitle)
+                        .SetBorder(Border.NO_BORDER));
+
+                    for (int i = 0; i < 5; i++)
+                    {
+                        Paragraph lineParagraph = new Paragraph("________________________________________________________________________________________")
+                            .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                            .SetFontSize(10)
+                            .SetTextAlignment(TextAlignment.CENTER)
+                            .SetMarginTop(-4)
+                            .SetMarginBottom(-4);
+
+                        revisionTable.AddCell(new Cell()
+                            .Add(lineParagraph)
+                            .SetBorder(Border.NO_BORDER));
+                    }
+
+                    document.Add(revisionTable);
+
+
+                    //GARANTIA Y PRESENTA REPACION SIMILIAR EN LOS ULTIMOS 3 MESES
+                    Table warrantyTable = new Table(1).UseAllAvailableWidth().SetHeight(50);
+                    warrantyTable.SetBorder(new SolidBorder(1));
+                    warrantyTable.SetBorderTop(Border.NO_BORDER);
+
+                    Table warrantyContentTable = new Table(new float[] { 25, 25, 50 }).UseAllAvailableWidth();
+
+                    Paragraph warrantyParagraph = new Paragraph("GARANTÍA")
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                        .SetFontSize(9)
+                        .SetTextAlignment(TextAlignment.RIGHT)
+                        .SetPaddingLeft(5);
+
+                    warrantyContentTable.AddCell(new Cell()
+                        .Add(warrantyParagraph)
+                        .SetBorder(Border.NO_BORDER)
+                        .SetVerticalAlignment(VerticalAlignment.MIDDLE));
+
+                    Table checkBoxTable = new Table(new float[] { 8, 20, 8, 20 }).UseAllAvailableWidth();
+
+                    checkBoxTable.AddCell(new Cell()
+                        .Add(new Paragraph(" "))
+                        .SetBorder(new SolidBorder(1))
+                        .SetHeight(8)
+                        .SetWidth(8));
+
+                    checkBoxTable.AddCell(new Cell()
+                        .Add(new Paragraph("SI").SetFontSize(9))
+                        .SetBorder(Border.NO_BORDER));
+
+                    checkBoxTable.AddCell(new Cell()
+                        .Add(new Paragraph(" "))
+                        .SetBorder(new SolidBorder(1))
+                        .SetHeight(8)
+                        .SetWidth(8));
+
+                    checkBoxTable.AddCell(new Cell()
+                        .Add(new Paragraph("NO").SetFontSize(9))
+                        .SetBorder(Border.NO_BORDER));
+
+                    warrantyContentTable.AddCell(new Cell()
+                        .Add(checkBoxTable)
+                        .SetBorder(Border.NO_BORDER)
+                        .SetVerticalAlignment(VerticalAlignment.MIDDLE));
+
+                    Table repairInlineTable = new Table(new float[] { 70,30 }).UseAllAvailableWidth();
+                    repairInlineTable.SetBorder(Border.NO_BORDER);
+
+                    // Celda con el texto
+                    repairInlineTable.AddCell(new Cell()
+                        .Add(new Paragraph("Presenta reparación similar en los últimos 3 meses: ")
+                            .SetFontSize(9)
+                            .SetPaddingLeft(70)
+                            .SetPaddingTop(5))
+                        .SetBorder(Border.NO_BORDER));
+
+                    Table repairCheckBoxTable = new Table(new float[] { 8, 15, 8, 15 }).UseAllAvailableWidth();
+
+                    repairCheckBoxTable.AddCell(new Cell()
+                        .Add(new Paragraph(" ")) // Casilla SI
+                        .SetBorder(new SolidBorder(1))
+                        .SetHeight(8)
+                        .SetWidth(8)
+                        .SetHorizontalAlignment(HorizontalAlignment.LEFT));
+
+                    repairCheckBoxTable.AddCell(new Cell()
+                        .Add(new Paragraph("SI").SetFontSize(9))
+                        .SetBorder(Border.NO_BORDER)
+                        .SetPaddingLeft(2));
+
+                    repairCheckBoxTable.AddCell(new Cell()
+                        .Add(new Paragraph(" ")) // Casilla NO
+                        .SetBorder(new SolidBorder(1))
+                        .SetHeight(8)
+                        .SetWidth(8));
+
+                    repairCheckBoxTable.AddCell(new Cell()
+                        .Add(new Paragraph("NO").SetFontSize(9))
+                        .SetBorder(Border.NO_BORDER)
+                        .SetPaddingLeft(2));
+
+                    repairInlineTable.AddCell(new Cell()
+                        .Add(repairCheckBoxTable)
+                        .SetBorder(Border.NO_BORDER)
+                        .SetPadding(0)
+                        .SetVerticalAlignment(VerticalAlignment.MIDDLE));
+
+                    warrantyContentTable.AddCell(new Cell()
+                        .Add(repairInlineTable)
+                        .SetBorder(Border.NO_BORDER)
+                        .SetPadding(0));
+
+                    warrantyTable.AddCell(new Cell()
+                        .Add(warrantyContentTable)
+                        .SetBorder(Border.NO_BORDER));
+
+                    Paragraph specifyParagraph = new Paragraph("Especifique: ___________________________________________________________________________")
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                        .SetFontSize(9)
+                        .SetTextAlignment(TextAlignment.LEFT)
+                        .SetPaddingLeft(75) 
+                        .SetPaddingTop(-10);
+
+                    warrantyTable.AddCell(new Cell()
+                        .Add(specifyParagraph)
+                        .SetBorder(Border.NO_BORDER));
+
+                    document.Add(warrantyTable);
+
+
+
+                    // Agregar nueva tabla para Observaciones
+                    Table observationsTable = new Table(1).UseAllAvailableWidth();
+                    observationsTable.SetBorder(new SolidBorder(1));
+                    observationsTable.SetBorderTop(Border.NO_BORDER);
+
+                    string observationLine = new string('_', 83);
+
+                    Paragraph observationsParagraph = new Paragraph($"OBSERVACIONES: {observationLine}")
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                        .SetFontSize(9)
+                        .SetTextAlignment(TextAlignment.LEFT)
+                        .SetPaddingLeft(10)
+                        .SetPaddingTop(2);
+
+                    observationsTable.AddCell(new Cell()
+                        .Add(observationsParagraph)
+                        .SetBorder(Border.NO_BORDER)
+                        .SetPadding(0)
+                        .SetMargin(0)
+                        .SetHeight(20));
+
+                    string additionalObservationLine = new string('_', 100);
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        Paragraph additionalObservation = new Paragraph(additionalObservationLine)
+                            .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                            .SetFontSize(9)
+                            .SetTextAlignment(TextAlignment.LEFT)
+                            .SetPaddingLeft(10)
+                            .SetPaddingTop(2);
+
+                        observationsTable.AddCell(new Cell()
+                            .Add(additionalObservation)
+                            .SetBorder(Border.NO_BORDER)
+                            .SetPadding(0)
+                            .SetMargin(0)
+                            .SetHeight(15));
+                    }
+                    document.Add(observationsTable);
+
+
+
+                    // EXLUSIVO PARA JEFATURA DE TALLERES MUNICIPALES
+                    Paragraph exclusiveParagraph = new Paragraph("** EXCLUSIVO PARA JEFATURA DE TALLERES MUNICIPALES **")
+                            .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                            .SetFontSize(9)
+                            .SetTextAlignment(TextAlignment.CENTER);
+
+                    Cell exclusiveCell = new Cell()
+                        .Add(exclusiveParagraph)
+                        .SetBackgroundColor(new DeviceRgb(165, 165, 165))
+                        .SetBorder(new SolidBorder(2))
+                        .SetPadding(2)
+                        .SetTextAlignment(TextAlignment.CENTER);
+
+                    Table exclusiveTable = new Table(1).UseAllAvailableWidth()
+                        .SetMarginTop(5);
+                    exclusiveTable.AddCell(exclusiveCell);
+                    document.Add(exclusiveTable);
+
+                    Paragraph assignedParagraph = new Paragraph("LA UNIDAD HA SIDO ASIGNADA AL TALLER: ")
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                        .SetFontSize(9)
+                        .SetTextAlignment(TextAlignment.LEFT);
+
+                    LineSeparator lineSeparator = new LineSeparator(new SolidLine()).SetWidth(300); 
+
+                    assignedParagraph.Add(lineSeparator);
+
+                    Cell assignedCell = new Cell()
+                        .Add(assignedParagraph)
+                        .SetBorder(new SolidBorder(1))
+                        .SetBorderTop(Border.NO_BORDER) 
+                        .SetPadding(5)
+                        .SetTextAlignment(TextAlignment.LEFT);
+
+                    Table assignedTable = new Table(1).UseAllAvailableWidth();
+                    assignedTable.AddCell(assignedCell);
+
+                    document.Add(assignedTable);
+
+
+
+                    float[] signatureWidths = { 1, 1 };
                     Table signatureTable = new Table(UnitValue.CreatePercentArray(signatureWidths)).UseAllAvailableWidth();
 
-                  
                     signatureTable.AddCell(new Cell()
-                        .Add(new Paragraph("ENTREGÓ")
-                            .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
-                            .SetFontSize(10))
+                        .Add(new Paragraph("____________________________________"))
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetPaddingTop(5) 
+                        .SetBorder(Border.NO_BORDER));
+
+                    signatureTable.AddCell(new Cell()
+                        .Add(new Paragraph("____________________________________"))
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetPaddingTop(5) 
+                        .SetBorder(Border.NO_BORDER));
+
+                    signatureTable.AddCell(new Cell()
+                        .Add(new Paragraph("TÉCNICO VERIFICADOR / MECÁNICO"))
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
+                        .SetFontSize(9)
                         .SetTextAlignment(TextAlignment.CENTER)
                         .SetBorder(Border.NO_BORDER));
 
                     signatureTable.AddCell(new Cell()
-                        .Add(new Paragraph("RECIBIÓ")
-                            .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
-                            .SetFontSize(10))
+                        .Add(new Paragraph("LIC. SAMUEL GARCIA RENTERIA\r\nJEFE DE TALLERES MUNICIPALES"))
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
+                        .SetFontSize(9)
                         .SetTextAlignment(TextAlignment.CENTER)
                         .SetBorder(Border.NO_BORDER));
 
@@ -455,54 +694,54 @@ namespace WorkshopsGov.Controllers.PdfGenerators
                         .SetPaddingTop(10) 
                         .SetBorder(Border.NO_BORDER));
 
-                    signatureTable.AddCell(new Cell()
-                        .Add(new Paragraph("____________________________________"))
-                        .SetTextAlignment(TextAlignment.CENTER)
-                        .SetPaddingTop(10) 
-                        .SetBorder(Border.NO_BORDER));
+                    Table infoTable = new Table(UnitValue.CreatePercentArray(new float[] { 2, 3 })).UseAllAvailableWidth();
 
-                    // 🔹 Tercera fila: "Nombre y Firma"
+                    infoTable.AddCell(new Cell()
+                        .Add(new Paragraph("La unidad Ingresa:"))
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                        .SetFontSize(9)
+                        .SetTextAlignment(TextAlignment.LEFT)
+                        .SetPadding(5)
+                        .SetBorder(new SolidBorder(1)));
+
+                    infoTable.AddCell(new Cell()
+                        .Add(new Paragraph(""))
+                        .SetBorder(new SolidBorder(1)));
+
+                    infoTable.AddCell(new Cell()
+                        .Add(new Paragraph("Fecha y hora:"))
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                        .SetFontSize(9)
+                        .SetTextAlignment(TextAlignment.LEFT)
+                        .SetPadding(5)
+                        .SetBorder(new SolidBorder(1)));
+
+                    infoTable.AddCell(new Cell()
+                        .Add(new Paragraph(""))
+                        .SetBorder(new SolidBorder(1)));
+
                     signatureTable.AddCell(new Cell()
-                        .Add(new Paragraph("NOMBRE Y FIRMA"))
+                        .Add(infoTable)
+                        .SetBorder(Border.NO_BORDER)
+                        .SetPaddingTop(0));
+
+                    signatureTable.AddCell(new Cell()
+                        .Add(new Paragraph("NOMBRE Y FIRMA DEL TALLER PARTICULAR"))
                         .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
                         .SetFontSize(9)
                         .SetTextAlignment(TextAlignment.CENTER)
+                        .SetVerticalAlignment(VerticalAlignment.TOP)
+                        .SetPaddingTop(-20) // Ajustar el padding superior para subir el texto
                         .SetBorder(Border.NO_BORDER));
 
+                    // Espacio vacío a la derecha
                     signatureTable.AddCell(new Cell()
-                        .Add(new Paragraph("NOMBRE Y FIRMA"))
-                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
-                        .SetFontSize(9)
-                        .SetTextAlignment(TextAlignment.CENTER)
-                        .SetBorder(Border.NO_BORDER));
-
-                    signatureTable.AddCell(new Cell()
-                        .Add(new Paragraph("____________________________________"))
-                        .SetTextAlignment(TextAlignment.CENTER)
-                        .SetPaddingTop(20) 
-                        .SetBorder(Border.NO_BORDER));
-
-                    signatureTable.AddCell(new Cell()
-                        .Add(new Paragraph("____________________________________"))
-                        .SetTextAlignment(TextAlignment.CENTER)
-                        .SetPaddingTop(20) 
-                        .SetBorder(Border.NO_BORDER));
-
-                    signatureTable.AddCell(new Cell()
-                        .Add(new Paragraph("NOMBRE DEL TALLER QUE ENTREGA"))
-                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
-                        .SetFontSize(9)
-                        .SetTextAlignment(TextAlignment.CENTER)
-                        .SetBorder(Border.NO_BORDER));
-
-                    signatureTable.AddCell(new Cell()
-                        .Add(new Paragraph("NOMBRE Y FIRMA\nENCARGADO DE PISO"))
-                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
-                        .SetFontSize(9)
-                        .SetTextAlignment(TextAlignment.CENTER)
+                        .Add(new Paragraph(""))
                         .SetBorder(Border.NO_BORDER));
 
                     document.Add(signatureTable);
+
+
 
                     //document.Add(new Paragraph($"Inspeccións ID: {inspection.Id}"));
                     //document.Add(new Paragraph($"Número de Memo: {inspection.MemoNumber}"));
