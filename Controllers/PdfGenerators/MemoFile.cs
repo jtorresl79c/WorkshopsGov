@@ -401,7 +401,7 @@ namespace WorkshopsGov.Controllers.PdfGenerators
 
 
 
-                    Table diagnosticTable = new Table(1).UseAllAvailableWidth().SetHeight(130);
+                    Table diagnosticTable = new Table(1).UseAllAvailableWidth().SetHeight(100);
                     diagnosticTable.SetBorder(new SolidBorder(1));
                     diagnosticTable.SetBorderTop(Border.NO_BORDER);
 
@@ -415,14 +415,14 @@ namespace WorkshopsGov.Controllers.PdfGenerators
                         .Add(diagnosticTitle)
                         .SetBorder(Border.NO_BORDER));
 
-                    for (int i = 0; i < 6; i++)
+                    for (int i = 0; i < 4; i++)
                     {
                         Paragraph lineParagraph = new Paragraph("________________________________________________________________________________________")
                             .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
                             .SetFontSize(10)
                             .SetTextAlignment(TextAlignment.CENTER)
-                            .SetMarginTop(-4)
-                            .SetMarginBottom(-4);
+                            .SetMarginTop(-8)
+                            .SetMarginBottom(-8);
 
                         diagnosticTable.AddCell(new Cell()
                             .Add(lineParagraph)
