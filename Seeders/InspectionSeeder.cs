@@ -8,37 +8,67 @@ namespace WorkshopsGov.Seeders
         public static void Seed(ApplicationDbContext context)
         {
             var foundUser = context.Users.FirstOrDefault();
-            var newInspection1 = new Inspection
-            {
-                Id = 1,
-                MemoNumber = "MEMO-001",
-                InspectionDate = DateTime.UtcNow,
-                CheckInTime = new TimeSpan(8, 30, 0),
-                OperatorName = "Juan Pérez",
-                ApplicationUserId = foundUser.Id,
-                InspectionServiceId = 1,
-                VehicleId = 1,
-                DepartmentId = 1,
-                ExternalWorkshopBranchId = 1,
-                DistanceUnit = "km",
-                DistanceValue = 15234.5f,
-                FuelLevel = 75.5f,
-                FailureReport = "El motor hace un ruido extraño.",
-                VehicleFailureObservation = "Posible problema con la transmisión.",
-                TowRequired = false,
-                InspectionStatusId = 1,
-                Diagnostic = "Hay que arreglar el motor",
-                Active = true,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow 
-            };
+            if (foundUser == null) return;
 
-            
             if (!context.Inspections.Any())
             {
-                context.Inspections.AddRange(
-                    newInspection1
-                );
+                var rng = new Random();
+                var dateBase = DateTime.UtcNow;
+
+                // Distribución personalizada de inspecciones por vehículo
+                var vehicleInspectionMap = new Dictionary<int, int>
+                {
+                    { 1, 6 },
+                    { 2, 5 },
+                    { 3, 5 },
+                    { 4, 4 },
+                    { 5, 3 },
+                    { 6, 2 },
+                    { 7, 2 },
+                    { 8, 1 },
+                    { 9, 1 },
+                    { 10, 1 }
+                };
+
+                var inspections = new List<Inspection>();
+                int memoCounter = 1;
+
+                foreach (var entry in vehicleInspectionMap)
+                {
+                    int vehicleId = entry.Key;
+                    int count = entry.Value;
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        inspections.Add(new Inspection
+                        {
+                            MemoNumber = $"MEMO-{memoCounter:000}",
+                            InspectionDate = dateBase.AddDays(-memoCounter),
+                            CheckInTime = new TimeSpan(8 + rng.Next(0, 2), rng.Next(0, 60), 0),
+                            OperatorName = $"Operador {memoCounter}",
+                            ApplicationUserId = foundUser.Id,
+                            InspectionServiceId = 1,
+                            VehicleId = vehicleId,
+                            DepartmentId = ((vehicleId - 1) % 3) + 1,
+                            ExternalWorkshopBranchId = 1,
+                            DistanceUnit = "km",
+                            DistanceValue = 1000 + (float)(rng.NextDouble() * 9000),
+                            FuelLevel = (float)(rng.NextDouble() * 100),
+                            FailureReport = "Falla aleatoria generada.",
+                            VehicleFailureObservation = "Observación generada.",
+                            TowRequired = rng.Next(0, 2) == 1,
+                            InspectionStatusId = 1,
+                            Diagnostic = "Diagnóstico automático.",
+                            Active = true,
+                            CreatedAt = dateBase.AddDays(-memoCounter),
+                            UpdatedAt = dateBase.AddDays(-memoCounter)
+                        });
+
+                        memoCounter++;
+                    }
+                }
+
+                context.Inspections.AddRange(inspections);
                 context.SaveChanges();
             }
         }
