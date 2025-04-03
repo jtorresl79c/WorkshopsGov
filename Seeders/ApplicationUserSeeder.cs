@@ -13,7 +13,9 @@ namespace WorkshopsGov.Seeders
             {
                 ("jdoe@example.com", "John", "Doe", 1, "Verifier"),
                 ("asmith@example.com", "Alice", "Smith", 2, "Administrator"),
-                 ("taller@example.com", "Externo", "taller", 3, "External_Workshop")
+                ("taller@example.com", "Externo", "taller", 3, "External_Workshop"),
+                ("municipal@example.com", "taller", "municipal", 3, "Municipal_Workshop"),
+                ("global@example.com", "sector", "global", 3, "Sector_Global")
             };
 
             foreach (var (email, firstName, lastName, departmentId, role) in users)

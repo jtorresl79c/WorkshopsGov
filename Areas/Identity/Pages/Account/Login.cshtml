@@ -41,28 +41,74 @@
                                         Para acceso único de personal autorizado.<br />
                                         Todos los intentos para entrar serán monitoreados.
                                     </p>
-                                    <div>
-                                    <small>*Enlaces de pruebas</small>
-                                        <table class="table">
-                                           @*  <tr>
-                                                <td><a id="forgot-password" asp-page="./ForgotPassword">Restaurar pass</a> </td>
-                                                <td><a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Registrar</a> </td>
-                                                <td><a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Restaurar Email</a> </td>
-                                            </tr> *@
-                                            <tr>
-                                                <td>asmith@example.com (Administrador)</td>
-                                                <td>Password123!</td>
-                                            </tr>
-                                            <tr>
-                                                <td>jdoe@example.com (Verificador)</td>
-                                                <td>Password123!</td>
-                                            </tr>
-                                            <tr>
-                                                <td>taller@example.com (Taller Externo Alex)</td>
-                                                <td>Password123!</td>
-                                            </tr>
-                                        </table>
+                                   
+                                    <!-- Justo debajo del texto de monitoreo -->
+                                    <p class="text-center my-3">
+                                        Para acceso único de personal autorizado.<br />
+                                        Todos los intentos para entrar serán monitoreados.
+                                    </p>
+
+                                    <div class="text-center mb-3">
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#usuariosModal">
+                                            Ver usuarios de prueba
+                                        </button>
                                     </div>
+
+                                    <!-- Modal Bootstrap -->
+                                    <div class="modal fade" id="usuariosModal" tabindex="-1" aria-labelledby="usuariosModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="usuariosModalLabel">Usuarios de Prueba</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <table class="table table-bordered table-striped">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Correo</th>
+                                                                <th>Contraseña</th>
+                                                                <th>Acciones</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>asmith@example.com (Administrador)</td>
+                                                                <td>Password123!</td>
+                                                                <td><button type="button" class="btn btn-sm btn-primary seleccionar-usuario" data-email="asmith@example.com" data-password="Password123!">Seleccionar</button></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>global@example.com (Sector Global)</td>
+                                                                <td>Password123!</td>
+                                                                <td><button type="button" class="btn btn-sm btn-primary seleccionar-usuario" data-email="global@example.com" data-password="Password123!">Seleccionar</button></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>municipal@example.com (Taller Municipal)</td>
+                                                                <td>Password123!</td>
+                                                                <td><button type="button" class="btn btn-sm btn-primary seleccionar-usuario" data-email="municipal@example.com" data-password="Password123!">Seleccionar</button></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>taller@example.com (Taller Externo Alex)</td>
+                                                                <td>Password123!</td>
+                                                                <td><button type="button" class="btn btn-sm btn-primary seleccionar-usuario" data-email="taller@example.com" data-password="Password123!">Seleccionar</button></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>jdoe@example.com (Verificador)</td>
+                                                                <td>Password123!</td>
+                                                                <td><button type="button" class="btn btn-sm btn-primary seleccionar-usuario" data-email="jdoe@example.com" data-password="Password123!">Seleccionar</button></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
                                 </form>
                              </div>
                         </div>
@@ -75,4 +121,29 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const modalElement = document.getElementById('usuariosModal');
+            const modal = new bootstrap.Modal(modalElement);
+
+            document.querySelectorAll('.seleccionar-usuario').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const email = this.getAttribute('data-email');
+                    const password = this.getAttribute('data-password');
+
+                    // Rellenar campos
+                    document.querySelector('input[name="Input.Email"]').value = email;
+                    document.querySelector('input[name="Input.Password"]').value = password;
+
+                    // Cerrar modal correctamente
+                    modal.hide();
+
+                    // Eliminar el backdrop y clase residual si quedó pegada
+                    document.body.classList.remove('modal-open');
+                    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                });
+            });
+        });
+    </script>
 }
