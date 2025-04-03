@@ -2,12 +2,21 @@
     ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Bienvenido, @ViewData["UserName"]!</h1>
-    <p>Tu rol: <strong>@ViewData["UserRole"]</strong></p>
-    <p>Taller asignado: <strong>@ViewData["Taller"]</strong></p>
+@* <div class="text-center"> *@
+@*     <h1 class="display-4">Bienvenido, @ViewData["UserName"]!</h1> *@
+@*     <p>Tu rol: <strong>@ViewData["UserRole"]</strong></p> *@
+@*     <p>Taller asignado: <strong>@ViewData["Taller"]</strong></p> *@
+@* *@
+@*     <div id="app"></div> *@
+@* *@
+@*     <p>Aprende más sobre <a href="https://learn.microsoft.com/aspnet/core">desarrollo con ASP.NET Core</a>.</p> *@
+@*      *@
+@*     <div id="dashboard-app"></div> *@
+@* </div> *@
 
-    <div id="app"></div>
+<div id="dashboard-app"></div>
 
-    <p>Aprende más sobre <a href="https://learn.microsoft.com/aspnet/core">desarrollo con ASP.NET Core</a>.</p>
-</div>
+@section Scripts {
+    <vite-script entry="dashboard" dev-server="http://localhost:5173"></vite-script>
+    <vite-style entry="dashboard"></vite-style>
+}

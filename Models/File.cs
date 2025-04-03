@@ -33,6 +33,8 @@ public class File : AuditableEntityBase
     // Relación muchos a muchos con Inspection
     public ICollection<Inspection> Inspections { get; set; } = new List<Inspection>();
     public ICollection<WorkshopQuote> WorkshopQuotes { get; set; } = new List<WorkshopQuote>();
+    public ICollection<RequestService> RequestServices { get; set; } = new List<RequestService>();
+
 
 }
 

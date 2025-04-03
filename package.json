@@ -5,6 +5,7 @@
       "esbuild"
     ],
     "onlyBuiltDependencies": [
+      "@parcel/watcher",
       "esbuild"
     ]
   },

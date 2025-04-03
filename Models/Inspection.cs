@@ -79,6 +79,6 @@ namespace WorkshopsGov.Models
         public ICollection<VehicleFailure> VehicleFailures { get; set; } = new List<VehicleFailure>();
         // 🔹 Relación muchos a muchos con File
         public ICollection<File> Files { get; set; } = new List<File>();
-
+        public ICollection<RequestService> RequestServices { get; set; } = new List<RequestService>();
     }
 }

@@ -31,6 +31,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public DbSet<WorkshopQuote> WorkshopQuote { get; set; }
     public DbSet<WorkshopQuoteStatus> WorkshopQuoteStatus { get; set; }
+    public DbSet<RequestService> RequestServices { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -389,7 +390,36 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                       .HasForeignKey("QuoteId")
                       .OnDelete(DeleteBehavior.Cascade)
             );
+        
+        modelBuilder.Entity<RequestService>()
+            .HasMany(rs => rs.Inspections)
+            .WithMany(i => i.RequestServices) // Necesitamos agregar esta prop. de navegación en Inspection (abajo te explico)
+            .UsingEntity<Dictionary<string, object>>(
+                "request_service_inspection",
+                j => j.HasOne<Inspection>()
+                    .WithMany()
+                    .HasForeignKey("InspectionId")
+                    .OnDelete(DeleteBehavior.Cascade),
+                j => j.HasOne<RequestService>()
+                    .WithMany()
+                    .HasForeignKey("RequestServiceId")
+                    .OnDelete(DeleteBehavior.Cascade)
+            );
 
+        modelBuilder.Entity<RequestService>()
+            .HasMany(rs => rs.Files)
+            .WithMany(f => f.RequestServices) // También agregar prop. en File
+            .UsingEntity<Dictionary<string, object>>(
+                "request_service_file",
+                j => j.HasOne<File>()
+                    .WithMany()
+                    .HasForeignKey("FileId")
+                    .OnDelete(DeleteBehavior.Cascade),
+                j => j.HasOne<RequestService>()
+                    .WithMany()
+                    .HasForeignKey("RequestServiceId")
+                    .OnDelete(DeleteBehavior.Cascade)
+            );
     }
 
     public override int SaveChanges()

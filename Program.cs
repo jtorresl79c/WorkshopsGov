@@ -169,6 +169,7 @@ if (app.Environment.IsDevelopment())
         FileSeeder.Seed(context);
         InspectionFileSeeder.Seed(context);
         QuoteStatusSeeder.Seed(context);
+        RequestServiceSeeder.Seed(context);
     }
 }
 
