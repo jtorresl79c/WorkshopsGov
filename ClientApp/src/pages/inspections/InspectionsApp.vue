@@ -308,13 +308,13 @@
                                   target="_blank">
                             </form>
                             <a href="#" @click.prevent="DownloadMemo" class="text-primary mt-2" style="cursor: pointer;">
-                                {{ isGeneratingMemo ? "Generando..." : "Descargar Memo" }}
+                                {{ isGeneratingMemo ? "Generando..." : "Descargar Formato" }}
                             </a>
-                            <p class="fs-4">Memo de Diagnóstico</p>
+                            <p class="fs-4">Formato Diagnóstico</p>
                             <form @submit.prevent="UploadMemo" enctype="multipart/form-data" class="d-flex flex-column align-items-end">
                                 <input type="file" @change="handleMemoUpload" required class="form-control mb-2">
                                 <button type="submit" class="btn btn-outline-success">
-                                    {{ isUploadingMemo ? "Subiendo..." : "Subir Memo" }}
+                                    {{ isUploadingMemo ? "Subiendo..." : "Subir Formato" }}
                                 </button>
                             </form>
                         </template>
