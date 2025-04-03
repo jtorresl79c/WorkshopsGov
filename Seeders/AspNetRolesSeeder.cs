@@ -13,6 +13,7 @@ namespace WorkshopsGov.Seeders
                 "Verifier",
                 "Municipal_Workshop",
                 "External_Workshop",
+                "Sector_Global",
                 "Administrator"
             };
 
