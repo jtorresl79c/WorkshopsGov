@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WorkshopsGov.Models.Common;
@@ -15,6 +16,8 @@ public class RequestService : AuditableEntityBase
 
     [Required]
     public string ApplicationUserId { get; set; } = string.Empty;
+
+    [ValidateNever]
     public ApplicationUser ApplicationUser { get; set; } = null!;
 
     [Required]
