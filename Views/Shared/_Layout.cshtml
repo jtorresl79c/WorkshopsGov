@@ -76,6 +76,17 @@
                             <span class="item-name">Dashboard</span>
                         </a>
                     </li>
+
+                    @if (User.IsInRole("Sector_Global"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="RequestServices" asp-action="Index">
+                                <i class="bi bi-file-earmark"></i>
+                                <span class="item-name">Solicitud de Servicio</span>
+                            </a>
+                        </li>
+                    }
+
                     @if (User.IsInRole("External_Workshop"))
                     {
                         <li class="nav-item">
