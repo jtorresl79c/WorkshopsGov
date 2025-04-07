@@ -598,14 +598,14 @@ namespace WorkshopsGov.Controllers.PdfGenerators
                     PageSize landscapePage = PageSize.A4.Rotate();
                     pdf.AddNewPage(landscapePage);
 
-            
                     Image leftLogo = new Image(ImageDataFactory.Create("wwwroot/images/logo_xxv.png"))
-                        .SetWidth(200)
+                        .SetWidth(170)
                         .SetHorizontalAlignment(HorizontalAlignment.LEFT);
 
                     Image rightLogo = new Image(ImageDataFactory.Create("wwwroot/images/logo_policia.jpeg"))
                         .SetWidth(70)
-                        .SetHorizontalAlignment(HorizontalAlignment.RIGHT);
+                        .SetHorizontalAlignment(HorizontalAlignment.RIGHT)
+                        .SetMarginRight(20);
 
                     Paragraph centerTitle = new Paragraph("TALLER MUNICIPAL OM-SSPCM\nINVENTARIO DE UNIDAD")
                         .SetTextAlignment(TextAlignment.CENTER)
@@ -615,8 +615,8 @@ namespace WorkshopsGov.Controllers.PdfGenerators
                     Table headerTable = new Table(UnitValue.CreatePercentArray(new float[] { 1, 2, 1 }))
                         .UseAllAvailableWidth()
                         .SetMarginBottom(10);
+                       
 
-                    // Celdas sin bordes
                     headerTable.AddCell(new Cell().Add(leftLogo).SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.LEFT));
                     headerTable.AddCell(new Cell().Add(centerTitle).SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.CENTER));
                     headerTable.AddCell(new Cell().Add(rightLogo).SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT));
@@ -624,15 +624,15 @@ namespace WorkshopsGov.Controllers.PdfGenerators
 
 
                     // Tabla contenedora con 3 columnas
-                    Table inspeccionTable = new Table(UnitValue.CreatePercentArray(new float[] { 30, 40, 30 })) // Ajusté los porcentajes de ancho
+                    Table inspeccionTable = new Table(UnitValue.CreatePercentArray(new float[] { 30, 30, 30 })) // Ajusté los porcentajes de ancho
                         .UseAllAvailableWidth()
-                        .SetHeight(320)
-                        .SetBorder(new SolidBorder(ColorConstants.BLACK, 0.7f));
+                        .SetHeight(355)
+                        .SetBorder(new SolidBorder(ColorConstants.BLACK, 0.7f))
+                        .SetMarginRight(30);
 
                     // ========== COLUMNA: REVISION EN EXTERIOR ==========
                     Table exteriorTable = new Table(3).UseAllAvailableWidth();
 
-                    // Título con solo borde derecho e inferior
                     Cell exteriorTitleCell = new Cell(1, 3)
                         .Add(new Paragraph("REVISION EN EXTERIOR")
                             .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
@@ -645,8 +645,7 @@ namespace WorkshopsGov.Controllers.PdfGenerators
                         .SetPadding(4);
                     exteriorTable.AddCell(exteriorTitleCell);
 
-                    // Fila de encabezado vacía - SI - NO
-                    exteriorTable.AddCell(new Cell().SetBorder(Border.NO_BORDER)); // Celda vacía
+                    exteriorTable.AddCell(new Cell().SetBorder(Border.NO_BORDER));
                     exteriorTable.AddCell(new Cell()
                         .Add(new Paragraph("SI")
                             .SetFontSize(8)
@@ -660,21 +659,33 @@ namespace WorkshopsGov.Controllers.PdfGenerators
                             .SetTextAlignment(TextAlignment.CENTER))
                         .SetBorder(Border.NO_BORDER));
 
-                    // Ítems
                     string[] exteriorItems = { "FOCOS", "MICAS DELANTERAS", "DEFENSA", "PARRILLA", "COFRE", "BURRERA", "TORRETA", "PARABRISAS", "GUARDAFANGOS (DER)", "ESPEJO (DER)", "PUERTA (DER)", "VENTANA (DER)",
                         "VIDRIO POSTERIOR", "TAPA TRASERA", "FOCOS POSTERIORES", "MICAS POSTERIORES", "DEFENSA POSTERIOR", "GUARDAFANGOS (IZQ)", "ESPEJO (IZQ)", "PUERTA (IZQ)", "VENTANA (IZQ)", "LLANTAS", "LLANTA EXTRA", "ANTENA", "COPAS", "PLACAS" };
                     foreach (var item in exteriorItems)
                     {
                         exteriorTable.AddCell(new Cell()
-                            .Add(new Paragraph(item).SetFontSize(8).SetMargin(0).SetMultipliedLeading(0.9f))
+                            .Add(new Paragraph(item)
+                                .SetFontSize(8)
+                                .SetMargin(0)
+                                .SetMultipliedLeading(1.2f))
                             .SetBorder(Border.NO_BORDER)
                             .SetPadding(0));
+
                         exteriorTable.AddCell(new Cell()
-                            .Add(new Paragraph("O").SetFontSize(8).SetTextAlignment(TextAlignment.CENTER).SetMargin(0).SetMultipliedLeading(0.9f))
+                            .Add(new Paragraph("O")
+                                .SetFontSize(9)
+                                .SetTextAlignment(TextAlignment.CENTER)
+                                .SetMargin(0)
+                                .SetMultipliedLeading(1.2f))
                             .SetBorder(Border.NO_BORDER)
                             .SetPadding(0));
+
                         exteriorTable.AddCell(new Cell()
-                            .Add(new Paragraph("O").SetFontSize(8).SetTextAlignment(TextAlignment.CENTER).SetMargin(0).SetMultipliedLeading(0.9f))
+                            .Add(new Paragraph("O")
+                                .SetFontSize(9)
+                                .SetTextAlignment(TextAlignment.CENTER)
+                                .SetMargin(0)
+                                .SetMultipliedLeading(1.2f))
                             .SetBorder(Border.NO_BORDER)
                             .SetPadding(0));
                     }
@@ -684,23 +695,92 @@ namespace WorkshopsGov.Controllers.PdfGenerators
 
                     // ========== COLUMNA: CARROCERÍA ==========
                     Table carroceriaTable = new Table(1).UseAllAvailableWidth();
+
                     carroceriaTable.AddCell(new Cell()
-                        .Add(new Paragraph("CARROCERÍA")
-                            .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
-                            .SetFontSize(9)
-                            .SetTextAlignment(TextAlignment.CENTER))
+                    .Add(new Paragraph("\nCARROCERÍA")
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+                        .SetFontSize(9)
+                        .SetTextAlignment(TextAlignment.CENTER))
+                    .SetBorder(Border.NO_BORDER)
+                    .SetPaddingBottom(2));
+
+                    string lineaCarroceria = new string('_', 60); // Puedes ajustar la longitud
+
+                    Paragraph lineasBajoTitulo = new Paragraph()
+                        .Add(lineaCarroceria + "\n")
+                        .Add(lineaCarroceria)
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.COURIER))
+                        .SetFontSize(8)
+                        .SetTextAlignment(TextAlignment.LEFT)
+                        .SetMultipliedLeading(1.5f); // Separación entre las dos líneas
+
+                    carroceriaTable.AddCell(new Cell()
+                        .Add(lineasBajoTitulo)
                         .SetBorder(Border.NO_BORDER)
-                        .SetPaddingBottom(5));
+                        .SetPaddingBottom(5)); // Espacio antes de las imágenes
 
-                    // Aquí irían imágenes de los laterales
-                    Image lateralImg = new Image(ImageDataFactory.Create("wwwroot/images/lateral_frontal.png"))
-                        .SetWidth(50)
-                        .SetAutoScale(true);
+                    Table imagenesTable = new Table(2).UseAllAvailableWidth();
 
-                    carroceriaTable.AddCell(new Cell().Add(lateralImg).SetTextAlignment(TextAlignment.CENTER).SetBorder(Border.NO_BORDER));
+                    Image imgIzqArriba = new Image(ImageDataFactory.Create("wwwroot/images/lateral_izquierda.png")).SetWidth(150).SetHeight(60);
+                    Image imgDerArriba = new Image(ImageDataFactory.Create("wwwroot/images/lateral_derecha.png")).SetWidth(150).SetHeight(60);
+                                 
 
+                    Image imgIzqAbajo = new Image(ImageDataFactory.Create("wwwroot/images/frontal_inv.png")).SetWidth(100).SetHeight(80);
+                    Image imgDerAbajo = new Image(ImageDataFactory.Create("wwwroot/images/atras_inv.png")).SetWidth(100).SetHeight(80);
+
+                    imagenesTable.AddCell(new Cell().Add(imgIzqArriba).SetTextAlignment(TextAlignment.CENTER).SetBorder(Border.NO_BORDER));
+                    imagenesTable.AddCell(new Cell().Add(imgDerArriba).SetTextAlignment(TextAlignment.CENTER).SetBorder(Border.NO_BORDER));
+
+
+                    string lineaImagenes = new string('_', 60);
+
+                    Paragraph lineasBajoImagenes = new Paragraph()
+                        .Add(lineaImagenes + "\n")
+                        .Add(lineaImagenes)
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.COURIER))
+                        .SetFontSize(8)
+                        .SetTextAlignment(TextAlignment.LEFT)
+                        .SetMultipliedLeading(1.5f);
+
+                    Cell celdaLineasImagenes = new Cell(1, 2) // Una celda que ocupa las 2 columnas
+                        .Add(lineasBajoImagenes)
+                        .SetBorder(Border.NO_BORDER)
+                        .SetPaddingBottom(5);
+
+                    imagenesTable.AddCell(celdaLineasImagenes);
+
+
+                    Table subTablaAbajo = new Table(2);
+                    subTablaAbajo.SetHorizontalAlignment(HorizontalAlignment.CENTER);
+                    subTablaAbajo.AddCell(new Cell().Add(imgIzqAbajo).SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.CENTER));
+                    subTablaAbajo.AddCell(new Cell().Add(imgDerAbajo).SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.CENTER));
+
+                    Cell celdaInferior = new Cell(1, 2)
+                        .Add(subTablaAbajo)
+                        .SetBorder(Border.NO_BORDER)
+                        .SetTextAlignment(TextAlignment.CENTER);
+
+                    imagenesTable.AddCell(celdaInferior);
+                    carroceriaTable.AddCell(new Cell().Add(imagenesTable).SetBorder(Border.NO_BORDER));
+
+                    Table notasTable = new Table(1).UseAllAvailableWidth();
+                    string lineaLarga = new string('_', 60); 
+
+                    Paragraph notasParrafo = new Paragraph()
+                        .Add("NOTAS: " + lineaLarga + "\n")
+                        .Add("        " + lineaLarga + "\n")
+                        .Add("        " + lineaLarga)
+                        .SetFont(PdfFontFactory.CreateFont(StandardFonts.COURIER))
+                        .SetFontSize(8)
+                        .SetTextAlignment(TextAlignment.LEFT)
+                        .SetMultipliedLeading(3f);
+
+                    notasTable.AddCell(new Cell()
+                        .Add(notasParrafo)
+                        .SetBorder(Border.NO_BORDER));
+
+                    carroceriaTable.AddCell(new Cell().Add(notasTable).SetBorder(Border.NO_BORDER));
                     Cell colCarroceria = new Cell().Add(carroceriaTable).SetBorder(Border.NO_BORDER);
-
 
                     // ========== COLUMNA: REVISION EN INTERIOR ==========
                     Table interiorTable = new Table(3).UseAllAvailableWidth();
@@ -717,12 +797,10 @@ namespace WorkshopsGov.Controllers.PdfGenerators
                          .SetPadding(4);
                     interiorTable.AddCell(interiorTitleCell);
 
-                    // Encabezados SI/NO correctamente alineados
                     interiorTable.AddCell(new Cell().Add(new Paragraph("").SetFontSize(8).SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetMarginTop(0).SetMarginBottom(0)).SetBorder(Border.NO_BORDER).SetPaddingTop(0).SetPaddingBottom(0));
                     interiorTable.AddCell(new Cell().Add(new Paragraph("SI").SetFontSize(8).SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetMarginTop(0).SetMarginBottom(0)).SetBorder(Border.NO_BORDER).SetPaddingTop(0).SetPaddingBottom(0));
                     interiorTable.AddCell(new Cell().Add(new Paragraph("NO").SetFontSize(8).SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)).SetMarginTop(0).SetMarginBottom(0)).SetBorder(Border.NO_BORDER).SetPaddingTop(0).SetPaddingBottom(0));
 
-                    // Lista de ítems para revisión interior
                     string[] interiorItems = {
                         "RADIO", "SIRENA", "BOCINA", "ESPEJO RETROVISOR", "LLAVE P/GASOLINA",
                         "DADO/EXTRA", "BARILLA PARA DADO", "GATO MECANICO", "CABLES P/CORRIENTE",
@@ -736,8 +814,7 @@ namespace WorkshopsGov.Controllers.PdfGenerators
                         interiorTable.AddCell(new Cell().Add(new Paragraph("O").SetFontSize(9).SetTextAlignment(TextAlignment.CENTER).SetMargin(0).SetPadding(0).SetMultipliedLeading(1f)).SetBorder(Border.NO_BORDER).SetPadding(0).SetMargin(0).SetHeight(10));
                     }
 
-                    // ========== SECCIÓN CALCOMONIAS ==========
-                    Table calcomaniasTable = new Table(UnitValue.CreatePercentArray(new float[] { 70, 30 })).UseAllAvailableWidth();
+                    Table calcomaniasTable = new Table(UnitValue.CreatePercentArray(new float[] { 75, 25 })).UseAllAvailableWidth();
                     calcomaniasTable.AddCell(new Cell()
                         .Add(new Paragraph("CALCOMONIAS EN AMBOS LADOS DE")
                             .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA))
@@ -749,7 +826,6 @@ namespace WorkshopsGov.Controllers.PdfGenerators
                         .SetPadding(0)); 
                     calcomaniasTable.AddCell(new Cell().SetBorder(new SolidBorder(ColorConstants.BLACK, 0.5f)).SetPadding(0).SetHeight(8));
 
-                    // ========== SECCIÓN OFICIALÍA MAYOR ==========
                     Table oficialiaTable = new Table(new float[] { 55, 8, 8 }).UseAllAvailableWidth();
 
                     new[] { "OFICIALIA MAYOR", "LOGOTIPOS DE POLICIA" }.ToList().ForEach(texto =>
@@ -926,22 +1002,21 @@ namespace WorkshopsGov.Controllers.PdfGenerators
                       .SetBorderBottom(new SolidBorder(ColorConstants.BLACK, 0.7f))
                       .SetBorderTop(Border.NO_BORDER); 
 
-                    Paragraph observacionesLine = new Paragraph("OBSERVACIONES: ________________________________________________________________________________________________________________________________________________________")
+                    Paragraph observacionesLine = new Paragraph("OBSERVACIONES: ________________________________________________________________________________________________________________________________________________________________")
                         .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
                         .SetFontSize(8)
                         .SetTextAlignment(TextAlignment.LEFT)
-                        .SetMarginTop(10)       // 👈 Más espacio arriba
-                        .SetMarginBottom(8)    // 👈 Más espacio abajo
-                        .SetPaddingLeft(10);   // Sangría a la izquierda
+                        .SetMarginTop(10)
+                        .SetMarginBottom(8)
+                        .SetPaddingLeft(10);
 
 
-                    Paragraph elaboradoLine = new Paragraph("ELABORADO POR: ________________________________________________________________________________________________________________________________________________________")
+                    Paragraph elaboradoLine = new Paragraph("ELABORADO POR: ________________________________________________________________________________________________________________________________________________________________")
                         .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
                         .SetFontSize(8)
                         .SetTextAlignment(TextAlignment.LEFT)
-                        .SetMarginTop(10)      // 👈 Más espacio arriba
-                        .SetMarginBottom(8)    // 👈 Más espacio abajo
-                        .SetPaddingLeft(10);   // Sangría a la izquierda
+                        .SetMarginBottom(8)
+                        .SetPaddingLeft(10);
 
                     observacionesTable.AddCell(new Cell()
                         .Add(observacionesLine)
@@ -951,7 +1026,8 @@ namespace WorkshopsGov.Controllers.PdfGenerators
                     observacionesTable.AddCell(new Cell()
                         .Add(elaboradoLine)
                         .SetBorder(Border.NO_BORDER)
-                        .SetPadding(0));
+                        .SetPadding(0))
+                        .SetMarginRight(30);
 
                     document.Add(observacionesTable);
                     document.Close();
