@@ -19,7 +19,7 @@ public static class RequestServiceSeeder
             var dateBase = DateTime.UtcNow;
             var services = new List<RequestService>();
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 2; i++)
             {
                 var selectedInspections = inspectionIds
                     .OrderBy(_ => rng.Next())
