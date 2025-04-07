@@ -303,7 +303,7 @@ namespace WorkshopsGov.Controllers
         }
 
         // GET: Inspections/Create
-        public IActionResult Create()
+        public IActionResult Create(int? requestServiceId = null)
         {
             ViewBag.CurrentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id", ViewBag.CurrentUserId);
@@ -312,6 +312,8 @@ namespace WorkshopsGov.Controllers
             ViewData["InspectionServiceId"] = new SelectList(_context.InspectionServices, "Id", "Name");
             ViewData["InspectionStatusId"] = new SelectList(_context.InspectionStatuses, "Id", "Name");
             ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "Oficialia");
+
+            ViewBag.RequestServiceId = requestServiceId;
             return View();
         }
 
@@ -340,6 +342,24 @@ namespace WorkshopsGov.Controllers
             {
                 _context.Add(inspection);
                 await _context.SaveChangesAsync();
+
+                //registra la tabla donde relaciona la solicitud con inspeccion
+                if (Request.Form.ContainsKey("RequestServiceId"))
+                {
+                    int requestId = int.Parse(Request.Form["RequestServiceId"]);
+                    var request = await _context.RequestServices
+                        .Include(r => r.Inspections) // <- 🔥 Muy importante para evitar duplicados si ya existe
+                        .FirstOrDefaultAsync(r => r.Id == requestId);
+
+                    if (request != null)
+                    {
+                        request.Inspections.Add(inspection); // EF se encarga del join
+                        await _context.SaveChangesAsync();   // guarda en la tabla intermedia
+                    }
+                }
+
+
+
                 return RedirectToAction("Details", new { id = inspection.Id });
                 //return RedirectToAction(nameof(Index));
             }

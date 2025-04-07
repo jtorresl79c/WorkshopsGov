@@ -27,7 +27,8 @@ namespace WorkshopsGov.Controllers.Global
         public static int DB_ARCHIVOTIPOS_MEMO_GENERADA => int.TryParse(_configuration["DB_Archivotypes:MEMO_GENERADA"], out int value) ? value : 0;
         public static int DB_ARCHIVOTIPOS_MEMO_DIGITALIZADO => int.TryParse(_configuration["DB_Archivotypes:MEMO_DIGITALIZADO"], out int value) ? value : 0;
         public static int DB_ARCHIVOTIPOS_COTIZACION_DIGITALIZADA => int.TryParse(_configuration["DB_Archivotypes:COTIZACION_DIGITALIZADA"], out int value) ? value : 0;
-        
+        public static int DB_ARCHIVOTIPOS_SOLICITUD_DIGITALIZADA => int.TryParse(_configuration["DB_Archivotypes:SOLICITUD_DIGITALIZADA"], out int value) ? value : 0;
+
         public static char SEPARATOR = Path.DirectorySeparatorChar;
 
         public static string GetFullPathMaster()
@@ -47,6 +48,15 @@ namespace WorkshopsGov.Controllers.Global
             return PATH_MASTER + "INSPECTIONS" + SEPARATOR + "ER_" + inspectionId + SEPARATOR;
         }
 
+        public static string GetFullPathRequestService(int requestServiceId) // → \REQUEST_SERVICES\RS_ID\
+        {
+            return PATH_MASTER + "REQUEST_SERVICES" + SEPARATOR + "RS_" + requestServiceId + SEPARATOR;
+        }
+
+        public static string CreateOrGetDirectoryInsideRequestServiceDirectory(string requestPath, string directoryName)
+        {
+            return Directory.CreateDirectory(Path.Combine(requestPath, directoryName)).FullName + Path.DirectorySeparatorChar;
+        }
         // 🔹 Método para crear directorios de inspección
         public static string CreateOrGetDirectoryInsideInspectionDirectory(string InspectionPath, string DirectoryName)
         {
@@ -69,6 +79,9 @@ namespace WorkshopsGov.Controllers.Global
 
             if (fileTypeId == DB_ARCHIVOTIPOS_COTIZACION_DIGITALIZADA)
                 return "Cotizacion Digitalizado";
+
+            if (fileTypeId == DB_ARCHIVOTIPOS_SOLICITUD_DIGITALIZADA)
+                return "Solicitud de servicio Digitalizado";
 
             return "Archivo";
         }
