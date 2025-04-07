@@ -78,193 +78,214 @@
                         </div>
                     </div>
                 </div>
-                <!--termina el col-->
-                <div class="bg-white mb-4">
-                    <div class="border p-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">
-                                {{ currentUserRole === 'External_Workshop' ? 'Sucursal Asignada' : 'Asignar Taller Externo' }}
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row align-items-end">
-                                <div class="col-md-8">
-                                    <label class="form-label">Sucursal</label>
-                                    <select v-model="selectedBranchId"
-                                            class="form-select"
-                                            :disabled="currentUserRole === 'External_Workshop' || inspection.externalWorkshopBranch.id !== 1">
-                                        <option disabled value="">-- Selecciona una sucursal --</option>
-                                        <option v-for="branch in inspection.availableBranches"
-                                                :key="branch.id"
-                                                :value="branch.id">
-                                            {{ branch.name }} ({{ branch.workshopName }})
-                                        </option>
-                                    </select>
-                                </div>
 
-                                <!-- 🔹 Mostrar botón solo si NO es taller externo -->
-                                <div v-if="currentUserRole !== 'External_Workshop'" class="col-md-4">
-                                    <button class="btn btn-success w-100"
-                                            @click="assignBranch"
-                                            :disabled="!selectedBranchId || inspection.externalWorkshopBranch.id !== 1">
-                                        Asignar Taller
-                                    </button>
-                                </div>
+                <div v-if="currentUserRole !== 'Municipal_Workshop'">
+                    <!--termina el col-->
+                    <div class="bg-white mb-4">
+                        <div class="border p-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    {{ currentUserRole === 'External_Workshop' ? 'Sucursal Asignada' : 'Asignar Taller Externo' }}
+                                </h5>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="bg-white border p-4 mb-4 mt-3">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="mb-0">Cotizaciones</h4>
-
-                        <!-- Solo los talleres externos pueden generar cotización -->
-                        <button v-if="currentUserRole === 'External_Workshop' && inspection.inspectionStatus.id == 2"
-                                class="btn btn-outline-primary"
-                                @click="goToQuoteForm">
-                            Generar Cotización
-                        </button>
-                    </div>
-
-                    <div v-if="isLoadingQuotes" class="text-center py-3">
-                        <span class="spinner-border spinner-border-sm text-primary me-2"></span> Cargando cotizaciones...
-                    </div>
-
-                    <div v-else>
-                        <div v-if="quotes.length > 0">
-                            <div class="mb-2 text-primary fw-bold">
-                                Selecciona las cotizaciones que deseas enviar a revisión
-                            </div>
-                            <table class="table table-bordered table-striped table-hover">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th v-if="!(currentUserRole === 'External_Workshop' && inspection.inspectionStatus.id != 2)">
-                                            <input type="checkbox" @change="toggleSelectAllQuotes" v-model="selectAllQuotes">
-                                        </th>
-                                        <th>#</th>
-                                        <th>Número</th>
-                                        <th>Fecha</th>
-                                        <th>Costo Total</th>
-                                        <th>Estado</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="quote in quotes" :key="quote.id">
-                                        <td v-if="!(currentUserRole === 'External_Workshop' && inspection.inspectionStatus.id !=2 )">
-                                            <input type="checkbox" v-model="selectedCheckQuotes" :value="quote.id" />
-                                        </td>
-                                        <td>
-                                            <span v-if="quote.hasFile">
-                                                <a :href="getQuoteFileUrl(quote.id)" target="_blank">
-                                                    {{ quote.id }}
-                                                </a>
-                                            </span>
-                                            <span v-else>
-                                                {{ quote.id }}
-                                            </span>
-                                        </td>
-                                        <td>{{ quote.quoteNumber }}</td>
-                                        <td>{{ formatDate(quote.quoteDate) }}</td>
-                                        <td>$ {{ quote.totalCost.toFixed(2) }}</td>
-                                        <td>{{ quote.quoteStatus }}</td>
-                                        <td>
-                                            <button @click="loadQuoteDetails(quote.id)" class="btn btn-sm btn-outline-secondary">
-                                                <i class="bi bi-eye-fill"></i>
-                                            </button>
-                                            <a v-if="currentUserRole === 'External_Workshop' && inspection.inspectionStatus.id == 2"
-                                               :href="`/WorkshopQuotes/Edit/${quote.id}?inspectionId=${inspection.id}`"
-                                               class="btn btn-sm btn-outline-success mx-1">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </a>
-                                            <button v-if="currentUserRole === 'External_Workshop' && inspection.inspectionStatus.id == 2"
-                                                    @click="deleteQuote(quote.id)"
-                                                    class="btn btn-sm btn-outline-danger">
-                                                <i class="bi bi-trash3-fill"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div v-if="currentUserRole === 'External_Workshop' && inspection.inspectionStatus.id == 2" class="d-flex gap-2 mt-3">
-                                <button class="btn btn-success mt-3" :disabled="selectedCheckQuotes.length === 0" @click="sendQuotesToReview">
-                                    Enviar a Revisión
-                                </button>
-                            </div>
-
-
-                            <div v-if="currentUserRole === 'Administrator' && quotes.some(q => q.quoteStatus === 'En revision')" class="d-flex gap-2 mt-3">
-                                <button class="btn btn-danger"
-                                        :disabled="selectedCheckQuotes.length === 0"
-                                        @click="updateQuoteStatus(3)">
-                                    Rechazar Cotización
-                                </button>
-                                <button class="btn btn-success"
-                                        :disabled="selectedCheckQuotes.length === 0"
-                                        @click="updateQuoteStatus(4)">
-                                    Aprobar Cotización
-                                </button>
-                            </div>
-
-                            <div v-if="currentUserRole === 'Administrator' && inspection.inspectionStatus.id==4  && !quotes.some(q=> q.quoteStatus === 'En Revision')" class="d-flex gap-2 mt-3">
-                                <button class="btn btn-warning"
-                                        @click="updateInspectionStatus(2, '¿Estás seguro de regresar la inspección al taller externo?', 'Inspección regresada a Taller Externo.')">
-                                    Regresar a Taller Externo
-                                </button>
-                                <button class="btn btn-primary"
-                                        @click="updateInspectionStatus(5, '¿Estás seguro de aprobar la inspección a reparación?', 'Inspección aprobada y enviada a reparación.')">
-                                    Aprobar a Reparación
-                                </button>
-                            </div>
-
-                        </div>
-                        <div v-else>
-                            <p class="text-muted text-center">No hay cotizaciones registradas para esta inspección.</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Modal -->
-                <div v-if="showModal">
-                    <!-- Backdrop -->
-                    <div class="modal-backdrop fade show"></div>
-                    <!-- Modal content -->
-                    <div class="modal fade show d-block" tabindex="-1" @click.self="closeModal">
-                        <div class="modal-dialog modal-lg">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Detalles de Cotización</h5>
-                                    <button type="button" class="btn-close" @click="closeModal"></button>
-                                </div>
-                                <div class="modal-body" v-if="selectedQuote">
-                                    <p><strong>Número:</strong> {{ selectedQuote.quoteNumber }}</p>
-                                    <p><strong>Fecha:</strong> {{ formatDate(selectedQuote.quoteDate) }}</p>
-                                    <p><strong>Estado:</strong> {{ selectedQuote.quoteStatus }}</p>
-                                    <p><strong>Taller:</strong> {{ selectedQuote.workshopName }}</p>
-                                    <p><strong>Sucursal:</strong> {{ selectedQuote.workshopBranch }}</p>
-                                    <p><strong>Costo Total:</strong> ${{ selectedQuote.totalCost.toFixed(2) }}</p>
-                                    <p><strong>Fecha Estimada:</strong> {{ formatDate(selectedQuote.estimatedCompletionDate) }}</p>
-                                    <p><strong>Detalles:</strong> {{ selectedQuote.quoteDetails }}</p>
-                                    <hr />
-                                    <div>
-                                        <strong>Documento:</strong>
-                                        <span v-if="selectedQuote.hasFile">
-                                            <a :href="getQuoteFileUrl(selectedQuote.id)" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
-                                                <i class="bi bi-file-earmark-pdf"></i> Ver archivo
-                                            </a>
-                                        </span>
-                                        <span v-else class="text-muted ms-2">
-                                            Sin documento adjunto
-                                        </span>
+                            <div class="card-body">
+                                <div class="row align-items-end">
+                                    <div class="col-md-8">
+                                        <label class="form-label">Sucursal</label>
+                                        <select v-model="selectedBranchId"
+                                                class="form-select"
+                                                :disabled="currentUserRole === 'External_Workshop' || inspection.externalWorkshopBranch.id !== 1 || currentUserRole === 'Municipal_Workshop'">
+                                            <option disabled value="">-- Selecciona una sucursal --</option>
+                                            <option v-for="branch in inspection.availableBranches"
+                                                    :key="branch.id"
+                                                    :value="branch.id">
+                                                {{ branch.name }} ({{ branch.workshopName }})
+                                            </option>
+                                        </select>
                                     </div>
 
+                                    <!-- 🔹 Mostrar botón solo si NO es taller externo -->
+                                    <div v-if="currentUserRole !== 'External_Workshop'" class="col-md-4">
+                                        <button class="btn btn-success w-100"
+                                                @click="assignBranch"
+                                                :disabled="!selectedBranchId || inspection.externalWorkshopBranch.id !== 1 || currentUserRole === 'Municipal_Workshop'">
+                                            Asignar Taller
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="bg-white border p-4 mb-4 mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="mb-0">Cotizaciones</h4>
+
+                            <!-- Solo los talleres externos pueden generar cotización -->
+                            <button v-if="currentUserRole === 'External_Workshop' && inspection.inspectionStatus.id == 2"
+                                    class="btn btn-outline-primary"
+                                    @click="goToQuoteForm">
+                                Generar Cotización
+                            </button>
+                        </div>
+
+                        <div v-if="isLoadingQuotes" class="text-center py-3">
+                            <span class="spinner-border spinner-border-sm text-primary me-2"></span> Cargando cotizaciones...
+                        </div>
+
+                        <div v-else>
+                            <div v-if="quotes.length > 0">
+                                <div class="mb-2 text-primary fw-bold">
+                                    Selecciona las cotizaciones que deseas enviar a revisión
+                                </div>
+                                <table class="table table-bordered table-striped table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th v-if="!(currentUserRole === 'External_Workshop' && inspection.inspectionStatus.id != 2)">
+                                                <input type="checkbox" @change="toggleSelectAllQuotes" v-model="selectAllQuotes">
+                                            </th>
+                                            <th>#</th>
+                                            <th>Número</th>
+                                            <th>Fecha</th>
+                                            <th>Costo Total</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="quote in quotes" :key="quote.id">
+                                            <td v-if="!(currentUserRole === 'External_Workshop' && inspection.inspectionStatus.id !=2 )">
+                                                <input type="checkbox" v-model="selectedCheckQuotes" :value="quote.id" />
+                                            </td>
+                                            <td>
+                                                <span v-if="quote.hasFile">
+                                                    <a :href="getQuoteFileUrl(quote.id)" target="_blank">
+                                                        {{ quote.id }}
+                                                    </a>
+                                                </span>
+                                                <span v-else>
+                                                    {{ quote.id }}
+                                                </span>
+                                            </td>
+                                            <td>{{ quote.quoteNumber }}</td>
+                                            <td>{{ formatDate(quote.quoteDate) }}</td>
+                                            <td>$ {{ quote.totalCost.toFixed(2) }}</td>
+                                            <td>{{ quote.quoteStatus }}</td>
+                                            <td>
+                                                <button @click="loadQuoteDetails(quote.id)" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-eye-fill"></i>
+                                                </button>
+                                                <a v-if="currentUserRole === 'External_Workshop' && inspection.inspectionStatus.id == 2"
+                                                   :href="`/WorkshopQuotes/Edit/${quote.id}?inspectionId=${inspection.id}`"
+                                                   class="btn btn-sm btn-outline-success mx-1">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </a>
+                                                <button v-if="currentUserRole === 'External_Workshop' && inspection.inspectionStatus.id == 2"
+                                                        @click="deleteQuote(quote.id)"
+                                                        class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-trash3-fill"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div v-if="currentUserRole === 'External_Workshop' && inspection.inspectionStatus.id == 2" class="d-flex gap-2 mt-3">
+                                    <button class="btn btn-success mt-3" :disabled="selectedCheckQuotes.length === 0" @click="sendQuotesToReview">
+                                        Enviar a Revisión
+                                    </button>
+                                </div>
+
+
+                                <div v-if="currentUserRole === 'Administrator' && quotes.some(q => q.quoteStatus === 'En revision')" class="d-flex gap-2 mt-3">
+                                    <button class="btn btn-danger"
+                                            :disabled="selectedCheckQuotes.length === 0"
+                                            @click="updateQuoteStatus(3)">
+                                        Rechazar Cotización
+                                    </button>
+                                    <button class="btn btn-success"
+                                            :disabled="selectedCheckQuotes.length === 0"
+                                            @click="updateQuoteStatus(4)">
+                                        Aprobar Cotización
+                                    </button>
+                                </div>
+
+                                <div v-if="currentUserRole === 'Administrator' && inspection.inspectionStatus.id==4  && !quotes.some(q=> q.quoteStatus === 'En Revision')" class="d-flex gap-2 mt-3">
+                                    <button class="btn btn-warning"
+                                            @click="updateInspectionStatus(2, '¿Estás seguro de regresar la inspección al taller externo?', 'Inspección regresada a Taller Externo.')">
+                                        Regresar a Taller Externo
+                                    </button>
+                                    <button class="btn btn-primary"
+                                            @click="updateInspectionStatus(5, '¿Estás seguro de aprobar la inspección a reparación?', 'Inspección aprobada y enviada a reparación.')">
+                                        Aprobar a Reparación
+                                    </button>
+                                </div>
+
+                            </div>
+                            <div v-else>
+                                <p class="text-muted text-center">No hay cotizaciones registradas para esta inspección.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Modal -->
+                    <div v-if="showModal">
+                        <!-- Backdrop -->
+                        <div class="modal-backdrop fade show"></div>
+                        <!-- Modal content -->
+                        <div class="modal fade show d-block" tabindex="-1" @click.self="closeModal">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Detalles de Cotización</h5>
+                                        <button type="button" class="btn-close" @click="closeModal"></button>
+                                    </div>
+                                    <div class="modal-body" v-if="selectedQuote">
+                                        <p><strong>Número:</strong> {{ selectedQuote.quoteNumber }}</p>
+                                        <p><strong>Fecha:</strong> {{ formatDate(selectedQuote.quoteDate) }}</p>
+                                        <p><strong>Estado:</strong> {{ selectedQuote.quoteStatus }}</p>
+                                        <p><strong>Taller:</strong> {{ selectedQuote.workshopName }}</p>
+                                        <p><strong>Sucursal:</strong> {{ selectedQuote.workshopBranch }}</p>
+                                        <p><strong>Costo Total:</strong> ${{ selectedQuote.totalCost.toFixed(2) }}</p>
+                                        <p><strong>Fecha Estimada:</strong> {{ formatDate(selectedQuote.estimatedCompletionDate) }}</p>
+                                        <p><strong>Detalles:</strong> {{ selectedQuote.quoteDetails }}</p>
+                                        <hr />
+                                        <div>
+                                            <strong>Documento:</strong>
+                                            <span v-if="selectedQuote.hasFile">
+                                                <a :href="getQuoteFileUrl(selectedQuote.id)" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                                    <i class="bi bi-file-earmark-pdf"></i> Ver archivo
+                                                </a>
+                                            </span>
+                                            <span v-else class="text-muted ms-2">
+                                                Sin documento adjunto
+                                            </span>
+                                        </div>
+
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <div v-if="currentUserRole === 'Municipal_Workshop'">
+                    <div v-if="inspection.inspectionStatus.id === 6"
+                         class="alert alert-success text-center mb-4" role="alert">
+                        ✅ El diagnóstico fue finalizado.
+                    </div>
+
+                    <div v-else-if="inspection.inspectionStatus.id !== 1"
+                         class="alert alert-info text-center mb-4" role="alert">
+                        ℹ️ El diagnóstico ya fue finalizado anteriormente.
+                    </div>
+
+                    <div v-else class="mb-4">
+                        <button class="btn btn-warning w-100"
+                                @click="updateInspectionStatus(6, '¿Estás seguro de finalizar el diagnóstico?', 'Diagnóstico finalizado.')">
+                            Finalizar Diagnóstico
+                        </button>
+                    </div>
+                </div>
 
                 <!--termina el col-->
             </div>

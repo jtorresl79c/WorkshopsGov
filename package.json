@@ -19,6 +19,8 @@
     "concurrently": "^8.2.0"
   },
   "dependencies": {
-    "animejs": "^3.2.2"
+    "animejs": "^3.2.2",
+    "chart.js": "^4.4.8",
+    "vue-chartjs": "^5.3.2"
   }
 }

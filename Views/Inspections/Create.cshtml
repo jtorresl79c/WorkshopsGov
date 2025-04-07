@@ -21,7 +21,10 @@
             <div class="card-body">
                 <form asp-action="Create">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
+                    @if (ViewBag.RequestServiceId != null)
+                    {
+                        <input type="hidden" name="RequestServiceId" value="@ViewBag.RequestServiceId" />
+                    }
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">

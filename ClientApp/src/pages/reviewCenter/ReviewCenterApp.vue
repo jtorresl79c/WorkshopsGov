@@ -1,6 +1,5 @@
 ﻿<template>
     <div class="container-fluid px-4">
-        <!-- Breadcrumb -->
         <nav aria-label="breadcrumb" class="mb-3">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item">
@@ -10,12 +9,15 @@
             </ol>
         </nav>
 
-        <!-- Título -->
         <h2 class="h4 fw-semibold mb-3">Centro de Revisión</h2>
 
-        <!-- Kanban -->
         <div class="kanban-scroll-wrapper overflow-auto mb-3">
             <div class="d-flex flex-nowrap" style="gap: 12px;">
+                <!-- Diagnosticos terminados -->
+                <div class="bg-info bg-opacity-25 rounded p-3 shadow-sm text-center"
+                     @click="filterStatus(6)">
+                    <h6 class="text-white fw-semibold mb-0">Diagnósticos Finalizados ({{ countByStatus(6) }})</h6>
+                </div>
                 <!-- Asignadas -->
                 <div class="bg-light rounded p-3 shadow-sm text-center" style="min-width: 250px; cursor: pointer;"
                      @click="filterStatus(2)">

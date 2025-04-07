@@ -18,8 +18,9 @@ namespace WorkshopsGov.Seeders
                     new FileType { Id = 5, Name = "ENTREGA_RECEPCION", Active = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
                     new FileType { Id = 6, Name = "MEMO_GENERADA", Active = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
                     new FileType { Id = 7, Name = "MEMO_DIGITALIZADO", Active = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new FileType { Id = 8, Name = "COTIZACION_DIGITALIZADA", Active = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
-                    
+                    new FileType { Id = 8, Name = "COTIZACION_DIGITALIZADA", Active = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new FileType { Id = 9, Name = "SOLICITUD_DIGITALIZADA", Active = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+
                 };
 
                 context.FileTypes.AddRange(fileTypes);

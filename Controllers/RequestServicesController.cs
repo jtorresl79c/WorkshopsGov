@@ -5,9 +5,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.DotNet.Scaffolding.Shared.CodeModifier.CodeChange;
 using Microsoft.EntityFrameworkCore;
+using WorkshopsGov.Controllers.Global;
 using WorkshopsGov.Data;
 using WorkshopsGov.Models;
+using WorkshopsGov.Services;
 
 namespace WorkshopsGov.Controllers
 {
@@ -15,12 +18,13 @@ namespace WorkshopsGov.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly FileService _fileService;
 
-
-        public RequestServicesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public RequestServicesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, FileService fileService)
         {
             _context = context;
             _userManager = userManager;
+            _fileService = fileService;
         }
 
         // GET: RequestServices
@@ -61,6 +65,51 @@ namespace WorkshopsGov.Controllers
 
             return View(requestService);
         }
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> UploadFile(IFormFile file, int id, int fileTypeId)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("Debe seleccionar un archivo válido.");
+
+            try
+            {
+                var request = await _context.RequestServices
+                    .Include(r => r.Files)
+                    .FirstOrDefaultAsync(r => r.Id == id);
+
+                if (request == null)
+                    return NotFound("Solicitud de servicio no encontrada.");
+
+                var description = Utilidades.GetFileTypeDescription(fileTypeId);
+                var folderName = Utilidades.GetFolderNameByFileTypeId(fileTypeId);
+                var pathFolder = Utilidades.CreateOrGetDirectoryInsideRequestServiceDirectory(
+                    Utilidades.GetFullPathRequestService(id), folderName
+                );
+
+                // Guarda el archivo
+                var archivo = await new FileService(_context).UploadFileAsync(
+                    file,
+                    pathFolder,
+                    fileTypeId,
+                    description
+                );
+
+                // Relacionar con la solicitud (tabla intermedia)
+                request.Files.Add(archivo);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Archivo subido correctamente.", archivo.Id, archivo.Path });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al subir archivo.", error = ex.Message });
+            }
+        }
+
+
 
         // GET: RequestServices/Create
         public IActionResult Create()
