@@ -29,6 +29,17 @@ namespace WorkshopsGov.Controllers
             var applicationDbContext = _context.RequestServices.Include(r => r.ApplicationUser).Include(r => r.Department).Include(r => r.Vehicle);
             return View(await applicationDbContext.ToListAsync());
         }
+        public async Task<IActionResult> PorAtenderTaller()
+        {
+            var solicitudes = await _context.RequestServices
+                .Include(r => r.Department)
+                .Include(r => r.Vehicle)
+                .Include(r => r.Inspections) 
+                .Where(r => r.Active && !r.Inspections.Any()) // 👈 Las que NO tienen inspección asignada
+                .ToListAsync();
+
+            return View("pendientes", solicitudes);
+        }
 
         // GET: RequestServices/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -56,26 +67,24 @@ namespace WorkshopsGov.Controllers
         {
             //ViewData["ApplicationUserId"] = new SelectList(_context.ApplicationUsers, "Id", "Id");
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name");
-            ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "Description");
+            ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "Oficialia");
             return View();
         }
 
         // POST: RequestServices/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Folio,ApplicationUserId,VehicleId,DepartmentId,Description,ReceptionDate")] RequestService requestService)
+        public async Task<IActionResult> Create([Bind("Folio,VehicleId,DepartmentId,Description,ReceptionDate")] RequestService requestService)
         {
             ModelState.Remove("Vehicle");
             ModelState.Remove("Department");
 
+            requestService.ApplicationUserId = _userManager.GetUserId(User);
+           
+            ModelState.Remove(nameof(RequestService.ApplicationUserId));
+
             if (ModelState.IsValid)
             {
-                // Asignar el ID del usuario actual
-                requestService.ApplicationUserId = _userManager.GetUserId(User);
-
-                // Otros valores si necesitas
                 requestService.Active = true;
                 requestService.CreatedAt = DateTime.UtcNow;
                 requestService.UpdatedAt = DateTime.UtcNow;
