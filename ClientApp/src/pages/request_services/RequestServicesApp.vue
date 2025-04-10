@@ -65,8 +65,43 @@
                     </div>
                 </div>
 
-
+                <!-- Tabla de archivos -->
                 <div class="bg-white mb-4">
+                    <div class="border p-4">
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">📄 Documentos</h5>
+                        </div>
+
+                        <table v-if="solicitud?.filesDigitalizados?.length" class="table table-sm table-bordered mt-3">
+                            <thead>
+                                <tr>
+                                    <th>Archivo</th>
+                                    <th>Nombre de Archivo</th>
+                                    <th>Fecha de Subida</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="file in solicitud.filesDigitalizados" :key="file.id">
+                                    <td>Archivo PDF</td>
+                                    <td>{{ file.name }}</td>
+                                    <td>{{ formatDate(file.createdAt) }}</td>
+                                    <td>
+                                        <a :href="getFileUrl(file.id)" target="_blank" class="btn btn-primary btn-sm me-2">
+                                            <i class="bi bi-eye-fill me-1"></i>
+                                        </a>
+                                        <button @click="deleteFile(file.id)" class="btn btn-danger btn-sm">
+                                            <i class="bi bi-trash-fill me-1"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white mb-4" v-if="currentUserRole === 'Municipal_Workshop'">
                     <div class="border p-4">
                         <h5 class="mb-3">Acciones</h5>
                         <button class="btn btn-outline-primary"
@@ -78,54 +113,34 @@
 
                 <!--cierra col md 8-->
             </div>
-            <div class="col-md-4">
-                <div class="card text-center bg-dark bg-lighten-1">
-                    <div class="card-content text-white">
-                        <div class="card-body">
-                            <div class="list-group">
-                                <h4 class="text-white">Pendiente de Diagnostico</h4>
+                    <div class="col-md-4">
+                        <div class="card text-center bg-dark bg-lighten-1">
+                            <div class="card-content text-white">
+                                <div class="card-body">
+                                    <div class="list-group">
+                                        <h4 class="text-white">Pendiente de Diagnostico</h4>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-
-
-                <div class="bg-white border p-4 mb-4">
-                    <div class="d-flex flex-column align-items-end">
-                        <i class="bi bi-file-earmark-pdf-fill text-primary" style="font-size: 5em"></i>
-
-                        <template v-if="solicitud.fileDigitalizado">
-                            <p class="mt-1 text-muted">Archivo subido el {{ formatDate(solicitud.fileDigitalizado.uploadedAt) }}</p>
-                            <a :href="getFileUrl(solicitud.id)"
-                               target="_blank"
-                               class="btn btn-primary">
-                                Ver Solicitud Digitalizada
-                            </a>
-                            <div class="d-flex gap-2 mt-3">
-                                <button @click="deleteFile(solicitud.fileDigitalizado.id)"
-                                        class="btn btn-danger mt-2">
-                                    Eliminar Archivo
-                                </button>
+                        <div class="bg-white border p-4 mb-4">
+                            <div class="d-flex flex-column align-items-end">
+                                <i class="bi bi-file-earmark-pdf-fill text-danger" style="font-size: 5em"></i>
+                                <p class="fs-4">Subir Solicitud Digitalizada</p>
+                                <form @submit.prevent="uploadFile" enctype="multipart/form-data" class="d-flex flex-column align-items-end">
+                                    <input type="file" @change="handleFileUpload" required class="form-control mb-2">
+                                    <button type="submit" class="btn btn-outline-success">
+                                        Subir Archivo
+                                    </button>
+                                </form>
                             </div>
-                        </template>
+                        </div>
 
-                        <template v-else>
-                            <p class="fs-4">Subir Solicitud Digitalizada</p>
-                            <form @submit.prevent="uploadFile" enctype="multipart/form-data" class="d-flex flex-column align-items-end">
-                                <input type="file" @change="handleFileUpload" required class="form-control mb-2">
-                                <button type="submit" class="btn btn-outline-success">
-                                    Subir Archivo
-                                </button>
-                            </form>
-                        </template>
                     </div>
+                    <!--cierra el col md 4-->
                 </div>
-
             </div>
-            <!--cierra el col md 4-->
-        </div>
-        </div>
 
             <div v-else class="text-danger text-center mt-4">
                 No se encontró la solicitud.
@@ -141,12 +156,20 @@
             return {
                 solicitud: null,
                 isLoading: true,
-                breadcrumbBaseUrl: "/requestservices/PorAtenderTaller",
+                currentUserRole: null,
+                breadcrumbBaseUrl: "",
                 breadcrumbBaseLabel: "Solicitudes de Servicio",
                 selectedFile: null
             };
         },
         methods: {
+            setBreadcrumbUrl() {
+                if (this.currentUserRole === 'Municipal_Workshop') {
+                    this.breadcrumbBaseUrl = "/requestservices/PorAtenderTaller";
+                } else {
+                    this.breadcrumbBaseUrl = "/RequestServices";
+                }
+            },
             irACrearDiagnostico(solicitudId) {
                 window.location.href = `/Inspections/Create?requestServiceId=${solicitudId}`;
             },
@@ -182,7 +205,6 @@
                     alert("Error al subir el archivo.");
                 }
             },
-       
             async deleteFile(fileId) {
                 if (!confirm("¿Deseas eliminar este archivo?")) return;
 
@@ -200,6 +222,8 @@
                 try {
                     const response = await axios.get(`/api/RequestServicesApi/${id}`);
                     this.solicitud = response.data;
+                    this.currentUserRole = response.data.currentUserRole;
+                    this.setBreadcrumbUrl();
                 } catch (error) {
                     console.error("Error al cargar la solicitud:", error);
                 } finally {
