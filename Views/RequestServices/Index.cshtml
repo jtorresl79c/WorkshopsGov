@@ -7,63 +7,70 @@
 
 
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center p-4">
         <div class="header-title">
             <h4 class="card-title">Solicitud de Servicio</h4>
         </div>
-        <a asp-action="Create" class="btn btn-primary">Generar</a>
+        <a asp-action="Create" class="btn btn-primary">Nueva Solicitud</a>
     </div>
-    <div class="card-body p-0">
-        <div class="table-responsive mt-4">
+</div>
 
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>
-                            No.Folio
-                        </th>
-                        <th>
-                            Vehiculo
-                        </th>
-                        <th>
-                           Departamento
-                        </th>
-                        <th>
-                           Descripcion
-                        </th>
-                        <th>
-                            Fecha de Recepcion
-                        </th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Folio)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Vehicle.Oficialia)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Department.Name)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Description)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.ReceptionDate)
-                            </td>
-                            <td>
-                                <a asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a> |
-                                <a asp-action="Delete" asp-route-id="@item.Id"><i class="bi bi-trash-fill"></i></a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
+<div class="table-responsive bg-white p-3">
+    <table class="table mb-0 dataTable no-footer" id="datatable" data-toggle="data-table" aria-describedby="datatable_info">
+        <thead>
+            <tr>
+                <th>
+                    No.Folio
+                </th>
+                <th>
+                    Vehiculo
+                </th>
+                <th>
+                    Departamento
+                </th>
+                <th>
+                    Descripcion
+                </th>
+                <th>
+                    Fecha de Recepcion
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-danger btn-sm">
+                            <i class="bi bi-search"></i>
+                        </a>
+                        @Html.DisplayFor(modelItem => item.Folio)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Vehicle.Oficialia)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Department.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ReceptionDate)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="text-primary me-2">
+                            <i class="bi bi-pencil-square fs-4"></i>
+                        </a>
+                        <form asp-action="DeleteConfirmed" asp-route-id="@item.Id" method="post" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta solicitud?');">
+                            <button type="submit" class="btn btn-link p-0 m-0 align-baseline text-danger" title="Eliminar">
+                                <i class="bi bi-trash-fill fs-4"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>

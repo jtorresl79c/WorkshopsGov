@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using WorkshopsGov.Controllers.Global;
 using WorkshopsGov.Data;
 using WorkshopsGov.Models;
@@ -38,8 +39,25 @@ namespace WorkshopsGov.Controllers.Api
             }
 
             // Buscar si hay archivo digitalizado (tipo 7)
+            //var archivoDigitalizado = solicitud.Files
+            //    .FirstOrDefault(f => f.FileTypeId == Utilidades.DB_ARCHIVOTIPOS_SOLICITUD_DIGITALIZADA && f.Active);
+
             var archivoDigitalizado = solicitud.Files
-                .FirstOrDefault(f => f.FileTypeId == Utilidades.DB_ARCHIVOTIPOS_SOLICITUD_DIGITALIZADA && f.Active);
+            .Where(f => f.FileTypeId == Utilidades.DB_ARCHIVOTIPOS_SOLICITUD_DIGITALIZADA && f.Active)
+            .Select(f => new
+            {
+                f.Id,
+                f.Name,
+                f.Path,
+                f.FileTypeId,
+                f.CreatedAt
+            })
+            .ToList();
+
+
+
+            var userRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
 
             return Ok(new
             {
@@ -58,33 +76,28 @@ namespace WorkshopsGov.Controllers.Api
                     solicitud.Vehicle.LicensePlate
                 },
                 User = solicitud.ApplicationUser.UserName,
-                FileDigitalizado = archivoDigitalizado != null ? new
-                {
-                    archivoDigitalizado.Id,
-                    archivoDigitalizado.Name,
-                    archivoDigitalizado.Path,
-                    archivoDigitalizado.FileTypeId,
-                    archivoDigitalizado.CreatedAt
-                } : null
+                FilesDigitalizados = archivoDigitalizado,
+                //FileDigitalizado = archivoDigitalizado != null ? new
+                //{
+                //    archivoDigitalizado.Id,
+                //    archivoDigitalizado.Name,
+                //    archivoDigitalizado.Path,
+                //    archivoDigitalizado.FileTypeId,
+                //    archivoDigitalizado.CreatedAt
+                //} : null,
+                CurrentUserRole = userRole
             });
         }
 
 
         [HttpGet]
-        [Route("DownloadSolicitudFile/{id}")]
-        public IActionResult DownloadSolicitudFile(int id)
+        [Route("DownloadSolicitudFile/{fileId}")]
+        public IActionResult DownloadSolicitudFile(int fileId)
         {
             try
             {
-                var request = _context.RequestServices
-                    .Include(r => r.Files)
-                    .FirstOrDefault(r => r.Id == id)
-                    ?? throw new Exception("Solicitud de servicio no encontrada.");
-
-                var archivo = request.Files
-                    .Where(f => f.FileTypeId == Utilidades.DB_ARCHIVOTIPOS_SOLICITUD_DIGITALIZADA && f.Active)
-                    .OrderByDescending(f => f.Id)
-                    .FirstOrDefault()
+                var archivo = _context.Files
+                    .FirstOrDefault(f => f.Id == fileId && f.Active)
                     ?? throw new Exception("Archivo de solicitud no encontrado o inactivo.");
 
                 var (fileBytes, contentType, fileName) = _fileService.GetFileData(archivo);
@@ -101,6 +114,7 @@ namespace WorkshopsGov.Controllers.Api
                 return StatusCode(500, new { message = "Error al mostrar el archivo", error = ex.Message });
             }
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
