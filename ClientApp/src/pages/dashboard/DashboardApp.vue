@@ -1,4 +1,5 @@
 <template>
+  <p>{{userRole}}</p>
   <template v-if="loading">
     
   </template>
@@ -38,6 +39,7 @@ export default {
   components: { BarChart },
   data() {
     return {
+      userRole: '',
       loading: true,
       cards: [
         {title: "Usuarios", count: 12, bgClass: "bg-primary", property: 'applicationUsersCount'},
@@ -78,6 +80,7 @@ export default {
     }
   },
   mounted() {
+    this.userRole = window.userRole
     this.fetchData()
   },
   methods: {

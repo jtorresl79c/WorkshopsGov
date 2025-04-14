@@ -31,21 +31,26 @@ namespace WorkshopsGov.Controllers.Api
         {
             // Realizar las consultas de manera secuencial
             var applicationUsersCount = await _context.ApplicationUsers.CountAsync();
-            var inspectionsCount = await _context.Inspections.CountAsync();
+            var inspectionsCount = await CountActiveInspections();
             var externalWorkshopsCount = await _context.ExternalWorkshops.CountAsync();
             var externalWorkshopBranchesCount = await _context.ExternalWorkshopBranches.CountAsync();
             var vehiclesCount = await _context.Vehicles.CountAsync();
+            
+            var requestsPendingDiagnosisCount = await CountRequestsPendingDiagnosis();
+            var countInspectionsInRepairCount = await CountInspectionsInRepair();
 
-            var countsViewModel = new CountsViewModel
+            var response = new[]
             {
-                ApplicationUsersCount = applicationUsersCount,
-                InspectionsCount = inspectionsCount,
-                ExternalWorkshopsCount = externalWorkshopsCount,
-                ExternalWorkshopBranchesCount = externalWorkshopBranchesCount,
-                VehiclesCount = vehiclesCount
+                new { name = "ApplicationUsersCount", count = applicationUsersCount },
+                new { name = "InspectionsCount", count = inspectionsCount },
+                new { name = "ExternalWorkshopsCount", count = externalWorkshopsCount },
+                new { name = "ExternalWorkshopBranchesCount", count = externalWorkshopBranchesCount },
+                new { name = "VehiclesCount", count = vehiclesCount },
+                new { name = "RequestsPendingDiagnosisCount", count = requestsPendingDiagnosisCount },
+                new { name = "CountInspectionsInRepair", count = countInspectionsInRepairCount }
             };
 
-            return Ok(countsViewModel);
+            return Ok(response);
         }
 
         // GET api/<DashboardController>/5
@@ -72,5 +77,81 @@ namespace WorkshopsGov.Controllers.Api
         public void Delete(int id)
         {
         }
+        
+        private async Task<int> CountRequestsPendingDiagnosis()
+        {
+            return await _context.RequestServices
+                .AsNoTracking()
+                .Where(rs => !rs.Inspections.Any())
+                .CountAsync();
+        }
+        
+        [HttpGet("requests-pending-diagnosis")]
+        public async Task<IActionResult> RequestsPendingDiagnosis()
+        {
+            var total = await CountRequestsPendingDiagnosis();
+            return Ok(new { requests_pending_diagnosis = total });
+        }
+        
+        private async Task<int> CountActiveInspections()
+        {
+            return await _context.Inspections
+                .AsNoTracking()
+                .Where(i => i.Active)
+                .CountAsync();
+        }
+
+        [HttpGet("active-inspections")]
+        public async Task<IActionResult> ActiveInspections()
+        {
+            var total = await CountActiveInspections();
+            return Ok(new { active_inspections = total });
+        }
+        
+        private async Task<int> CountInspectionsWithAssignedWorkshop()
+        {
+            return await _context.Inspections
+                .AsNoTracking()
+                .Where(i => i.Active && i.ExternalWorkshopBranchId != 1)
+                .CountAsync();
+        }
+
+        [HttpGet("inspections-with-assigned-workshop")]
+        public async Task<IActionResult> InspectionsWithAssignedWorkshop()
+        {
+            var total = await CountInspectionsWithAssignedWorkshop();
+            return Ok(new { inspections_with_assigned_workshop = total });
+        }
+        
+        private async Task<int> CountInspectionsWithPendingQuote()
+        {
+            return await _context.Inspections
+                .AsNoTracking()
+                .Where(i => i.Active && i.InspectionStatusId == 4)
+                .CountAsync();
+        }
+
+        [HttpGet("inspections-with-pending-quote")]
+        public async Task<IActionResult> InspectionsWithPendingQuote()
+        {
+            var total = await CountInspectionsWithPendingQuote();
+            return Ok(new { inspections_with_pending_quote = total });
+        }
+        
+        private async Task<int> CountInspectionsInRepair()
+        {
+            return await _context.Inspections
+                .AsNoTracking()
+                .Where(i => i.Active && i.InspectionStatusId == 5)
+                .CountAsync();
+        }
+
+        [HttpGet("inspections-in-repair")]
+        public async Task<IActionResult> InspectionsInRepair()
+        {
+            var total = await CountInspectionsInRepair();
+            return Ok(new { inspections_in_repair = total });
+        }
+
     }
 }

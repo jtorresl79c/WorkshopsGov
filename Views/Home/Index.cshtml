@@ -17,6 +17,9 @@
 <div id="dashboard-app"></div>
 
 @section Scripts {
+    <script>
+        window.userRole = '@ViewData["UserRole"]'
+    </script>
     <vite-script entry="dashboard" dev-server="http://localhost:5173"></vite-script>
     <vite-style entry="dashboard"></vite-style>
 }
