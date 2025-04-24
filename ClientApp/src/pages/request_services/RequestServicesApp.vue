@@ -18,7 +18,6 @@
     <div v-else-if="solicitud">
 
 
-
         <div class="row">
             <div class="col-md-8">
                 <div class="bg-white">
@@ -30,7 +29,6 @@
                         </div>
                     </div>
                 </div>
-
 
                 <div class="bg-white mb-4">
                     <div class="border p-4">
