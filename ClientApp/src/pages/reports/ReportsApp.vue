@@ -1,17 +1,17 @@
 <template>
-  <div class="container mt-4 p-2">
-    <h4>Exportar Inspecciones</h4>
+  <div>
+    <h4 class="mb-2">Exportar Inspecciones</h4>
     <div class="row g-2 mb-3">
       <div class="col-md-3">
-        <label>Desde:</label>
+        <label class="mb-2">Desde:</label>
         <input type="date" v-model="inspection.from" class="form-control" />
       </div>
       <div class="col-md-3">
-        <label>Hasta:</label>
+        <label class="mb-2">Hasta:</label>
         <input type="date" v-model="inspection.to" class="form-control" />
       </div>
       <div class="col-md-3">
-        <label>Tipo de servicio:</label>
+        <label class="mb-2">Tipo de servicio:</label>
         <select v-model="inspection.serviceId" name="serviceId" class="form-select">
           <option value="">Todos</option>
           <option v-for="s in services" :key="s.id" :value="s.id">
@@ -26,10 +26,10 @@
 
     <hr />
 
-    <h4>Exportar Vehículos</h4>
+    <h4 class="mb-2">Exportar Vehículos</h4>
     <div class="row g-2">
       <div class="col-md-3">
-        <label>Departamento:</label>
+        <label class="mb-2">Departamento:</label>
         <select v-model="vehicles.departmentId" class="form-select">
           <option value="">Todos</option>
           <option v-for="d in departments" :key="d.id" :value="d.id">
@@ -37,7 +37,7 @@
           </option>
         </select>
       </div>
-      <div class="col-md-3 d-flex align-items-end">
+      <div class="col-md-3 d-flex align-items-end justify-content-around">
         <button @click="exportVehicles" class="btn btn-success w-100">Exportar Excel</button>
       </div>
     </div>
