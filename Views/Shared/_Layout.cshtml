@@ -90,7 +90,7 @@
                     @if (User.IsInRole("External_Workshop"))
                     {
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="ReviewCenter" asp-action="AssignedToWorkshop">
+                            <a class="nav-link @(Context.Request.Path.ToString() == "/ReviewCenter" ? "text-primary bg-light rounded" : "")" asp-controller="ReviewCenter" asp-action="AssignedToWorkshop">
                                 <i class="bi bi-eye-fill me-2"></i>
                                 <span class="item-name">Centro de Revisión</span>
                             </a>
@@ -100,7 +100,7 @@
                     @if (User.IsInRole("Administrator"))
                     {
                         <li class="nav-item">
-                            <a class="nav-link text-primary bg-light rounded" asp-controller="ReviewCenter" asp-action="Index">
+                            <a class="nav-link @(Context.Request.Path.ToString() == "/ReviewCenter" ? "text-primary bg-light rounded" : "")" asp-controller="ReviewCenter" asp-action="Index">
                                 <i class="bi bi-eye-fill me-2"></i>
                                 <span class="item-name">Centro de Revisión</span>
                             </a>
@@ -120,19 +120,19 @@
                         </a>
                     </li>*@
                         <li class="nav-item">
-                            <a class="nav-link" href="/ExternalWorkshops">
+                            <a class="nav-link @(Context.Request.Path.ToString() == "/ExternalWorkshops" ? "text-primary bg-light rounded" : "")" href="/ExternalWorkshops">
                                 <i class="bi bi-house-gear-fill"></i>
                                 <span class="item-name">Talleres Externos</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/Reports">
+                            <a class="nav-link @(Context.Request.Path.ToString().Contains("Reports") ? "text-primary bg-light rounded" : "")" href="/Reports">
                                 <i class="bi bi-book"></i>
                                 <span class="item-name">Reportes</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="collapse" href="#users" role="button" aria-expanded="false" aria-controls="users">
+                            <a class="nav-link @(Context.Request.Path.ToString().Contains("ApplicationUsers") ? "text-primary bg-light rounded" : "")" data-bs-toggle="collapse" href="#users" role="button" aria-expanded="false" aria-controls="users">
                                 <i class="bi bi-people-fill"></i>
                                 <span class="item-name">Usuarios</span>
                                 <i class="right-icon">
@@ -157,7 +157,7 @@
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="collapse" href="#utilities-error" role="button" aria-expanded="false" aria-controls="utilities-error">
+                            <a class="nav-link @((Context.Request.Path.ToString() == "/Vehicles/Index" || Context.Request.Path.ToString() == "/Vehicles/Create" || Context.Request.Path.ToString() == "/VehicleModels" || Context.Request.Path.ToString() == "/Brand") ? "text-primary bg-light rounded" : "")" data-bs-toggle="collapse" href="#utilities-error" role="button" aria-expanded="false" aria-controls="utilities-error">
                                 <i class="bi bi-car-front-fill"></i>
                                 <span class="item-name">Vehículos</span>
                                 <i class="right-icon">
@@ -220,7 +220,7 @@
 
 
                         <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-diagnostic" role="button" aria-expanded="false" aria-controls="sidebar-diagnostic">
+                            <a class="nav-link @((Context.Request.Path.ToString().Contains("VehicleFailures") || Context.Request.Path.ToString().Contains("InspectionServices") || Context.Request.Path.ToString().Contains("Sectors")) ? "text-primary bg-light rounded" : "")" data-bs-toggle="collapse" href="#sidebar-diagnostic" role="button" aria-expanded="false" aria-controls="sidebar-diagnostic">
                                 <i class="bi bi-ui-checks"></i>
                                 <span class="item-name">Configuración</span>
                                 <i class="right-icon">
