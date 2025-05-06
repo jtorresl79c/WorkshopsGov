@@ -19,7 +19,7 @@ namespace WorkshopsGov.Seeders
                     new Sector { Name = "SECTOR LA MESA", Active = true },
                     new Sector { Name = "PALACIO MUNICIPAL", Active = true },
                     new Sector { Name = "SEGURIDAD PUBLICA", Active = true },
-                    new Sector { Name = "TALLER CENTRAL (VÌa R·pida)", Active = true }
+                    new Sector { Name = "TALLER CENTRAL (V√≠a r√°pida)", Active = true }
                 );
                 context.SaveChanges();
             }

@@ -45,7 +45,10 @@
         <!-- Tabla general -->
         <div class="card shadow-sm">
             <div class="card-body p-3">
+              <div class="d-flex justify-content-between align-content-center py-3">
                 <h5 class="card-title mb-3">Listado general de seguimiento de inspecciones</h5>
+              </div>
+              
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover table-striped text-nowrap align-middle mb-0">
                         <thead class="table table-dark">

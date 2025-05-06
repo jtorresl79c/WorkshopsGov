@@ -57,4 +57,5 @@ public class Vehicle : AuditableEntityBase
 
     [Required]
     public bool Active { get; set; } = true;
+    public virtual ICollection<Inspection> Inspections { get; set; } = new List<Inspection>();
 }
